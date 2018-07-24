@@ -1,0 +1,16 @@
+# dependency directory
+node_modules
+
+# compiled directory
+dist
+
+# environment variables
+.env
+
+# vscode directory
+.vscode
+
+# logs
+npm-debug.log
+logs
+

@@ -1,0 +1,37 @@
+{
+  "name": "travel_tool_back",
+  "version": "1.0.0",
+  "description": "An application for automating travel processes and managing travel data in Andela",
+  "main": "./src/index.js",
+  "scripts": {
+    "build-server": "babel src --out-dir dist -s",
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "npm run clean && npm run build-server",
+    "serve": "node dist/index.js",
+    "start": "npm run build && npm run serve",
+    "start:dev": "nodemon --exec babel-node src/index.js",
+    "lint": "eslint src/**/**.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andela/travel_tool_back.git"
+  },
+  "keywords": [
+    "travel"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andela/travel_tool_back/issues"
+  },
+  "homepage": "https://github.com/andela/travel_tool_back#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.2.6",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "2.12.0",
+    "nodemon": "^1.18.3"
+  }
+}
