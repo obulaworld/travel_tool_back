@@ -9,7 +9,7 @@
     "build": "npm run clean && npm run build-server",
     "serve": "node dist/index.js",
     "start": "npm run build && npm run serve",
-    "start:dev": "nodemon --exec babel-node src/index.js",
+    "start:dev": " DEBUG=log nodemon --exec babel-node src/index.js",
     "lint": "eslint src/**/**.js"
   },
   "repository": {
@@ -33,5 +33,13 @@
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "2.12.0",
     "nodemon": "^1.18.3"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "debug": "^3.1.0",
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0"
   }
 }
