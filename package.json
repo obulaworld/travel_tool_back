@@ -11,7 +11,9 @@
     "start": "npm run build && npm run serve",
     "start:dev": " DEBUG=log nodemon --exec babel-node src/index.js",
     "lint": "eslint src/**/**.js",
-    "test": "jest"
+    "test": "jest",
+    "db:migrate": "node_modules/.bin/sequelize db:migrate",
+    "db:rollback": "node_modules/.bin/sequelize db:migrate:undo"
   },
   "repository": {
     "type": "git",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.6",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "eslint": "4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
@@ -42,6 +45,9 @@
     "debug": "^3.1.0",
     "express": "^4.16.3",
     "morgan": "^1.9.0",
-    "passport": "^0.4.0"
+    "passport": "^0.4.0",
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.38.0"
   }
 }

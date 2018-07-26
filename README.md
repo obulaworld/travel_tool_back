@@ -9,6 +9,7 @@ __travel_tool_back__ is the backend application for the Andela Travel applicatio
 # Table of Contents
   - [Documentation](#documentation)
   - [Setup](#setup)
+    - [Database and ORM](#database-and-orm)
   - [Testing](#testing)
   - [Contribute](#contribute)
   - [Deployment](#deployment)
@@ -18,6 +19,7 @@ __travel_tool_back__ is the backend application for the Andela Travel applicatio
 TODO - when endpoints are ready
 
 ## Setup
+
 
 ### Dependencies
 - [NodeJS](https://github.com/nodejs/node) - A JavaScript runtime environment
@@ -40,15 +42,27 @@ Follow these steps to set up the project in development mode
   yarn install
   ```
 - Create a `.env` file in the root of your directory using the `.env.example` file in the repository
-- Run the database migrations using the command
-  ```
-  sequelize db:migrate
-  ```
+- Setup the database and migrations (***see [database setup](#database-and-orm, 'setting up database')***)
 - Start the application by running
   ```
   yarn run start:dev
   ```
-The application should now be running at `http://127.0.0.1:5000`
+  The application should now be running at `http://127.0.0.1:5000`
+
+#### Database and ORM
+- Create a database in `PostgreSQL` and name it `travel_tool`
+- Set the following environment variables:
+  - `DB_USER` - this is the database username
+  - `DB_PASSWORD` - this is the database password. Ignore if you don't have a database password
+- Install `sequelize-cli`
+  ```
+  yarn add --save sequelize-cli
+  ```
+- Run database migrations
+  ```
+  yarn run db:migrate
+  ```
+- Check the database and confirm that the `users` table has been created
 
 ### Run the Service Using Docker
 TODO
