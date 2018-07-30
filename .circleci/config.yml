@@ -1,1 +1,28 @@
+# CircleCI 2.0 configuration file
+
+# Check https://circleci.com/docs/1.0/language-nodejs/ for more details
 version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/node:10.7.0
+    working_directory: ~/travel_tool_back
+    steps: # a collection of executable commands
+      - checkout # special step to check out source code to working directory
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run: # run tests
+          name: test
+          command: yarn test
