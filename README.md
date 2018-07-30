@@ -54,15 +54,28 @@ Follow these steps to set up the project in development mode
 - Set the following environment variables:
   - `DB_USER` - this is the database username
   - `DB_PASSWORD` - this is the database password. Ignore if you don't have a database password
-- Install `sequelize-cli`
-  ```
-  yarn add --save sequelize-cli
-  ```
+
 - Run database migrations
   ```
   yarn run db:migrate
   ```
 - Check the database and confirm that the `users` table has been created
+
+### More about environmental variables
+After setting up your `.env` from the template provided in the `.env.example` file,
+to use these variables anywhere in the app;
+- import the `dotenv` package
+```
+import dotenv from 'dotenv'
+```
+- Make it available for use as early as possible in that file
+```
+dotenv.config()
+```
+- Access any variable in the `.env`
+```
+process.env.MY_ENV_VARIABLE
+```
 
 ### Run the Service Using Docker
 TODO

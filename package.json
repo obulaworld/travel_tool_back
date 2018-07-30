@@ -9,7 +9,7 @@
     "build": "npm run clean && npm run build-server",
     "serve": "node dist/index.js",
     "start": "npm run build && npm run serve",
-    "start:dev": " DEBUG=log nodemon --exec babel-node src/index.js",
+    "start:dev": "DEBUG=log nodemon --exec babel-node src/index.js",
     "lint": "eslint src/**/**.js",
     "test": "jest",
     "db:migrate": "node_modules/.bin/sequelize db:migrate",
@@ -43,11 +43,13 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "debug": "^3.1.0",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^4.38.0"
+    "sequelize": "^4.38.0",
+    "sequelize-cli": "^4.0.0"
   }
 }

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const commonEnvOptions = {
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD || '',
@@ -10,7 +12,7 @@ module.exports = {
     ...commonEnvOptions,
   },
   development: {
-    database: 'travel_tool',
+    database: process.env.DB_NAME,
     ...commonEnvOptions,
   },
 };

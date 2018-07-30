@@ -4,9 +4,12 @@ import passport from 'passport';
 import cors from 'cors';
 import morgan from 'morgan';
 import debug from 'debug';
+import dotenv from 'dotenv';
 import routes from './routes';
 import env from './config/env';
 import db from './db';
+
+dotenv.config();
 
 const logger = debug('log');
 const app = express();

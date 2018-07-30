@@ -1,6 +1,9 @@
 // a container for environment variables
+import dotenv from 'dotenv';
 import dbConfig from './db.config';
 import checkMissingVariables from './utils';
+
+dotenv.config();
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
