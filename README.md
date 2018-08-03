@@ -78,7 +78,26 @@ process.env.MY_ENV_VARIABLE
 ```
 
 ### Run the Service Using Docker
-TODO
+> NOTE: Make sure no service is running on port 5000.
+
+To run the application just type: `make start`
+
+this would run your application inside a container which you can easily access using `localhost:5000`.
+
+To stop the application, you can just hit `^c`.
+
+To delete the containers: `make stop`
+
+> WARNING: Running below command will make you loose all your data including data in the database!
+
+To cleanup all the containers + volumes: `make clean`
+
+> NOTE: The below commands should be run when the application is running inside container
+To migrate database: `make migrate`
+
+To rollback migrations: `make rollback`
+
+To get inside the container: `make ssh`
 
 ## Testing
 [Jest](https://jestjs.io) is used as the testing framework for both the unit tests and integration tests.

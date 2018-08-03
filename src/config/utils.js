@@ -3,7 +3,7 @@ import debug from 'debug';
 
 const logger = debug('log');
 
-const checkMissingVariables = (env) => {
+export default (env) => {
   const undefinedVariables = Object.keys(env)
     .filter(variable => env[variable] === undefined);
 
@@ -11,5 +11,3 @@ const checkMissingVariables = (env) => {
   logger(`${undefinedVariables.join(', ')} not found in ENVIRONMENT VARIABLES`);
   return process.exit(1);
 };
-
-export default checkMissingVariables;

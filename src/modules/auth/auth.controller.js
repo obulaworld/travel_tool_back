@@ -1,5 +1,4 @@
-import db from '../db';
-
+import { User } from '../../database/models';
 class Users {
   static welcome(req, res) {
     res.status(200)
@@ -12,7 +11,8 @@ class Users {
     const { email, firstName, lastName } = req.body;
 
     // create a user
-    db.User.create({
+
+    User.create({
       firstName,
       lastName,
       email,

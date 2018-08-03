@@ -1,23 +1,22 @@
-// the user model
-
-const createUserModel = (dbConnection, Sequelize) => {
-  const User = dbConnection.define('users', {
+'use strict';
+export default (sequelize, DataTypes) => {
+  var User = sequelize.define('User', {
     firstName: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
     lastName: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: true,
       },
     },
     email: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       unique: true,
       allowNull: false,
       validate: {
@@ -27,9 +26,11 @@ const createUserModel = (dbConnection, Sequelize) => {
         },
       },
     },
+  }, {
+    tableName:'users'
   });
-
+  User.associate = function(models) {
+    // associations can be defined here
+  };
   return User;
 };
-
-export default createUserModel;
