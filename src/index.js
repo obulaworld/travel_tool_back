@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import debug from 'debug';
 import dotenv from 'dotenv';
 import modules from './modules';
-import env from './config/environment'
+import env from './config/environment';
 
 dotenv.config();
 

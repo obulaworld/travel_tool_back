@@ -1,13 +1,18 @@
 // a function to notify when some envrironment variables are unset
-import debug from 'debug';
+const optionalEnvVariables = [
+  'DATABASE_DIALECT',
+  'DATABASE_HOST',
+  'DATABASE_PORT',
+  'DATABASE_PASSWORD',
+];
 
-const logger = debug('log');
-
-export default (env) => {
+module.exports = (env) => {
   const undefinedVariables = Object.keys(env)
-    .filter(variable => env[variable] === undefined);
+    .filter(variable => env[variable] === undefined
+                        && !optionalEnvVariables.includes(variable));
 
   if (!undefinedVariables.length) return env;
-  logger(`${undefinedVariables.join(', ')} not found in ENVIRONMENT VARIABLES`);
-  return process.exit(1);
+  throw new Error(`
+    \nThe following variables are required and missing in .env:
+    \n${undefinedVariables.join('\n')}`);
 };

@@ -51,9 +51,10 @@ Follow these steps to set up the project in development mode
 
 #### Database and ORM
 - Create a database in `PostgreSQL` and name it `travel_tool`
-- Set the following environment variables:
-  - `DB_USER` - this is the database username
-  - `DB_PASSWORD` - this is the database password. Ignore if you don't have a database password
+- Set the following environment variables in `.env`:
+  - `DATABASE_USERNAME` - this is the database username
+  - `DATABASE_PASSWORD` - this is the database password. Ignore if you don't have a database password
+  - `DATABASE_NAME` - set this to `travel_tool`
 
 - Run database migrations
   ```

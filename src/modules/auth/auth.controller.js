@@ -1,4 +1,5 @@
 import { User } from '../../database/models';
+
 class Users {
   static welcome(req, res) {
     res.status(200)
@@ -11,7 +12,6 @@ class Users {
     const { email, firstName, lastName } = req.body;
 
     // create a user
-
     User.create({
       firstName,
       lastName,

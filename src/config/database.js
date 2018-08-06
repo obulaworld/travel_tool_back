@@ -1,13 +1,14 @@
-require('dotenv').config();
+const env = require('./environment.js');
 
 const defaultConfig = {
-  username: process.env.DATABASE_USERNAME,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-  host: process.env.DATABASE_HOST,
-  port: process.env.DATABASE_PORT,
-  dialect: process.env.DATABASE_DIALECT || 'postgres',
+  username: env.DATABASE_USERNAME,
+  database: env.DATABASE_NAME,
+  password: env.DATABASE_PASSWORD,
+  host: env.DATABASE_HOST || 'localhost',
+  port: env.DATABASE_PORT || '5432',
+  dialect: env.DATABASE_DIALECT || 'postgres',
 };
+
 
 const database = {
   development: {
