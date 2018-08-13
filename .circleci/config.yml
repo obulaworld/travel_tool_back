@@ -2,27 +2,132 @@
 
 # Check https://circleci.com/docs/1.0/language-nodejs/ for more details
 version: 2
+defaults: &defaults
+  docker:
+    - image: circleci/node:carbon
+      environment:
+        NODE_ENV: test
+        DATABASE_URL: postgres://root@localhost/travella_dev_test
+    - image: postgres:9.6
+      environment:
+        POSTGRES_USER: root
+        POSTGRES_DB: travella_dev_test
+  working_directory: ~/travella-backend
+
+install_npm_packages: &install_npm_packages
+  run:
+    name: Install Npm Dependencies
+    command: yarn install
+
+attach_workspace: &attach_workspace
+  attach_workspace:
+    at: ~/travella-backend
+
+persist_to_workspace: &persist_to_workspace
+  persist_to_workspace:
+    root: .
+    paths: .
+
+filters: &filters
+  filters:
+    branches:
+      only:
+        - develop
+        - master
 jobs:
-  build:
-    docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/node:10.7.0
-    working_directory: ~/travel_tool_back
+  checkout_code:
+    <<: *defaults
     steps: # a collection of executable commands
       - checkout # special step to check out source code to working directory
       - restore_cache:
           name: Restore Yarn Package Cache
           keys:
             - yarn-packages-{{ checksum "yarn.lock" }}
-      - run:
-          name: Install Dependencies
-          command: yarn install
+      - *install_npm_packages
+
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-      - run: # run tests
-          name: test
+            - node_modules
+      - *persist_to_workspace
+
+  run_vulnerability_check:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - *install_npm_packages
+      - run:
+          name: Run npm packages security vulnerabilty check
+          command: |
+            yarn check --integrity
+            npx nsp check
+
+  test_and_report:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - *install_npm_packages
+      - run:
+          name: Wait for postgres to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Run Travella Database Migrations
+          command: yarn db:migrate
+      - run:
+          name: Run Travella Backend Test Suites
           command: yarn test
+      - *persist_to_workspace
+
+  build_application_artifacts:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - *install_npm_packages
+      - run: yarn run build
+      - *persist_to_workspace
+
+  deploy:
+    <<: *defaults
+    steps:
+      - setup_remote_docker
+      - *attach_workspace
+      - run:
+          name: Install and setup K8s deployment requirements
+          command: |
+            chmod +x .circleci/setup_k8s.sh
+            .circleci/setup_k8s.sh main
+      - run:
+          name: Build and deploy Travella Backend Application
+          command: |
+            chmod +x .circleci/build_deploy.sh
+            .circleci/build_deploy.sh main
+
+workflows:
+  version: 2
+  test_build_deploy:
+    jobs:
+      - checkout_code
+      - run_vulnerability_check:
+          requires:
+            - checkout_code
+      - test_and_report:
+          requires:
+            - checkout_code
+      - build_application_artifacts:
+          requires:
+            - checkout_code
+          <<: *filters
+      - hold:
+          type: approval
+          requires:
+            - build_application_artifacts
+          <<: *filters
+      - deploy:
+          requires:
+            - hold
+            - run_vulnerability_check
+            - test_and_report
+            - build_application_artifacts
+          <<: *filters

@@ -1,28 +1,24 @@
 const env = require('./environment.js');
 
 const defaultConfig = {
-  username: env.DATABASE_USERNAME,
-  database: env.DATABASE_NAME,
-  password: env.DATABASE_PASSWORD,
-  host: env.DATABASE_HOST || 'localhost',
-  port: env.DATABASE_PORT || '5432',
+  databaseUrl: env.DATABASE_URL,
   dialect: env.DATABASE_DIALECT || 'postgres',
+  use_env_variable: 'DATABASE_URL'
 };
-
 
 const database = {
   development: {
-    ...defaultConfig,
+    ...defaultConfig
   },
   test: {
-    ...defaultConfig,
+    ...defaultConfig
   },
   staging: {
-    ...defaultConfig,
+    ...defaultConfig
   },
   production: {
-    ...defaultConfig,
-  },
+    ...defaultConfig
+  }
 };
 
 // DO NOT CHANGE EVER!!!
