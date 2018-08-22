@@ -1,6 +1,7 @@
 .PHONY: help
 PROJECT_NAME ?= travella-backend
 DOCKER_DEV_COMPOSE_FILE := docker/dev/docker-compose.yml
+DOCKER_TEST_COMPOSE_FILE := docker/tests/docker-compose.yml
 TARGET_MAX_CHAR_NUM=10
 ## Show help
 help:
@@ -48,15 +49,21 @@ stop:
 ## Run travella local test suites
 test:
 	${INFO} "Starting background application containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) up -d database
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) up -d test
+	${INFO} "Making migrations in the background"
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) exec -d test yarn db:migrate
 	${INFO} "Running local travella test suites"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn test
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) exec test /usr/app/entrypoint.sh
+	${INFO} "Stop and remove docker containers"
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) down
 
 ## Remove all development containers and volumes
 clean:
 	${INFO} "Cleaning your local environment"
 	${INFO} "Note all ephemeral volumes will be destroyed"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) down -v
 	@ docker images -q -f label=application=$(PROJECT_NAME) | xargs -I ARGS docker rmi -f ARGS
 	${INFO} "Removing dangling images"
 	@ docker images -q -f dangling=true -f label=application=$(PROJECT_NAME) | xargs -I ARGS docker rmi -f ARGS
@@ -90,5 +97,5 @@ WHITE  := $(shell tput -Txterm setaf 7)
 NC := "\e[0m"
 RESET  := $(shell tput -Txterm sgr0)
 # Shell Functions
-INFO := @bash -c 'printf $(YELLOW); echo "===> $$1"; printf $(NC)' SOME_VALUE
-SUCCESS := @bash -c 'printf $(GREEN); echo "===> $$1"; printf $(NC)' SOME_VALUE
+INFO := @bash -c 'printf "\n"; printf $(YELLOW); echo "===> $$1"; printf $(NC)' SOME_VALUE
+SUCCESS := @bash -c 'printf "\n"; printf $(GREEN); echo "===> $$1"; printf $(NC)' SOME_VALUE

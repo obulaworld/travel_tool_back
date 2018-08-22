@@ -77,6 +77,9 @@ jobs:
           command: yarn db:migrate
       - run:
           name: Run Travella Backend Test Suites
+          command: yarn lint
+      - run:
+          name: Run Travella Backend Test Suites
           command: yarn test
       - *persist_to_workspace
 
