@@ -1,0 +1,7 @@
+exclude_patterns:
+- "**/node_modules/"
+- "**/test/"
+- "**/tests/"
+- "**/__tests__/"
+- "src/database/migrations"
+- "src/database/seeders"

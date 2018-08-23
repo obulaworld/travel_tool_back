@@ -1,0 +1,47 @@
+const testRequests = [
+  {
+    id: 'xDh20cuGz',
+    name: 'Test user A',
+    origin: 'Lagos',
+    destination: 'Nairobi',
+    manager: 'Samuel Kubai',
+    gender: 'Female',
+    department: 'TDD',
+    status: 'Open',
+    role: 'Software Developer',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    departureDate: '2018-12-09',
+    arrivalDate: '2018-11-12',
+  },
+  {
+    id: 'xDh20cuGy',
+    name: 'Test user B',
+    origin: 'Lagos',
+    destination: 'Nairobi',
+    manager: 'Samuel Kubai',
+    gender: 'Female',
+    department: 'TDD',
+    status: 'Approved',
+    role: 'Software Developer',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    departureDate: '2018-09-12',
+    arrivalDate: '2018-11-12',
+  },
+  {
+    id: 'xDh20cuGx',
+    name: 'Test user C',
+    origin: 'Lagos',
+    destination: 'Nairobi',
+    manager: 'Samuel Kubai',
+    gender: 'Female',
+    department: 'TDD',
+    status: 'Rejected',
+    role: 'Software Developer',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    departureDate: '2018-09-12',
+    arrivalDate: '2018-11-12',
+  },
+
+];
+
+export default testRequests;
