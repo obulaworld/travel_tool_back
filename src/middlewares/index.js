@@ -1,7 +1,7 @@
-import auth from './auth';
-import checkValidations from './checkValidations';
+import authenticate from './authenticate';
+import Validator from './Validator';
 
 export {
-  auth,
-  checkValidations,
+  authenticate,
+  Validator,
 };

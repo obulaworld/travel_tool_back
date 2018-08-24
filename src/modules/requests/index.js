@@ -1,5 +1,5 @@
 import express from 'express';
-import { auth, checkValidations } from '../../middlewares';
+import { authenticate, Validator } from '../../middlewares';
 import validators from '../../helpers/validators';
 import RequestsController from './RequestsController';
 
@@ -7,11 +7,17 @@ const Router = express.Router();
 
 Router.get(
   '/requests',
-  auth,
+  authenticate,
   validators,
-  checkValidations,
+  Validator.validateGetRequests,
   RequestsController.getUserRequests,
 );
 
+Router.post(
+  '/requests',
+  authenticate,
+  Validator.validateCreateRequests, // check req.body
+  RequestsController.createRequest,
+);
 
 export default Router;

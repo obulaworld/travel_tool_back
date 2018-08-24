@@ -1,10 +1,36 @@
 import Sequelize from 'sequelize';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
+import Utils from '../../helpers/Utils';
+
 
 const { Op } = Sequelize;
 
 class RequestsController {
+  // query with the db
+  static async createRequest(req, res) {
+    try {
+      const requestData = {
+        ...req.body,
+        id: Utils.generateUniqueId(),
+        userId: req.user.UserInfo.id,
+      };
+      const newRequest = await models.Request.create(requestData);
+      return res.status(201).json({
+        success: true,
+        message: 'Request created successfully',
+        request: newRequest,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: 'Server error',
+      });
+    }
+  }
+
+
+  // fetch requests api
   static buildRequestQuery(req, limit, offset) {
     const { status } = req.query;
     const userId = req.user.UserInfo.id;

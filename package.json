@@ -11,7 +11,7 @@
     "start": "NODE_ENV=production yarn run build && yarn run serve",
     "start:dev": "NODE_ENV=development DEBUG=log nodemon --exec babel-node src/index.js",
     "lint": "eslint src/**/**.js",
-    "pretest": "NODE_ENV=test yarn run db:migrate",
+    "pretest": "NODE_ENV=test yarn db:rollback && NODE_ENV=test yarn run db:migrate",
     "test": "jest src/ --forceExit",
     "db:seed": "node_modules/.bin/sequelize db:seed:all",
     "db:migrate": "node_modules/.bin/sequelize db:migrate",
@@ -73,7 +73,7 @@
       "<rootDir>/src/database/seeders",
       "<rootDir>/src/database/models/index.js",
       "<rootDir>/src/middlewares/index.js",
-      "<rootDir>/src/modules/requests/tests/mocks"
+      "<rootDir>/src/modules/requests/__tests__/mocks"
     ],
     "testEnvironment": "node"
   }

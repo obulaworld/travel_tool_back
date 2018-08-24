@@ -5,6 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import debug from 'debug';
 import dotenv from 'dotenv';
+import expressValidator from 'express-validator';
 import modules from './modules';
 import env from './config/environment';
 
@@ -23,6 +24,8 @@ app.use(bodyParser.urlencoded({
   extended: true,
 }));
 app.use(bodyParser.json());
+
+app.use(expressValidator());
 
 // set base url for api
 modules(app);
