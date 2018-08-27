@@ -70,6 +70,11 @@ jobs:
       - *attach_workspace
       - *install_npm_packages
       - run:
+          name: Install code climate test reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: Wait for postgres to be ready
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
@@ -79,8 +84,11 @@ jobs:
           name: Run Travella Backend Test Suites
           command: yarn lint
       - run:
-          name: Run Travella Backend Test Suites
-          command: yarn test
+          name: Run Travella Test Suites
+          command: |
+            ./cc-test-reporter before-build
+            yarn test --coverage
+            ./cc-test-reporter after-build --exit-code $?
       - *persist_to_workspace
 
   build_application_artifacts:
