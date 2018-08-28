@@ -34,6 +34,7 @@ filters: &filters
       only:
         - develop
         - master
+        
 jobs:
   checkout_code:
     <<: *defaults
@@ -128,17 +129,11 @@ workflows:
             - checkout_code
       - build_application_artifacts:
           requires:
+            - run_vulnerability_check
+            - test_and_report
             - checkout_code
-          <<: *filters
-      - hold:
-          type: approval
-          requires:
-            - build_application_artifacts
           <<: *filters
       - deploy:
           requires:
-            - hold
-            - run_vulnerability_check
-            - test_and_report
             - build_application_artifacts
           <<: *filters
