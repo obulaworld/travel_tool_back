@@ -34,7 +34,7 @@ filters: &filters
       only:
         - develop
         - master
-        
+
 jobs:
   checkout_code:
     <<: *defaults
@@ -105,6 +105,9 @@ jobs:
     steps:
       - setup_remote_docker
       - *attach_workspace
+      - run:
+          name: Install K8s Deployment Scripts
+          command: sudo npm install -g rok8s-scripts
       - run:
           name: Install and setup K8s deployment requirements
           command: |

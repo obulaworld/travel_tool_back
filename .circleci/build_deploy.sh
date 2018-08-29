@@ -47,11 +47,11 @@ buildLintAndDeployK8sConfiguration(){
     findAndReplaceVariables
 
     info "Linting generated configuration files"
-    k8s-lint -f deploy/travella-backend
+    k8s-lint -f deploy/travella-backend.config
     is_success "Completed linting successfully"
 
     info "Initiating deployment for image $TAGGED_IMAGE to $ENVIRONMENT environment"
-    k8s-deploy-and-verify -f deploy/travella-backend
+    k8s-deploy-and-verify -f deploy/travella-backend.config
     is_success "$TAGGED_IMAGE successfully deployed"
 }
 
@@ -79,7 +79,7 @@ main() {
     checkoutDeployScriptRepo
     buildTagAndPushDockerImage
     buildLintAndDeployK8sConfiguration
-    sendSlackDeployNotification
+    #sendSlackDeployNotification
     cleanGeneratedYamlFiles
 }
 
