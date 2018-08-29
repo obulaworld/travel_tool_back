@@ -110,7 +110,10 @@ To delete the containers: `make stop`
 To cleanup all the containers + volumes: `make clean`
 
 > NOTE: The below commands should be run when the application is running inside container
-> To migrate database: `make migrate`
+
+To migrate database: `make migrate`
+
+To seed database: `make seed`
 
 To rollback migrations: `make rollback`
 

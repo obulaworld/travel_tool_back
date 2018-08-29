@@ -82,6 +82,13 @@ migrate:
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:migrate
 	${SUCCESS} "Migration executed successfully"
 
+seed:
+	${INFO} "Starting background application containers"
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
+	${INFO} "Running local travella migrations"
+	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:seed
+	${SUCCESS} "Migration executed successfully"
+
 rollback:
 	${INFO} "Starting background application containers"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
