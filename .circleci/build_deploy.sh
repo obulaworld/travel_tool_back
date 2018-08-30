@@ -79,7 +79,7 @@ main() {
     checkoutDeployScriptRepo
     buildTagAndPushDockerImage
     buildLintAndDeployK8sConfiguration
-    #sendSlackDeployNotification
+    sendSlackDeployNotification
     cleanGeneratedYamlFiles
 }
 

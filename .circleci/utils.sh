@@ -37,7 +37,6 @@ require () {
 }
 
 SERVICE_KEY_PATH=$HOME/service-account-key.json
-IMAGE_TAG=$(git rev-parse --short HEAD)
 
 # assert required variables
 
@@ -47,11 +46,13 @@ require PRODUCTION_INGRESS_STATIC_IP_NAME $PRODUCTION_INGRESS_STATIC_IP_NAME
 require STAGING_INGRESS_STATIC_IP_NAME $STAGING_INGRESS_STATIC_IP_NAME
 
 if [ "$CIRCLE_BRANCH" == 'master' ]; then
+    IMAGE_TAG=production-$(git rev-parse --short HEAD)
     export ENVIRONMENT=production
     export COMPUTE_ZONE=$PRODUCTION_COMPUTE_ZONE
     export CLUSTER_NAME=$PRODUCTION_CLUSTER_NAME
     export INGRESS_STATIC_IP_NAME=$PRODUCTION_INGRESS_STATIC_IP_NAME
 else
+    IMAGE_TAG=staging-$(git rev-parse --short HEAD)
     export ENVIRONMENT=staging
     export COMPUTE_ZONE=$STAGING_COMPUTE_ZONE
     export CLUSTER_NAME=$STAGING_CLUSTER_NAME
