@@ -4,10 +4,8 @@ const setPublicKey = (nodeEnv) => {
   switch (nodeEnv) {
     case 'test':
       return process.env.JWT_PUBLIC_KEY;
-    case 'development':
-      return Buffer.from(process.env.JWT_PUBLIC_KEY, 'base64');
     default:
-      break;
+      return Buffer.from(process.env.JWT_PUBLIC_KEY, 'base64');
   }
 };
 
