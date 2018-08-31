@@ -62,8 +62,13 @@ cat <<EOF
 {
     "channel":"${NOTIFICATION_CHANNEL}",
     "username": "DeployNotification",
-    "text": "${SLACK_TEXT}",
-    "icon_emoji": ":rocket:"
+    "text": ":rocket: Travela Frontend has been successfully deployed to ${ENVIRONMENT} environment :rocket:",
+    "attachments": [
+      {
+        "title": "Travela Deployment",
+        "title_link": "${CIRCLE_BUILD_URL}"
+      }
+    ]
 }
 EOF
 }
