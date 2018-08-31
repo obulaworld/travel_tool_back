@@ -12,9 +12,11 @@ dist
 
 #coverage report
 coverage
+.DS_Store
 
 # logs
 npm-debug.log
 logs
 package-lock.json
 yarn-error.log
+

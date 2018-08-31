@@ -34,7 +34,7 @@ export default class Validator {
       return res.status(422)
         .json({
           success: false,
-          error: errors.array(),
+          errors: errors.array(),
         });
     }
     next();

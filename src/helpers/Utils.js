@@ -16,6 +16,17 @@ class Utils {
     );
     return token;
   }
+
+  static getRequestResponseMessage(pagination, status) {
+    let message;
+    if (pagination.pageCount >= pagination.currentPage) {
+      message = 'Requests retrieved successfully';
+    } else {
+      message = pagination.currentPage === 1 && !status
+        ? 'You have no requests at the moment' : 'No data exists for this page';
+    }
+    return message;
+  }
 }
 
 export default Utils;

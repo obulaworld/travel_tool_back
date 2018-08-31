@@ -58,28 +58,52 @@ class RequestsController {
     return query;
   }
 
+  static async getRequestsCountData(userId) {
+    const openRequestsCount = await models.Request.count({
+      where: {
+        status: 'Open',
+        userId,
+      },
+    });
+
+    const pastRequestsCount = await models.Request.count({
+      where: {
+        status: { [Op.ne]: 'Open' },
+        userId,
+      },
+    });
+
+    const count = {
+      open: openRequestsCount,
+      past: pastRequestsCount,
+    };
+
+    return count;
+  }
+
   static async getUserRequests(req, res) {
+    const userId = req.user.UserInfo.id;
+    const { status } = req.query.status || '';
     const { page, limit, offset } = Pagination.initializePagination(req);
     const query = RequestsController.buildRequestQuery(req, limit, offset);
     try {
       const requests = await models.Request.findAndCountAll(query);
-      const pastRequestsCount = await models.Request
-        .count({ where: { status: { [Op.ne]: 'Open' } } });
-      const openRequestsCount = await models.Request
-        .count({ where: { status: 'Open' } });
+      const count = await RequestsController.getRequestsCountData(userId);
       const pagination = Pagination.getPaginationData(page, limit, requests);
+      const message = Utils.getRequestResponseMessage(pagination, status);
       return res.status(200).json({
         success: true,
+        message,
         requests: requests.rows,
-        openRequestsCount,
-        pastRequestsCount,
-        pagination,
-        url: req.url,
+        meta: {
+          count,
+          pagination,
+        },
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        error,
+        error: 'Server error',
       });
     }
   }

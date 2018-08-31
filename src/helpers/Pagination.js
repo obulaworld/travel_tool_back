@@ -11,16 +11,13 @@ class Pagination {
     return paginationInit;
   }
 
-  static getPaginationData(page, limit, { count, rows }) {
-    let pagination;
-    if (rows.length) {
-      const pageCount = Math.ceil(count / limit);
-      pagination = {
-        pageCount,
-        currentPage: +page,
-        dataCount: count,
-      };
-    }
+  static getPaginationData(page, limit, { count }) {
+    const pageCount = Math.ceil(count / limit);
+    const pagination = {
+      pageCount,
+      currentPage: +page,
+      dataCount: count,
+    };
     return pagination;
   }
 }
