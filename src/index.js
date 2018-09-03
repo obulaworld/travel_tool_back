@@ -36,7 +36,9 @@ app.use('*', (req, res) => res.status(404)
     message: 'Not Found. Use /api/v1 to access the Api',
   }));
 
-app.listen(env.PORT);
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(env.PORT);
+}
 logger(`Find me on http://localhost:${env.PORT}`);
 
 export default app;

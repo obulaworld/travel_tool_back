@@ -1,6 +1,6 @@
 import shortid from 'shortid';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -10,10 +10,7 @@ class Utils {
   }
 
   static generateTestToken(payload) {
-    const token = jwt.sign(
-      payload,
-      process.env.JWT_PUBLIC_KEY,
-    );
+    const token = jwt.sign(payload, process.env.JWT_PUBLIC_KEY);
     return token;
   }
 

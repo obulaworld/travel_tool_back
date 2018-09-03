@@ -3,7 +3,6 @@ import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 
-
 const { Op } = Sequelize;
 
 class RequestsController {
@@ -29,7 +28,6 @@ class RequestsController {
     }
   }
 
-
   // fetch requests api
   static buildRequestQuery(req, limit, offset) {
     const { status } = req.query;
@@ -40,9 +38,7 @@ class RequestsController {
       },
       limit,
       offset,
-      order: [
-        ['createdAt', 'DESC'],
-      ],
+      order: [['createdAt', 'DESC']],
     };
     if (status) {
       if (status === 'past') {

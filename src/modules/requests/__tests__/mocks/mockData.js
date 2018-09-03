@@ -41,7 +41,6 @@ const testRequests = [
     departureDate: '2018-09-12',
     arrivalDate: '2018-11-12',
   },
-
 ];
 
 export default testRequests;
