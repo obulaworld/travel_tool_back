@@ -1,9 +1,7 @@
-import Sequelize from 'sequelize';
+import { Op } from 'sequelize';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
-
-const { Op } = Sequelize;
 
 class RequestsController {
   // query with the db

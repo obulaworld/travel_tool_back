@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { Op } from 'sequelize';
 import models from '../../database/models';
 
 dotenv.config();
@@ -56,7 +57,9 @@ class UserRoleController {
     try {
       const { roleName, email } = req.body;
       const findRole = await models.Role.findOne({
-        where: { roleName },
+        where: {
+          roleName: { [Op.iLike]: roleName },
+        },
       });
       if (!findRole) {
         const message = [400, 'Role does not exist', false];
@@ -109,7 +112,7 @@ class UserRoleController {
           {
             model: models.User,
             as: 'users',
-            attributes: ['email'],
+            attributes: ['email', 'fullName'],
           },
         ],
       });
