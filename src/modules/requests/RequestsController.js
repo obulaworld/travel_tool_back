@@ -18,7 +18,7 @@ class RequestsController {
         message: 'Request created successfully',
         request: newRequest,
       });
-    } catch (error) {
+    } catch (error) { /* istanbul ignore next */
       return res.status(500).json({
         success: false,
         error: 'Server error',
@@ -94,7 +94,28 @@ class RequestsController {
           pagination,
         },
       });
-    } catch (error) {
+    } catch (error) { /* istanbul ignore next */
+      return res.status(500).json({
+        success: false,
+        error: 'Server error',
+      });
+    }
+  }
+
+  static async getUserRequestDetails(req, res) {
+    const { requestId } = req.params;
+    try {
+      const requestData = await models.Request.findById(requestId);
+      if (!requestData) {
+        return res.status(404).json({
+          message: `No request with ${requestId} found!`,
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        requestData,
+      });
+    } catch (error) { /* istanbul ignore next */
       return res.status(500).json({
         success: false,
         error: 'Server error',

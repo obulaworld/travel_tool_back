@@ -13,6 +13,12 @@ Router.get(
   RequestsController.getUserRequests,
 );
 
+Router.get(
+  '/requests/:requestId',
+  authenticate,
+  RequestsController.getUserRequestDetails,
+);
+
 Router.post(
   '/requests',
   authenticate,

@@ -13,7 +13,8 @@ const payload = {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
   },
 };
-
+const requestId = 'xDh20cuGz'
+const invalidId = 'xghvhbdebdhhe'
 const token = Utils.generateTestToken(payload);
 const invalidToken =
   'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4';
@@ -224,14 +225,12 @@ describe('Requests Controller', () => {
           status: 422,
           body: {
             success: false,
-            errors: [
-              {
-                location: 'query',
-                param: 'status',
-                value: 'archive',
-                msg: 'Status must be "open", "past", "approved" or "rejected"',
-              },
-            ],
+            errors: [{
+              location: 'query',
+              param: 'status',
+              value: 'archive',
+              msg: 'Status must be "open", "past", "approved" or "rejected"',
+            }, ],
           },
         };
 
@@ -249,14 +248,12 @@ describe('Requests Controller', () => {
           status: 422,
           body: {
             success: false,
-            errors: [
-              {
-                location: 'query',
-                param: 'page',
-                value: '-100',
-                msg: 'Page must be a positive integer',
-              },
-            ],
+            errors: [{
+              location: 'query',
+              param: 'page',
+              value: '-100',
+              msg: 'Page must be a positive integer',
+            }, ],
           },
         };
 
@@ -274,14 +271,12 @@ describe('Requests Controller', () => {
           status: 422,
           body: {
             success: false,
-            errors: [
-              {
-                location: 'query',
-                param: 'limit',
-                value: '-100',
-                msg: 'Limit must be a positive integer',
-              },
-            ],
+            errors: [{
+              location: 'query',
+              param: 'limit',
+              value: '-100',
+              msg: 'Limit must be a positive integer',
+            }, ],
           },
         };
 
@@ -335,7 +330,9 @@ describe('Requests Controller', () => {
       it('should check if the token exists and return 401 if it does not', async () => {
         const res = await request(app)
           .post('/api/v1/requests')
-          .send({ name: 'demola' });
+          .send({
+            name: 'demola'
+          });
         expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Please provide a token');
@@ -345,7 +342,9 @@ describe('Requests Controller', () => {
         const res = await request(app)
           .post('/api/v1/requests')
           .set('Authorization', invalidToken)
-          .send({ name: 'demola' });
+          .send({
+            name: 'demola'
+          });
         expect(res.status).toEqual(401);
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Token is not valid');
@@ -358,8 +357,7 @@ describe('Requests Controller', () => {
         const validationResponse = {
           success: false,
           message: 'Validation failed',
-          errors: [
-            {
+          errors: [{
               name: 'name',
               message: 'Name is required',
             },
@@ -427,7 +425,8 @@ describe('Requests Controller', () => {
         const res = await request(app)
           .post('/api/v1/requests')
           .set('authorization', token)
-          .send({ ...newRequest });
+          .send({ ...newRequest
+          });
         expect(res.status).toBe(201);
         expect(res.body).toMatchObject({
           success: true,
@@ -437,4 +436,43 @@ describe('Requests Controller', () => {
       });
     });
   }); // end of CREATE REQUEST API
+
+  describe('Get an athenticated User Request detail', () => {
+    // it should get request details for a user
+    it('should return request details of a user', async () => {
+      const response = await request(app)
+        .get(`/api/v1/requests/${requestId}`)
+        .set('authorization', token)
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject({
+        success: true,
+        requestData:   { 
+        id: 'xDh20cuGz',
+        name: 'Test user A',
+        origin: 'Lagos',
+        destination: 'Nairobi',
+        manager: 'Samuel Kubai',
+        gender: 'Female',
+        department: 'TDD',
+        role: 'Software Developer',
+        status: 'Open',
+        userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+        departureDate: '2018-12-09',
+        arrivalDate: '2018-11-12',
+        createdAt: response.body.requestData.createdAt,
+        updatedAt: response.body.requestData.updatedAt,
+        }
+      })
+    })
+
+    it('should return a 404 ststus code for unexisting requestId', async () => {
+      const response = await request(app)
+        .get(`/api/v1/requests/${invalidId}`)
+        .set('authorization', token)
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({
+        message: `No request with ${invalidId} found!`
+      })
+    })
+  })
 });
