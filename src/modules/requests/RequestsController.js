@@ -4,7 +4,6 @@ import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 
 class RequestsController {
-  // query with the db
   static async createRequest(req, res) {
     try {
       const requestData = {
@@ -26,7 +25,6 @@ class RequestsController {
     }
   }
 
-  // fetch requests api
   static buildRequestQuery(req, limit, offset) {
     const { status } = req.query;
     const userId = req.user.UserInfo.id;
@@ -105,10 +103,13 @@ class RequestsController {
   static async getUserRequestDetails(req, res) {
     const { requestId } = req.params;
     try {
-      const requestData = await models.Request.findById(requestId);
+      const requestData = await models.Request.find({
+        where: { id: requestId },
+        include: [{ model: models.Comment, as: 'comments' }],
+      });
       if (!requestData) {
         return res.status(404).json({
-          message: `No request with ${requestId} found!`,
+          message: `Request with id ${requestId} does not exist`,
         });
       }
       return res.status(200).json({

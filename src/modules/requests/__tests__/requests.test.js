@@ -471,7 +471,7 @@ describe('Requests Controller', () => {
         .set('authorization', token)
       expect(response.status).toBe(404);
       expect(response.body).toEqual({
-        message: `No request with ${invalidId} found!`
+        message: `Request with id ${invalidId} does not exist`
       })
     })
   })

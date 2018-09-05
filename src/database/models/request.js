@@ -102,5 +102,12 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.DATEONLY,
     },
   });
+
+  Request.associate = (models) => {
+    Request.hasMany(models.Comment, {
+      foreignKey: 'requestId',
+      as: 'comments',
+    });
+  };
   return Request;
 };
