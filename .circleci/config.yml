@@ -118,6 +118,10 @@ jobs:
           command: |
             chmod +x .circleci/build_deploy.sh
             .circleci/build_deploy.sh main
+      - run:
+          name: Notify Slack of failed deployment
+          command: .circleci/build_deploy.sh main fail
+          when: on_fail
 
 workflows:
   version: 2

@@ -56,17 +56,48 @@ buildLintAndDeployK8sConfiguration(){
 }
 
 slackPayLoad() {
-    require NOTIFICATION_CHANNEL $NOTIFICATION_CHANNEL
-    require SLACK_DEPLOYMENT_TEXT $SLACK_DEPLOYMENT_TEXT
+  if [ "$1" == "fail" ]; then
+    TEXT=":fire: Travela Backend deployment failed :fire:"
+    STYLE="danger"
+    TITLE="Failed to deploy commit"
+    COLOR="danger"
+  else
+    TEXT=":rocket: Travela Backend has been successfully deployed to ${ENVIRONMENT} environment :rocket:"
+    STYLE="primary"
+    TITLE="Deployed commit"
+    COLOR="good"
+  fi
+
 cat <<EOF
 {
     "channel":"${NOTIFICATION_CHANNEL}",
     "username": "DeployNotification",
-    "text": ":rocket: Travela Frontend has been successfully deployed to ${ENVIRONMENT} environment :rocket:",
+    "text": "${TEXT}",
     "attachments": [
       {
-        "title": "Travela Deployment",
-        "title_link": "${CIRCLE_BUILD_URL}"
+        "title": "${TITLE} >> $(git rev-parse --short HEAD)",
+        "title_link": "https://github.com/andela/travel_tool_back/commit/$CIRCLE_SHA1",
+        "color": "${COLOR}",
+        "actions": [
+          {
+            "text": "View Commit",
+            "type": "button",
+            "url": "https://github.com/andela/travel_tool_back/commit/${CIRCLE_SHA1}",
+            "style": "${STYLE}"
+          },
+          {
+            "text": "View Build",
+            "type": "button",
+            "url": "${CIRCLE_BUILD_URL}",
+            "style": "${STYLE}"
+          },
+          {
+            "text": "View Workflow",
+            "type": "button",
+            "url": "https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}",
+            "style": "${STYLE}"
+          }
+        ]
       }
     ]
 }
@@ -74,9 +105,17 @@ EOF
 }
 
 sendSlackDeployNotification() {
+    require NOTIFICATION_CHANNEL $NOTIFICATION_CHANNEL
     require SLACK_CHANNEL_HOOK $SLACK_CHANNEL_HOOK
-    info "Sending success message to slack"
-    curl -X POST --data-urlencode "payload=$(slackPayLoad)" "${SLACK_CHANNEL_HOOK}"
+
+    if [ "$1" == "fail" ]; then
+      INFO="Sending failure message to slack"
+    else
+      INFO="Sending success message to slack"
+    fi
+
+    info "${INFO}"
+    curl -X POST -H 'Content-type: application/json' --data "$(slackPayLoad "${1}")" "${SLACK_CHANNEL_HOOK}"
     is_success "Slack notification has been successfully sent"
 }
 
