@@ -11,11 +11,20 @@ const request = supertest;
 const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
+    name: 'Samuel Kubai'
+  },
+};
+
+const fakeManager = {
+  UserInfo: {
+    id: '-MUyHJmKrxA90lPNQ1FOLNm',
+    name: 'Oratorio Platimus'
   },
 };
 const requestId = 'xDh20cuGz'
 const invalidId = 'xghvhbdebdhhe'
 const token = Utils.generateTestToken(payload);
+const nonRequestManagerToken = Utils.generateTestToken(fakeManager);
 const invalidToken =
   'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4';
 
@@ -409,7 +418,7 @@ describe('Requests Controller', () => {
       });
 
       //  create request if everything is fine
-       it('should add a new request to the db', async (done) => {
+      it('should add a new request to the db', async (done) => {
         const newRequest = {
           id: 'h35gbb',
           name: 'Tester Demola',
@@ -432,7 +441,6 @@ describe('Requests Controller', () => {
         expect(res.status).toBe(201);
         expect(res.body.Approval.approverId).toBe(newRequest.manager)
         done();
-      });
       });
     });
   }); // end of CREATE REQUEST API
@@ -474,4 +482,96 @@ describe('Requests Controller', () => {
         message: `Request with id ${invalidId} does not exist`
       })
     })
+  });
+  describe('PUT / approvals/:requestId - Update Request Status', () => {
+    beforeAll(async done => {
+      try {
+        await models.Approval.create(
+          {
+            requestId: 'xDh20cuGy',
+            approverId: '-MUyHJmKrxA90lPNQ1FOLNm',
+            status: 'Open',
+          },
+        );
+        done();
+      } catch (error) {
+        throw error;
+      }
+    });
+
+    describe('Requesters Manager', () => {
+      it('should successfully update a requests status',
+        async () => {
+          const res = await request(app)
+            .put('/api/v1/approvals/xDh20cuGy')
+          .set('authorization', token)
+          .send({ newStatus: 'Approved' });
+          expect(res.statusCode).toEqual(200);
+          expect(res.body.success).toEqual(true);
+          expect(res.body.message).toEqual('Request approved successfully');
+        });
+
+      it('should throw validation error when newStatus does not match expected input',
+        async () => {
+          const newStatus = 'ApprovedRejected'
+
+          const res = await request(app)
+            .put('/api/v1/approvals/xDh20cuGy')
+          .set('authorization', token)
+          .send({ newStatus });
+          expect(res.statusCode).toEqual(422);
+        });
+
+      it('should return an error if request is not found',
+        async () => {
+          const res = await request(app)
+            .put('/api/v1/approvals/xDh20cuT0')
+          .set('authorization', token)
+          .send({ newStatus: 'Approved' });
+          expect(res.statusCode).toEqual(404);
+          expect(res.body.success).toEqual(false);
+        });
+    });
+
+    describe('Unauthenticated User', () => {
+      it('should check if the token exists and return 401 if it does not',
+        async () => {
+          const res = await request(app)
+            .put('/api/v1/approvals/xDh20cuT0')
+            .send({ newStatus: 'Rejected' });
+          expect(res.statusCode).toEqual(401);
+          expect(res.body.success).toEqual(false);
+          expect(res.body.error).toEqual('Please provide a token');
+        });
+
+      it('should check if the token is valid and return 401 if it is not',
+        async () => {
+          const res = await request(app)
+            .put('/api/v1/approvals/xDh20cuT0')
+            .set('Authorization', invalidToken)
+            .send({ newStatus: 'Approved' });
+          expect(res.status).toEqual(401);
+          expect(res.body.success).toEqual(false);
+          expect(res.body.error).toEqual('Token is not valid');
+        });
+    });
+
+    describe('Not Requesters Manager', () => {
+      //  create request if everything is fine
+      it('should return an error message', async () => {
+        const newRequest = {
+          newStatus: 'Rejected',
+        };
+        const res = await request(app)
+          .put('/api/v1/approvals/xDh20cuGy')
+          .set('authorization', nonRequestManagerToken)
+          .send({ ...newRequest });
+        expect(res.status).toBe(403);
+        expect(res.body).toMatchObject({
+          success: false,
+          error: 'Permission denied, you are not requesters manager',
+        });
+      });
+    });
+  });// end of UPDATE REQUEST STATUS API
 });

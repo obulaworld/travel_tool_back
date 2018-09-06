@@ -39,6 +39,15 @@ describe('server integration tests', () => {
       });
   });
 
+  it('calls validateDirectReport to check requesters manaager', (done) => {
+    testClient(app)
+      .put('/api/v1/approvals/1')
+      .end((err, res) => {
+        expect(middleware.validateDirectReport).toHaveBeenCalledTimes(1);
+        done();
+      });
+  });
+
   it('validates query parameters before controller handles request', (done) => {
     const validator = middleware.Validator.validateGetRequests;
     testClient(app)
@@ -50,12 +59,37 @@ describe('server integration tests', () => {
       });
   });
 
+  it('validates newStatus parameters before controller handles request',
+    (done) => {
+      const statusValidator = middleware.Validator.validateStatus;
+      testClient(app)
+        .put('/api/v1/approvals/1')
+        .send({ newStatus: 'Approved' })
+        .end((err, res) => {
+          expect(statusValidator).toHaveBeenCalledTimes(1);
+          expect(ApprovalsController.updateRequestStatus)
+            .toHaveBeenCalledTimes(1);
+          done();
+        });
+    });
+
   it('calls getUserApprovals after authentication', (done) => {
     testClient(app)
       .get('/api/v1/approvals')
       .end((err, res) => {
         expect(middleware.authenticate).toHaveBeenCalledTimes(1);
         expect(ApprovalsController.getUserApprovals).toHaveBeenCalledTimes(1);
+        done();
+      });
+  });
+
+  it('calls updateRequestStatus after authentication', (done) => {
+    testClient(app)
+      .put('/api/v1/approvals/1')
+      .end((err, res) => {
+        expect(middleware.authenticate).toHaveBeenCalledTimes(1);
+        expect(ApprovalsController.updateRequestStatus)
+          .toHaveBeenCalledTimes(1);
         done();
       });
   });

@@ -9,6 +9,7 @@ module.exports = {
     requestId: {
       allowNull: false,
       type: Sequelize.STRING,
+      unique: true,
       references: {
         model: 'Requests',
         key: 'id',

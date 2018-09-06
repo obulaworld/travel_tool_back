@@ -25,6 +25,11 @@ class Utils {
     }
     return message;
   }
+
+  static getRequestStatusUpdateResponse(status) {
+    return status === 'Approved'
+      ? 'Request approved successfully' : 'Request rejected successfully';
+  }
 }
 
 export default Utils;

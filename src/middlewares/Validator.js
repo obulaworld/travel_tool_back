@@ -74,4 +74,11 @@ export default class Validator {
     }
     next();
   }
+
+  static validateStatus(req, res, next) {
+    req.checkBody('newStatus', 'newStatus must be Approved or Rejected')
+      .isIn(['Approved', 'Rejected']);
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
 }

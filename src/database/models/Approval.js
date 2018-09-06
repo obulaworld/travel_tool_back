@@ -9,6 +9,10 @@ export default (sequelize, DataTypes) => {
     requestId: {
       allowNull: false,
       type: DataTypes.STRING,
+      unique: {
+        args: true,
+        msg: 'Cannot update a request twice'
+      },
       references: {
         model: 'Requests',
         key: 'id',

@@ -50,6 +50,50 @@ class ApprovalsController {
       return handleServerError('Server error', res);
     }
   }
+
+  static async updateRequestStatus(req, res) {
+    const { newStatus } = req.body;
+    const { request } = req;
+    try {
+      const updateApproval = await ApprovalsController.updateApprovals(
+        req, res, [request, newStatus]
+      );
+      if (updateApproval) {
+        const updatedRequest = await request.update({
+          status: newStatus,
+        });
+        const message = Utils.getRequestStatusUpdateResponse(
+          updatedRequest.status,
+        );
+        return res.status(200).json({
+          success: true,
+          message,
+          updatedRequest,
+        });
+      }
+    } catch (error) {
+      /* istanbul ignore next */
+      return handleServerError(error, res);
+    }
+  }
+
+  static async updateApprovals(req, res, request) {
+    try {
+      const requestToApprove = await models.Approval.find({
+        where: {
+          requestId: request[0].id
+        }
+      });
+      return await requestToApprove.update({
+        requestId: request[0].id,
+        approverId: req.user.UserInfo.id,
+        status: request[1]
+      });
+    } catch (error) {
+      /* istanbul ignore next */
+      return handleServerError(error.errors[0].message || error, res);
+    }
+  }
 }
 
 export default ApprovalsController;

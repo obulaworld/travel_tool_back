@@ -5,7 +5,7 @@ import ApprovalsController from './approvals';
 
 const ApprovalsRouter = express.Router();
 
-const { authenticate, Validator } = middleware;
+const { authenticate, Validator, validateDirectReport } = middleware;
 
 ApprovalsRouter.get(
   '/approvals',
@@ -13,6 +13,14 @@ ApprovalsRouter.get(
   validators,
   Validator.validateGetRequests,
   ApprovalsController.getUserApprovals,
+);
+
+ApprovalsRouter.put(
+  '/approvals/:requestId',
+  authenticate,
+  Validator.validateStatus,
+  validateDirectReport,
+  ApprovalsController.updateRequestStatus,
 );
 
 export default ApprovalsRouter;

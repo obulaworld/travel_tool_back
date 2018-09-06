@@ -8,6 +8,7 @@ export const mockRouterMiddleware = () => (
 export const mockApprovals = () => jest.doMock('../../approvals', () => ({
   __esModule: true,
   default: {
-    getUserApprovals: jest.fn((req, res, next) => res.send({}))
+    getUserApprovals: jest.fn((req, res, next) => res.send({})),
+    updateRequestStatus: jest.fn((req, res, next) => res.send({})),
   }
 }));

@@ -21,8 +21,9 @@ class RequestsController {
         request: newRequest,
         Approval: newApproval
       });
-    } catch (error) { /* istanbul ignore next */
-      return handleServerError(error, res);
+    } catch (error) {
+      /* istanbul ignore next */
+      handleServerError(error, res);
     }
   }
 

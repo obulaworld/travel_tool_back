@@ -1,4 +1,4 @@
-// // /* eslint-disable */
+// /* eslint-disable */
 import request from 'supertest';
 import app from '../../../app';
 import models from '../../../database/models';
