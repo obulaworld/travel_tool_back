@@ -14,13 +14,14 @@ class Utils {
     return token;
   }
 
-  static getRequestResponseMessage(pagination, status) {
+  static getResponseMessage(pagination, status, modelName) {
     let message;
     if (pagination.pageCount >= pagination.currentPage) {
-      message = 'Requests retrieved successfully';
+      message = `${modelName}s retrieved successfully`;
     } else {
       message = pagination.currentPage === 1 && !status
-        ? 'You have no requests at the moment' : 'No data exists for this page';
+        ? `You have no ${modelName.toLowerCase()}s at the moment`
+        : `No ${modelName.toLowerCase()}s exists for this page`;
     }
     return message;
   }

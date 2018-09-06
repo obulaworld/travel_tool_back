@@ -12,6 +12,8 @@ const testRequests = [
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     departureDate: '2018-12-09',
     arrivalDate: '2018-11-12',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
   },
   {
     id: 'xDh20cuGy',
@@ -26,6 +28,8 @@ const testRequests = [
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     departureDate: '2018-09-12',
     arrivalDate: '2018-11-12',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
   },
   {
     id: 'xDh20cuGx',
@@ -40,7 +44,36 @@ const testRequests = [
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     departureDate: '2018-09-12',
     arrivalDate: '2018-11-12',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
   },
+];
+
+export const testApprovals = [
+  {
+    id: 'approv001',
+    requestId: 'xDh20cuGz',
+    status: 'Open',
+    approverId: '-LJV4b1QTCYewOtk5F63',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+  },
+  {
+    id: 'approv002',
+    requestId: 'xDh20cuGy',
+    status: 'Approved',
+    approverId: '-LJV4b1QTCYewOtk5F63',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+  },
+  {
+    id: 'approv003',
+    requestId: 'xDh20cuGx',
+    status: 'Approved',
+    approverId: '-LJV4b1QTCYewOtk5F63',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+  }
 ];
 
 export default testRequests;

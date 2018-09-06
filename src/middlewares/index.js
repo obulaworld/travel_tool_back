@@ -1,7 +1,10 @@
 import authenticate from './authenticate';
 import Validator from './Validator';
 
-export {
+
+const middleware = {
   authenticate,
   Validator,
 };
+
+export default middleware;

@@ -1,7 +1,8 @@
-import { Op } from 'sequelize';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
+import { createSubquery, countByStatus } from '../../helpers/requests';
+import handleServerError from '../../helpers/serverError';
 
 class RequestsController {
   static async createRequest(req, res) {
@@ -18,71 +19,20 @@ class RequestsController {
         request: newRequest,
       });
     } catch (error) { /* istanbul ignore next */
-      return res.status(500).json({
-        success: false,
-        error: 'Server error',
-      });
+      return handleServerError(error, res);
     }
-  }
-
-  static buildRequestQuery(req, limit, offset) {
-    const { status } = req.query;
-    const userId = req.user.UserInfo.id;
-    const query = {
-      where: {
-        userId,
-      },
-      limit,
-      offset,
-      order: [['createdAt', 'DESC']],
-    };
-    if (status) {
-      if (status === 'past') {
-        query.where.status = {
-          [Op.ne]: 'Open',
-        };
-      } else {
-        query.where.status = {
-          [Op.iLike]: status,
-        };
-      }
-    }
-    return query;
-  }
-
-  static async getRequestsCountData(userId) {
-    const openRequestsCount = await models.Request.count({
-      where: {
-        status: 'Open',
-        userId,
-      },
-    });
-
-    const pastRequestsCount = await models.Request.count({
-      where: {
-        status: { [Op.ne]: 'Open' },
-        userId,
-      },
-    });
-
-    const count = {
-      open: openRequestsCount,
-      past: pastRequestsCount,
-    };
-
-    return count;
   }
 
   static async getUserRequests(req, res) {
     const userId = req.user.UserInfo.id;
     const { status } = req.query.status || '';
     const { page, limit, offset } = Pagination.initializePagination(req);
-    const query = RequestsController.buildRequestQuery(req, limit, offset);
+    const subquery = createSubquery(req, limit, offset, 'Request');
     try {
-      const requests = await models.Request.findAndCountAll(query);
-      const count = await RequestsController.getRequestsCountData(userId);
+      const requests = await models.Request.findAndCountAll(subquery);
+      const count = await countByStatus(models.Request, userId);
       const pagination = Pagination.getPaginationData(page, limit, requests);
-      const message = Utils.getRequestResponseMessage(pagination, status);
+      const message = Utils.getResponseMessage(pagination, status, 'Request');
       return res.status(200).json({
         success: true,
         message,
@@ -93,23 +43,17 @@ class RequestsController {
         },
       });
     } catch (error) { /* istanbul ignore next */
-      return res.status(500).json({
-        success: false,
-        error: 'Server error',
-      });
+      return handleServerError('Server Error', res);
     }
   }
 
   static async getUserRequestDetails(req, res) {
     const { requestId } = req.params;
     try {
-      const requestData = await models.Request.find({
-        where: { id: requestId },
-        include: [{ model: models.Comment, as: 'comments' }],
-      });
+      const requestData = await models.Request.findById(requestId);
       if (!requestData) {
         return res.status(404).json({
-          message: `Request with id ${requestId} does not exist`,
+          message: `No request with ${requestId} found!`,
         });
       }
       return res.status(200).json({
@@ -117,10 +61,7 @@ class RequestsController {
         requestData,
       });
     } catch (error) { /* istanbul ignore next */
-      return res.status(500).json({
-        success: false,
-        error: 'Server error',
-      });
+      return handleServerError('Server Error', res);
     }
   }
 }

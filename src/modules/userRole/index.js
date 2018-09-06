@@ -1,7 +1,8 @@
 import express from 'express';
-import { authenticate, Validator } from '../../middlewares';
+import middlewares from '../../middlewares';
 import UserRoleController from './UserRoleController';
 
+const { authenticate, Validator } = middlewares;
 const Router = express.Router();
 
 Router.get('/user', authenticate, UserRoleController.getAllUser);

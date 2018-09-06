@@ -1,6 +1,6 @@
 // // /* eslint-disable */
 import request from 'supertest';
-import app from '../../../index';
+import app from '../../../app';
 import models from '../../../database/models';
 import {
   role,

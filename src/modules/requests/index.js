@@ -1,11 +1,13 @@
 import express from 'express';
-import { authenticate, Validator } from '../../middlewares';
+import middleware from '../../middlewares';
 import validators from '../../helpers/validators';
 import RequestsController from './RequestsController';
 
-const Router = express.Router();
+const RequestsRouter = express.Router();
 
-Router.get(
+const { authenticate, Validator } = middleware;
+
+RequestsRouter.get(
   '/requests',
   authenticate,
   validators,
@@ -13,17 +15,18 @@ Router.get(
   RequestsController.getUserRequests,
 );
 
-Router.get(
+RequestsRouter.get(
   '/requests/:requestId',
   authenticate,
   RequestsController.getUserRequestDetails,
 );
 
-Router.post(
+RequestsRouter.post(
   '/requests',
   authenticate,
   Validator.validateCreateRequests, // check req.body
   RequestsController.createRequest,
 );
 
-export default Router;
+
+export default RequestsRouter;

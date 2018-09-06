@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '../../../index';
+import app from '../../../app';
 
 describe('User Role Test', () => {
   it('should return 200 _healthz check', (done) => {

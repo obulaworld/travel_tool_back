@@ -2,7 +2,7 @@
 
 import supertest from 'supertest';
 import models from '../../../database/models';
-import app from '../../../index';
+import app from '../../../app';
 import testRequests from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 
@@ -163,7 +163,7 @@ describe('Requests Controller', () => {
           status: 200,
           body: {
             success: true,
-            message: 'No data exists for this page',
+            message: 'No requests exists for this page',
             requests: [],
             meta: {
               count: {
@@ -446,7 +446,7 @@ describe('Requests Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({
         success: true,
-        requestData:   { 
+        requestData:   {
         id: 'xDh20cuGz',
         name: 'Test user A',
         origin: 'Lagos',
@@ -471,7 +471,7 @@ describe('Requests Controller', () => {
         .set('authorization', token)
       expect(response.status).toBe(404);
       expect(response.body).toEqual({
-        message: `Request with id ${invalidId} does not exist`
+        message: `No request with ${invalidId} found!`
       })
     })
   })

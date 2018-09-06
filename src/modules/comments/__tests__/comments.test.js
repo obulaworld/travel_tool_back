@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import app from '../../../index';
+import app from '../../../app';
 import models from '../../../database/models';
 import Utils from '../../../helpers/Utils';
 import mockData from './mocks/mocksData';

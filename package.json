@@ -62,7 +62,8 @@
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.js"
+      "src/**/*.js",
+      "!src/index.js"
     ],
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/?(*.)(spec|test)js",

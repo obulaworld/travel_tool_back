@@ -12,6 +12,7 @@
   },
   "rules": {
     "max-len": ["error", { "code": 80, "ignoreUrls": true }],
-    "consistent-return": 0
+    "consistent-return": 0,
+    "comma-dangle": 0
   }
 }
