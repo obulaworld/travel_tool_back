@@ -49,31 +49,4 @@ const testRequests = [
   },
 ];
 
-export const testApprovals = [
-  {
-    id: 'approv001',
-    requestId: 'xDh20cuGz',
-    status: 'Open',
-    approverId: '-LJV4b1QTCYewOtk5F63',
-    createdAt: '2018-08-16 012:11:52.181+01',
-    updatedAt: '2018-08-16 012:11:52.181+01',
-  },
-  {
-    id: 'approv002',
-    requestId: 'xDh20cuGy',
-    status: 'Approved',
-    approverId: '-LJV4b1QTCYewOtk5F63',
-    createdAt: '2018-08-16 012:11:52.181+01',
-    updatedAt: '2018-08-16 012:11:52.181+01',
-  },
-  {
-    id: 'approv003',
-    requestId: 'xDh20cuGx',
-    status: 'Approved',
-    approverId: '-LJV4b1QTCYewOtk5F63',
-    createdAt: '2018-08-16 012:11:52.181+01',
-    updatedAt: '2018-08-16 012:11:52.181+01',
-  }
-];
-
 export default testRequests;

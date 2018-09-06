@@ -409,9 +409,9 @@ describe('Requests Controller', () => {
       });
 
       //  create request if everything is fine
-      it('should add a new request to the db', async () => {
+       it('should add a new request to the db', async (done) => {
         const newRequest = {
-          // id: notsouniqueId,
+          id: 'h35gbb',
           name: 'Tester Demola',
           origin: 'Kampala',
           destination: 'New york',
@@ -419,20 +419,20 @@ describe('Requests Controller', () => {
           manager: 'Samuel Kubai',
           department: 'TDD',
           role: 'Senior Consultant',
+          status: 'Open',
           departureDate: '2018-08-16',
           arrivalDate: '2018-08-30',
+          createdAt: '2018-08-16 012:11:52.181+01',
+          updatedAt: '2018-08-16 012:11:52.181+01'
         };
         const res = await request(app)
           .post('/api/v1/requests')
           .set('authorization', token)
-          .send({ ...newRequest
-          });
+          .send({ ...newRequest });
         expect(res.status).toBe(201);
-        expect(res.body).toMatchObject({
-          success: true,
-          message: 'Request created successfully',
-          request: newRequest,
-        });
+        expect(res.body.Approval.approverId).toBe(newRequest.manager)
+        done();
+      });
       });
     });
   }); // end of CREATE REQUEST API
@@ -474,5 +474,4 @@ describe('Requests Controller', () => {
         message: `Request with id ${invalidId} does not exist`
       })
     })
-  })
 });

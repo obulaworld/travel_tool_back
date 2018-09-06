@@ -23,7 +23,7 @@ export default (sequelize, DataTypes) => {
       }
     },
     approverId: {
-      // in future, this should be a foreignKey referencing users table
+      // FIX: In future, this should be the manager's email address or unique ID
       allowNull: false,
       type: DataTypes.STRING,
       validate: {
@@ -31,7 +31,7 @@ export default (sequelize, DataTypes) => {
           args: true,
           msg: 'approverId cannot be empty'
         }
-      }
+      },
     },
     status: {
       allowNull: false,

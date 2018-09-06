@@ -1,9 +1,9 @@
 import express from 'express';
-import middlewares from '../../middlewares';
+import middleware from '../../middlewares';
 import CommentsController from './CommentsController';
 
+const { authenticate } = middleware;
 const Router = express.Router();
-const { authenticate } = middlewares;
 
 Router.post(
   '/comments',

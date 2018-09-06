@@ -3,6 +3,7 @@ import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import { createSubquery, countByStatus } from '../../helpers/requests';
 import handleServerError from '../../helpers/serverError';
+import ApprovalsController from '../approvals/approvals';
 
 class RequestsController {
   static async createRequest(req, res) {
@@ -10,13 +11,15 @@ class RequestsController {
       const requestData = {
         ...req.body,
         id: Utils.generateUniqueId(),
-        userId: req.user.UserInfo.id,
+        userId: req.user.UserInfo.id
       };
       const newRequest = await models.Request.create(requestData);
+      const newApproval = await ApprovalsController.createApproval(newRequest);
       return res.status(201).json({
         success: true,
         message: 'Request created successfully',
         request: newRequest,
+        Approval: newApproval
       });
     } catch (error) { /* istanbul ignore next */
       return handleServerError(error, res);
@@ -39,8 +42,8 @@ class RequestsController {
         requests: requests.rows,
         meta: {
           count,
-          pagination,
-        },
+          pagination
+        }
       });
     } catch (error) { /* istanbul ignore next */
       return handleServerError('Server Error', res);
@@ -61,7 +64,7 @@ class RequestsController {
       }
       return res.status(200).json({
         success: true,
-        requestData,
+        requestData
       });
     } catch (error) { /* istanbul ignore next */
       return handleServerError('Server Error', res);

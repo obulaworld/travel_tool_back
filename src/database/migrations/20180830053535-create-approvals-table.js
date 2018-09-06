@@ -23,6 +23,7 @@ module.exports = {
       }
     },
     approverId: {
+      // FIX: In future, this should be the manager's email address or unique ID
       allowNull: false,
       type: Sequelize.STRING,
       validate: {
@@ -30,7 +31,7 @@ module.exports = {
           args: true,
           msg: 'approverId cannot be empty'
         }
-      }
+      },
     },
     createdAt: {
       allowNull: false,
