@@ -50,10 +50,13 @@ class RequestsController {
   static async getUserRequestDetails(req, res) {
     const { requestId } = req.params;
     try {
-      const requestData = await models.Request.findById(requestId);
+      const requestData = await models.Request.find({
+        where: { id: requestId },
+        include: [{ model: models.Comment, as: 'comments' }],
+      });
       if (!requestData) {
         return res.status(404).json({
-          message: `No request with ${requestId} found!`,
+          message: `Request with id ${requestId} does not exist`,
         });
       }
       return res.status(200).json({
