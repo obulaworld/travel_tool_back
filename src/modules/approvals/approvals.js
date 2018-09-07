@@ -62,13 +62,24 @@ class ApprovalsController {
         const updatedRequest = await request.update({
           status: newStatus,
         });
+
         const message = Utils.getRequestStatusUpdateResponse(
           updatedRequest.status,
         );
+
+        const count = await countByStatus(
+          models.Approval, req.user.UserInfo.name
+        );
+
+        // Fix: refactor return block later to handle
+        // updatedRequest section better
         return res.status(200).json({
           success: true,
           message,
-          updatedRequest,
+          updatedRequest: {
+            updatedRequest,
+            count
+          },
         });
       }
     } catch (error) {
@@ -85,8 +96,6 @@ class ApprovalsController {
         }
       });
       return await requestToApprove.update({
-        requestId: request[0].id,
-        approverId: req.user.UserInfo.id,
         status: request[1]
       });
     } catch (error) {
