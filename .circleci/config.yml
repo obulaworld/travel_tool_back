@@ -7,12 +7,12 @@ defaults: &defaults
     - image: circleci/node:carbon
       environment:
         NODE_ENV: test
-        DATABASE_URL: postgres://root@localhost/travella_dev_test
+        DATABASE_URL: postgres://root@localhost/travela_dev_test
     - image: postgres:9.6
       environment:
         POSTGRES_USER: root
-        POSTGRES_DB: travella_dev_test
-  working_directory: ~/travella-backend
+        POSTGRES_DB: travela_dev_test
+  working_directory: ~/travela-backend
 
 install_npm_packages: &install_npm_packages
   run:
@@ -21,7 +21,7 @@ install_npm_packages: &install_npm_packages
 
 attach_workspace: &attach_workspace
   attach_workspace:
-    at: ~/travella-backend
+    at: ~/travela-backend
 
 persist_to_workspace: &persist_to_workspace
   persist_to_workspace:
@@ -79,13 +79,13 @@ jobs:
           name: Wait for postgres to be ready
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
-          name: Run Travella Database Migrations
+          name: Run travela Database Migrations
           command: yarn db:migrate
       - run:
-          name: Run Travella Backend Test Suites
+          name: Run travela Backend Test Suites
           command: yarn lint
       - run:
-          name: Run Travella Test Suites
+          name: Run travela Test Suites
           command: |
             ./cc-test-reporter before-build
             yarn test --coverage
@@ -114,7 +114,7 @@ jobs:
             chmod +x .circleci/setup_k8s.sh
             .circleci/setup_k8s.sh main
       - run:
-          name: Build and deploy Travella Backend Application
+          name: Build and deploy travela Backend Application
           command: |
             chmod +x .circleci/build_deploy.sh
             .circleci/build_deploy.sh main

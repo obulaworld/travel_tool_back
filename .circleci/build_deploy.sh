@@ -6,10 +6,10 @@ source $ROOT_DIR/.circleci/utils.sh
 checkoutDeployScriptRepo(){
     require DEPLOY_SCRIPTS_REPO $DEPLOY_SCRIPTS_REPO
     info "Cloning $DEPLOY_SCRIPTS_REPO"
-    git clone -b $CLONE_BRANCH $DEPLOY_SCRIPTS_REPO $HOME/travella-deploy
-    mv $HOME/travella-deploy/deploy $ROOT_DIR/deploy
+    git clone -b $CLONE_BRANCH $DEPLOY_SCRIPTS_REPO $HOME/travela-deploy
+    mv $HOME/travela-deploy/deploy $ROOT_DIR/deploy
     source $ROOT_DIR/deploy/template.sh
-    rm -rf $HOME/travella-deploy
+    rm -rf $HOME/travela-deploy
 }
 
 # checkout
@@ -19,12 +19,12 @@ buildTagAndPushDockerImage() {
     require 'IMAGE_TAG' $IMAGE_TAG
     require 'SERVICE_KEY_PATH' $SERVICE_KEY_PATH
 
-    # gcr.io/andela-learning/travella-backend
+    # gcr.io/andela-learning/travela-backend
     IMAGE_NAME="$DOCKER_REGISTRY/$PROJECT_ID/$PROJECT_NAME"
     TAGGED_IMAGE=$IMAGE_NAME:$IMAGE_TAG
     DOCKER_USERNAME=${DOCKER_USERNAME:-_json_key}
 
-    info "Build docker image for travella application"
+    info "Build docker image for travela application"
     docker build -t $IMAGE_NAME -f docker/release/Dockerfile .
 
     info "Tagging built docker image as $TAGGED_IMAGE"
@@ -47,11 +47,11 @@ buildLintAndDeployK8sConfiguration(){
     findAndReplaceVariables
 
     info "Linting generated configuration files"
-    k8s-lint -f deploy/travella-backend.config
+    k8s-lint -f deploy/travela-backend.config
     is_success "Completed linting successfully"
 
     info "Initiating deployment for image $TAGGED_IMAGE to $ENVIRONMENT environment"
-    k8s-deploy-and-verify -f deploy/travella-backend.config
+    k8s-deploy-and-verify -f deploy/travela-backend.config
     is_success "$TAGGED_IMAGE successfully deployed"
 }
 
