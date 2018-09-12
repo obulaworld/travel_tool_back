@@ -57,7 +57,7 @@ buildLintAndDeployK8sConfiguration(){
 
 slackPayLoad() {
   if [ "$1" == "fail" ]; then
-    TEXT=":fire: Travela Backend deployment failed :fire:"
+    TEXT=":fire: Travela Backend ${CIRCLE_JOB} job failed :fire:"
     STYLE="danger"
     TITLE="Failed to deploy commit"
     COLOR="danger"
@@ -105,6 +105,9 @@ EOF
 }
 
 sendSlackDeployNotification() {
+  if [ "${CIRCLE_BRANCH}" == "master" ] \
+  || [ "${CIRCLE_BRANCH}" == "develop" ]
+  then
     require NOTIFICATION_CHANNEL $NOTIFICATION_CHANNEL
     require SLACK_CHANNEL_HOOK $SLACK_CHANNEL_HOOK
 
@@ -117,6 +120,9 @@ sendSlackDeployNotification() {
     info "${INFO}"
     curl -X POST -H 'Content-type: application/json' --data "$(slackPayLoad "${1}")" "${SLACK_CHANNEL_HOOK}"
     is_success "Slack notification has been successfully sent"
+  else
+    info "Sends notification for master or develop branch only"
+  fi
 }
 
 main() {
