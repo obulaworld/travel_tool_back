@@ -7,6 +7,7 @@ import {
   user,
   userRole,
   newRole,
+  profile,
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 
@@ -160,6 +161,7 @@ describe('User Role Test', () => {
       });
   });
 
+
   it('should return error if login user does not exist in database when changing user role', (done) => {
     request(app)
       .put('/api/v1/user/role/update')
@@ -250,6 +252,35 @@ describe('User Role Test', () => {
       });
   });
 
+  it('should add user profile to the database', (done) => {
+    request(app)
+      .put('/api/v1/user/JNDVNFSFDK/profile')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .send(profile.profile1)
+      .expect(201)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(true);
+        if (err) return done(err);
+        done();
+      });
+  });
+
+
+  it('should throw an error if the gender is wrong', (done) => {
+    request(app)
+      .put('/api/v1/user/JNDVNFSFDK/profile')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .send(profile.profile2)
+      .expect(400)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
+        if (err) return done(err);
+        done();
+      });
+  });
+
   it('should throw error when field is empty when super admin is adding new role', (done) => {
     request(app)
       .post('/api/v1/user/role')
@@ -275,6 +306,20 @@ describe('User Role Test', () => {
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
         expect(res.body.message).toEqual('Email does not exist');
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should throw an error if the user does not exist', (done) => {
+    request(app)
+      .put('/api/v1/user/JN/profile')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .send(profile.profile1)
+      .expect(400)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
         if (err) return done(err);
         done();
       });

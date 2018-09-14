@@ -19,6 +19,26 @@ module.exports = {
       allowNull: false,
       type: Sequelize.STRING,
     },
+    passportName: {
+      allowNull: true,
+      type: Sequelize.STRING,
+    },
+    department: {
+      allowNull: true,
+      type: Sequelize.STRING,
+    },
+    occupation: {
+      allowNull: true,
+      type: Sequelize.STRING,
+    },
+    manager: {
+      allowNull: true,
+      type: Sequelize.STRING,
+    },
+    gender: {
+      allowNull: true,
+      type: Sequelize.STRING,
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE,

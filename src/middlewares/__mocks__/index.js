@@ -21,9 +21,13 @@ const middleware = {
     validateAddRole: jest.fn(invokeNextMiddleware),
     validateUserRole: jest.fn(invokeNextMiddleware),
     checkEmail: jest.fn(invokeNextMiddleware),
+    checkGender: jest.fn(invokeNextMiddleware),
     validateStatus: jest.fn(invokeNextMiddleware),
+    validatePersonalInformation: jest.fn(invokeNextMiddleware),
+    validateWorkInformation: jest.fn(invokeNextMiddleware),
+    validateManager: jest.fn(invokeNextMiddleware)
   },
-  validateDirectReport: jest.fn(mockValidateDirectReport),
+  validateDirectReport: jest.fn(mockValidateDirectReport)
 };
 
 export default middleware;

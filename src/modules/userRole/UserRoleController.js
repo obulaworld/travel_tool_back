@@ -36,6 +36,27 @@ class UserRoleController {
     UserRoleController.response(res, message, result);
   }
 
+  static async updateUserProfile(req, res) {
+    const user = await models.User.findOne({
+      where: {
+        userId: req.params.id,
+      }
+    });
+    if (!user) {
+      const message = [400, 'User does not exist', false];
+      return UserRoleController.response(res, message);
+    }
+    const result = await user.update({
+      passportName: req.body.passportName || user.passportName,
+      department: req.body.department || user.department,
+      occupation: req.body.occupation || user.occupation,
+      manager: req.body.manager || user.manager,
+      gender: req.body.gender || user.gender,
+    });
+    const message = [201, 'Profile updated successfully', true];
+    UserRoleController.response(res, message, result);
+  }
+
   static async addUser(req, res) {
     const { fullName, email, userId } = req.body;
     if (!userId) {

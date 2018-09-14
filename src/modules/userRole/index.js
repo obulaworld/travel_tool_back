@@ -10,12 +10,20 @@ Router.get('/user/roles', authenticate, UserRoleController.getRoles);
 Router.put('/user/admin', authenticate, UserRoleController.autoAdmin);
 Router.get('/user/:id', authenticate, UserRoleController.getOneUser);
 
+Router.put(
+  '/user/:id/profile',
+  authenticate,
+  Validator.validatePersonalInformation,
+  Validator.checkGender,
+  UserRoleController.updateUserProfile
+);
+
 Router.post(
   '/user',
   authenticate,
   Validator.validateUser,
   Validator.checkEmail,
-  UserRoleController.addUser,
+  UserRoleController.addUser
 );
 
 Router.post(
@@ -23,7 +31,7 @@ Router.post(
   authenticate,
   Validator.validateAddRole,
   UserRoleController.isAdmin,
-  UserRoleController.addRole,
+  UserRoleController.addRole
 );
 
 Router.put(
@@ -31,7 +39,7 @@ Router.put(
   authenticate,
   UserRoleController.isAdmin,
   Validator.validateUserRole,
-  UserRoleController.updateUserRole,
+  UserRoleController.updateUserRole
 );
 
 Router.get('/user/roles/:id', authenticate, UserRoleController.getOneRole);
