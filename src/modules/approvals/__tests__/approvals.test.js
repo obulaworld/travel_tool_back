@@ -18,7 +18,7 @@ describe('server integration tests', () => {
     // fetch  modules after mocking
     middleware = require('../../../middlewares').default;
     app = require('../../../app').default;
-    ApprovalsController = require('../approvals').default;
+    ApprovalsController = require('../ApprovalsController').default;
   });
 
   beforeEach(() => {
@@ -101,9 +101,9 @@ describe('ApprovalsController unit tests', () => {
   const approverId = '-LJV4b1QTCYewOtk5F63';
 
   beforeAll(() => {
-    jest.unmock('../approvals');
+    jest.unmock('../ApprovalsController');
     // fetch module after unmocking
-    UnmockedApprovalsController = require('../approvals').default;
+    UnmockedApprovalsController = require('../ApprovalsController').default;
     // spies
     json = jest.fn();
     status = jest.fn(() => ({ json }));

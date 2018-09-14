@@ -3,6 +3,7 @@ import { createSubquery, countByStatus } from '../../helpers/requests';
 import handleServerError from '../../helpers/serverError';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
+import notFoundError from '../../helpers/notFoundError';
 
 class ApprovalsController {
   static fillWithRequestData(approval) {
@@ -51,36 +52,22 @@ class ApprovalsController {
     }
   }
 
+  // updates rewuest table with new request
   static async updateRequestStatus(req, res) {
     const { newStatus } = req.body;
     const { request } = req;
     try {
       const updateApproval = await ApprovalsController.updateApprovals(
-        req, res, [request, newStatus]
+        res, [request, newStatus]
       );
       if (updateApproval) {
         const updatedRequest = await request.update({
           status: newStatus,
         });
 
-        const message = Utils.getRequestStatusUpdateResponse(
-          updatedRequest.status,
+        await ApprovalsController.generateCountAndMessage(
+          res, updatedRequest
         );
-
-        const count = await countByStatus(
-          models.Approval, req.user.UserInfo.name
-        );
-
-        // Fix: refactor return block later to handle
-        // updatedRequest section better
-        return res.status(200).json({
-          success: true,
-          message,
-          updatedRequest: {
-            updatedRequest,
-            count
-          },
-        });
       }
     } catch (error) {
       /* istanbul ignore next */
@@ -88,20 +75,46 @@ class ApprovalsController {
     }
   }
 
-  static async updateApprovals(req, res, request) {
+  // finds and updates approval table with new request status
+  static async updateApprovals(res, request) {
     try {
       const requestToApprove = await models.Approval.find({
         where: {
           requestId: request[0].id
         }
       });
+
+      if (!requestToApprove) {
+        const error = 'Request not found';
+        return notFoundError(error, res);
+      }
+      const { status } = requestToApprove;
+      if (['Approved', 'Rejected'].includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: `Request has been ${status.toLowerCase()} already`
+        });
+      }
       return await requestToApprove.update({
         status: request[1]
       });
     } catch (error) {
       /* istanbul ignore next */
-      return handleServerError(error.errors[0].message || error, res);
+      return handleServerError(error, res);
     }
+  }
+
+  static async generateCountAndMessage(res, updatedRequest) {
+    const message = Utils.getRequestStatusUpdateResponse(
+      updatedRequest.status,
+    );
+    return res.status(200).json({
+      success: true,
+      message,
+      updatedRequest: {
+        request: updatedRequest,
+      },
+    });
   }
 }
 

@@ -533,6 +533,23 @@ describe('Requests Controller', () => {
         });
     });
 
+    describe('Not Requesters Manager', () => {
+      it('should return an error message', async () => {
+        const newRequest = {
+          newStatus: 'Rejected',
+        };
+        const res = await request(app)
+          .put('/api/v1/approvals/xDh20cuGy')
+          .set('authorization', nonRequestManagerToken)
+          .send({ ...newRequest });
+        expect(res.status).toBe(403);
+        expect(res.body).toMatchObject({
+          success: false,
+          error: 'Permission denied, you are not requesters manager',
+        });
+      });
+    });
+
     describe('Unauthenticated User', () => {
       it('should check if the token exists and return 401 if it does not',
         async () => {
@@ -556,22 +573,40 @@ describe('Requests Controller', () => {
         });
     });
 
-    describe('Not Requesters Manager', () => {
-      //  create request if everything is fine
-      it('should return an error message', async () => {
-        const newRequest = {
-          newStatus: 'Rejected',
-        };
+    describe('Requesters Manager', () => {
+      it('should not update a requests status twice',
+      async () => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuGy')
-          .set('authorization', nonRequestManagerToken)
-          .send({ ...newRequest });
-        expect(res.status).toBe(403);
+        .set('authorization', token)
+        .send({ newStatus: 'Approved' });
+        expect(res.statusCode).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Request has been approved already')
+      });
+    });
+
+    describe('Requesters Manager', () => {
+      beforeAll(async (done) => {
+        await models.Approval.destroy({
+           where: {
+             requestId:'xDh20cuGy',
+           }
+         });
+        done();
+      });
+
+      it('should return an error message if approval does not exist', async () => {
+        const res = await request(app)
+          .put('/api/v1/approvals/xDh20cuGy')
+          .set('authorization', token)
+          .send({ newStatus: 'Rejected' });
+        expect(res.status).toBe(404);
         expect(res.body).toMatchObject({
           success: false,
-          error: 'Permission denied, you are not requesters manager',
+          error: 'Request not found',
         });
       });
     });
-  });// end of UPDATE REQUEST STATUS API
+  });// end of REQUEST STATUS UPDATE
 });

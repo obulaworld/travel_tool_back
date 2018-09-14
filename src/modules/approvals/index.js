@@ -1,7 +1,7 @@
 import express from 'express';
 import middleware from '../../middlewares';
 import validators from '../../helpers/validators';
-import ApprovalsController from './approvals';
+import ApprovalsController from './ApprovalsController';
 
 const ApprovalsRouter = express.Router();
 

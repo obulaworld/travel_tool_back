@@ -3,7 +3,7 @@ import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import { createSubquery, countByStatus } from '../../helpers/requests';
 import handleServerError from '../../helpers/serverError';
-import ApprovalsController from '../approvals/approvals';
+import ApprovalsController from '../approvals/ApprovalsController';
 
 class RequestsController {
   static async createRequest(req, res) {
