@@ -4,6 +4,8 @@ import Utils from '../../helpers/Utils';
 import { createSubquery, countByStatus } from '../../helpers/requests';
 import handleServerError from '../../helpers/serverError';
 import ApprovalsController from '../approvals/ApprovalsController';
+import UserRoleController from '../userRole/UserRoleController';
+import NotificationEngine from '../notifications/NotificationEngine';
 
 class RequestsController {
   static async createRequest(req, res) {
@@ -15,14 +17,36 @@ class RequestsController {
       };
       const newRequest = await models.Request.create(requestData);
       const newApproval = await ApprovalsController.createApproval(newRequest);
+      RequestsController.sendNotificationToManager(req, res, newRequest);
+
       return res.status(201).json({
         success: true,
         message: 'Request created successfully',
         request: newRequest,
-        Approval: newApproval
+        Approval: newApproval,
       });
-    } catch (error) {
-      /* istanbul ignore next */
+    } catch (error) { /* istanbul ignore next */
+      handleServerError(error, res);
+    }
+  }
+
+  static async sendNotificationToManager(req, res, request) {
+    try {
+      const { userId, id, manager } = request;
+      const recipientId = await UserRoleController.getRecipientId(manager);
+
+      const notificationData = {
+        senderId: userId,
+        recipientId: recipientId.userId,
+        notificationType: 'pending',
+        requestId: id,
+        message: 'created a new travel request',
+        notificationLink: `/request/${id}`,
+        senderName: req.user.UserInfo.name,
+        senderImage: req.user.UserInfo.picture,
+      };
+      NotificationEngine.notify(notificationData);
+    } catch (error) { /* istanbul ignore next */
       handleServerError(error, res);
     }
   }

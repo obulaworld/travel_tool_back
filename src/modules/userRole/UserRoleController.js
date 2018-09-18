@@ -133,7 +133,7 @@ class UserRoleController {
           {
             model: models.User,
             as: 'users',
-            attributes: ['email', 'fullName'],
+            attributes: ['email', 'fullName', 'userId'],
           },
         ],
       });
@@ -196,6 +196,15 @@ class UserRoleController {
       ];
       UserRoleController.response(res, message);
     }
+  }
+
+  static async getRecipientId(recipientName) {
+    const recipientId = await models.User.findOne({
+      where: {
+        fullName: recipientName
+      }
+    });
+    return recipientId;
   }
 }
 

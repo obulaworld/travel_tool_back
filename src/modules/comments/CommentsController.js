@@ -1,6 +1,7 @@
 import models from '../../database/models';
 import Utils from '../../helpers/Utils';
 import handleServerError from '../../helpers/serverError';
+import notFoundError from '../../helpers/notFoundError';
 
 class CommentsController {
   static async createComment(req, res) {
@@ -8,7 +9,11 @@ class CommentsController {
       const { requestId } = req.body;
       const { name, email, picture } = req.user.UserInfo;
       const commentData = {
-        ...req.body, id: Utils.generateUniqueId(), userName: name, userEmail: email, picture,
+        ...req.body,
+        id: Utils.generateUniqueId(),
+        userName: name,
+        userEmail: email,
+        picture,
       };
       const request = await models.Request.findById(requestId);
       // only create a comment if the request exists
@@ -20,13 +25,9 @@ class CommentsController {
           comment: newComment,
         });
       }
-      return res.status(404).json({
-        success: false,
-        error: 'Request does not exist',
-      });
+      return notFoundError('Request does not exist', res);
     } catch (error) { /* istanbul ignore next */
-      // return handleServerError('Server Error', res);
-      return console.log('#########', error);
+      return handleServerError('Server Error', res);
     }
   }
 
@@ -35,25 +36,24 @@ class CommentsController {
       const { requestId } = req.body;
       const commentId = req.params.id;
       const { name, email, picture } = req.user.UserInfo;
-      const commentData = {...req.body, userName: name, userEmail: email, picture, };
+      const commentData = {
+        ...req.body, userName: name, userEmail: email, picture,
+      };
       const request = await models.Request.findById(requestId);
       if (!request) {
-        return res.status(404).json({
-          success: false,
-          error: 'Request does not exist', });
+        return notFoundError('Request does not exist', res);
       }
       const foundComment = await models.Comment.findById(commentId);
       if (!foundComment) {
-        return res.status(404).json({
-          success: false,
-          error: 'Comment does not exist', });
+        return notFoundError('Comment does not exist', res);
       }
       const editedComment = await models.Comment.update(commentData,
         { where: { id: commentId }, returning: true, plain: true });
       return res.status(200).json({
         success: true,
         message: 'Comment updated successfully',
-        comment: editedComment[1], });
+        comment: editedComment[1],
+      });
     } catch (error) { /* istanbul ignore next */
       return handleServerError('Server Error', res);
     }
