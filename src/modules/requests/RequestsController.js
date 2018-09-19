@@ -10,12 +10,14 @@ import NotificationEngine from '../notifications/NotificationEngine';
 class RequestsController {
   static async createRequest(req, res) {
     try {
+      const { trips } = req.body;
       const requestData = {
         ...req.body,
         id: Utils.generateUniqueId(),
         userId: req.user.UserInfo.id
       };
       const newRequest = await models.Request.create(requestData);
+      await Promise.all(trips.map(trip => newRequest.createTrip(trip)));
       const newApproval = await ApprovalsController.createApproval(newRequest);
       RequestsController.sendNotificationToManager(req, res, newRequest);
 
@@ -80,7 +82,7 @@ class RequestsController {
     try {
       const requestData = await models.Request.find({
         where: { id: requestId },
-        include: [{ model: models.Comment, as: 'comments' }],
+        include: ['comments', 'trips'],
       });
       if (!requestData) {
         return res.status(404).json({

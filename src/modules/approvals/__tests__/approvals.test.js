@@ -1,21 +1,23 @@
-/* eslint global-require: 0 */
-/* eslint no-unused-vars: 0 */
-/* eslint one-var: 0 */
-/* eslint one-var-declaration-per-line: 0 */
-/* eslint no-shadow: 0 */
+/* eslint-disable */
 import supertest from 'supertest';
 import models from '../../../database/models';
 import { mockRouterMiddleware, mockApprovals } from './mocks/mockModules';
 
 /* SERVER INTEGRATION TESTS */
 describe('server integration tests', () => {
+  /*
+    THIS TEST SUITE RELIES ON MIDDLEWARE MOCKS FOR INTEGRATION TESTING
+    ------------------------------------------------------------------
+    The tests may fail if a middeware/validator is added in
+    src/middlewares and not mocked in /scr/middlewares/__mocks__
+  */
   const testClient = supertest;
   let middleware, ApprovalsController, app;
 
   beforeAll(() => {
     mockRouterMiddleware();
     mockApprovals();
-    // fetch  modules after mocking
+    // Fetch mocked modules
     middleware = require('../../../middlewares').default;
     app = require('../../../app').default;
     ApprovalsController = require('../ApprovalsController').default;

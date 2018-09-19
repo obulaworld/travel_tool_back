@@ -6,26 +6,6 @@ export default (sequelize, DataTypes) => {
       autoIncrement: true,
       type: DataTypes.INTEGER
     },
-    requestId: {
-      allowNull: false,
-      type: DataTypes.STRING,
-      unique: {
-        args: true,
-        msg: 'Cannot update a request twice'
-      },
-      references: {
-        model: 'Requests',
-        key: 'id',
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE'
-      },
-      validate: {
-        notEmpty: {
-          args: true,
-          msg: 'requestId cannot be empty'
-        }
-      }
-    },
     approverId: {
       // FIX: In future, this should be the manager's email address or unique ID
       allowNull: false,

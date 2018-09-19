@@ -3,7 +3,7 @@
 import supertest from 'supertest';
 import models from '../../../database/models';
 import app from '../../../app';
-import testRequests from './mocks/mockData';
+import testRequests, { newRequest } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 
 const request = supertest;
@@ -419,21 +419,6 @@ describe('Requests Controller', () => {
 
       //  create request if everything is fine
       it('should add a new request to the db', async (done) => {
-        const newRequest = {
-          id: 'h35gbb',
-          name: 'Tester Demola',
-          origin: 'Kampala',
-          destination: 'New york',
-          gender: 'Male',
-          manager: 'Samuel Kubai',
-          department: 'TDD',
-          role: 'Senior Consultant',
-          status: 'Open',
-          departureDate: '2018-08-16',
-          arrivalDate: '2018-08-30',
-          createdAt: '2018-08-16 012:11:52.181+01',
-          updatedAt: '2018-08-16 012:11:52.181+01'
-        };
         const res = await request(app)
           .post('/api/v1/requests')
           .set('authorization', token)
@@ -467,11 +452,36 @@ describe('Requests Controller', () => {
         userId: '-MUyHJmKrxA90lPNQ1FOLNm',
         departureDate: '2018-12-09',
         arrivalDate: '2018-11-12',
+        tripType: 'multi',
         createdAt: response.body.requestData.createdAt,
         updatedAt: response.body.requestData.updatedAt,
+        comments: [],
+        trips: []
         }
       })
     })
+
+    it('should return the expected number of trips', async () => {
+      const postResp = await request(app)
+        .post('/api/v1/requests')
+        .set('authorization', token)
+        .send(newRequest);
+      const createdRequestId = postResp.body.request.id;
+
+      const getResp = await request(app)
+        .get(`/api/v1/requests/${createdRequestId}`)
+        .set('authorization', token)
+      expect(getResp.body.requestData.trips).toHaveLength(2);
+    });
+
+    it('should return the correct type of the request', async () => {
+      const postResp = await request(app)
+        .post('/api/v1/requests')
+        .set('authorization', token)
+        .send(newRequest);
+      const createdRequestType = postResp.body.request.tripType;
+      expect(createdRequestType).toBe('multi');
+    });
 
     it('should return a 404 ststus code for unexisting requestId', async () => {
       const response = await request(app)

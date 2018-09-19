@@ -32,7 +32,7 @@ class ApprovalsController {
 
     try {
       const result = await models.Approval.findAndCountAll(subquery);
-      // FIX: In future count by should use a unique user identity and not name
+      // FIXME: countByStatus should use a unique user identity, not userName
       const count = await countByStatus(models.Approval, userName);
       const pagination = Pagination.getPaginationData(page, limit, result);
       const { fillWithRequestData } = ApprovalsController;

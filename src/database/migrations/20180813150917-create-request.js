@@ -50,6 +50,11 @@ module.exports = {
       allowNull: false,
       type: Sequelize.DATEONLY
     },
+    tripType: {
+      allowNull: false,
+      type: Sequelize.ENUM,
+      values: ['return', 'oneWay', 'multi']
+    },
     createdAt: {
       allowNull: false,
       type: Sequelize.DATE

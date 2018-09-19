@@ -41,6 +41,7 @@ const token3 = Utils.generateTestToken(payload3);
 describe('User Role Test', () => {
   beforeAll((done) => {
     models.Role.bulkCreate(role);
+    process.env.DEFAULT_ADMIN = 'captain.america@andela.com';
     done();
   });
 

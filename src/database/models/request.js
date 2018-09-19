@@ -101,12 +101,22 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.DATEONLY,
     },
+    tripType: {
+      allowNull: false,
+      type: DataTypes.ENUM,
+      values: ['return', 'oneWay', 'multi']
+    },
   });
 
   Request.associate = (models) => {
     Request.hasMany(models.Comment, {
       foreignKey: 'requestId',
       as: 'comments',
+    });
+
+    Request.hasMany(models.Trip, {
+      foreignKey: 'requestId',
+      as: 'trips'
     });
   };
   return Request;
