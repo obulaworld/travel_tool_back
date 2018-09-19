@@ -37,7 +37,7 @@ class CommentsController {
       const commentId = req.params.id;
       const { name, email, picture } = req.user.UserInfo;
       const commentData = {
-        ...req.body, userName: name, userEmail: email, picture,
+        ...req.body, userName: name, userEmail: email, picture, isEdited: true
       };
       const request = await models.Request.findById(requestId);
       if (!request) {

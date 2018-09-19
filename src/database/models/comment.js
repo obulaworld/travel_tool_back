@@ -3,6 +3,9 @@ module.exports = (sequelize, DataTypes) => {
     comment: {
       type: DataTypes.TEXT,
     },
+    isEdited: {
+      type: DataTypes.BOOLEAN,
+    },
     userName: {
       type: DataTypes.STRING,
     },
@@ -13,7 +16,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
   });
-
   Comment.associate = (models) => {
     Comment.belongsTo(models.Request, {
       foreignKey: 'requestId',
