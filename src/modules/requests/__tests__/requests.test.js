@@ -5,13 +5,21 @@ import models from '../../../database/models';
 import app from '../../../app';
 import testRequests, { newRequest } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
+import { role } from '../../userRole/__tests__/mocks/mockData'
 
 const request = supertest;
+
+global.io = {
+  sockets: {
+    emit: (event, dataToEmit) => dataToEmit
+  }
+}
 
 const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
-    name: 'Samuel Kubai'
+    name: 'Samuel Kubai',
+    picture: 'fake picture'
   },
 };
 
@@ -21,6 +29,14 @@ const fakeManager = {
     name: 'Oratorio Platimus'
   },
 };
+
+const user = {
+  fullName: 'Samuel Kubai',
+  email: '',
+  userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+  roleId: '53019'
+}
+
 const requestId = 'xDh20cuGz'
 const invalidId = 'xghvhbdebdhhe'
 const token = Utils.generateTestToken(payload);
@@ -29,6 +45,10 @@ const invalidToken =
   'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4';
 
 describe('Requests Controller', () => {
+    beforeAll((done) => {
+    models.Role.bulkCreate(role);
+    done();
+  });
   describe('GET /api/v1/requests', () => {
     describe('Authenticated user with no requests', () => {
       it(`should return 200 status and the appropriate
@@ -335,6 +355,10 @@ describe('Requests Controller', () => {
   });
 
   describe('POST / requests - Create New Request', () => {
+    beforeAll((done) => {
+      models.User.create(user);
+      done();
+    });
     describe('Unauthenticated User', () => {
       it('should check if the token exists and return 401 if it does not', async () => {
         const res = await request(app)

@@ -19,6 +19,8 @@ io.on('connection', (client) => {
   client.on('disconnect', () => logger('Socket disconnected'));
 });
 
+global.io = io;
+
 server.listen(env.PORT, () => {
   logger(`Find me on http://localhost:${env.PORT}`);
 });

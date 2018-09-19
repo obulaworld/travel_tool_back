@@ -10,7 +10,7 @@ NotificationsRouter.get(
   '/notifications',
   authenticate,
   Validator.validateGetRequests,
-  NotificationController.RetrieveNotifications
+  NotificationController.retrieveNotifications
 );
 
 export default NotificationsRouter;

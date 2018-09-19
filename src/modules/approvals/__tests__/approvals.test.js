@@ -1,6 +1,5 @@
 /* eslint-disable */
 import supertest from 'supertest';
-import models from '../../../database/models';
 import { mockRouterMiddleware, mockApprovals } from './mocks/mockModules';
 
 /* SERVER INTEGRATION TESTS */

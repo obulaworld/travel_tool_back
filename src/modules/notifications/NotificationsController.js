@@ -1,8 +1,9 @@
 import models from '../../database/models';
 import handleServerError from '../../helpers/serverError';
+import notFoundError from '../../helpers/notFoundError';
 
 class NotificationController {
-  static async RetrieveNotifications(req, res) {
+  static async retrieveNotifications(req, res) {
     try {
       const { id } = req.user.UserInfo;
       const notifications = await models.Notification.findAll({
@@ -10,13 +11,16 @@ class NotificationController {
           recipientId: id
         }
       });
-      return res.status(200).json({
-        success: true,
-        message: 'Notification retrieved successfully',
-        notifications,
-      });
+      if (notifications.length !== 0) {
+        return res.status(200).json({
+          success: true,
+          message: 'Notification retrieved successfully',
+          notifications,
+        });
+      }
+      return notFoundError('You have no notifications at the moment', res);
     } catch (error) {
-      handleServerError(error, res);
+      return handleServerError('Server Error', res);
     }
   }
 }

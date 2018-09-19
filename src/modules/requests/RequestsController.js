@@ -28,7 +28,7 @@ class RequestsController {
         Approval: newApproval,
       });
     } catch (error) { /* istanbul ignore next */
-      handleServerError(error, res);
+      return handleServerError(error, res);
     }
   }
 
@@ -47,9 +47,9 @@ class RequestsController {
         senderName: req.user.UserInfo.name,
         senderImage: req.user.UserInfo.picture,
       };
-      NotificationEngine.notify(notificationData);
+      return NotificationEngine.notify(notificationData);
     } catch (error) { /* istanbul ignore next */
-      handleServerError(error, res);
+      return handleServerError('Server Error', res);
     }
   }
 

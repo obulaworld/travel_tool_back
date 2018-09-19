@@ -16,7 +16,7 @@
     "db:seed": "node_modules/.bin/sequelize db:seed:all",
     "db:migrate": "node_modules/.bin/sequelize db:migrate",
     "db:rollback": "node_modules/.bin/sequelize db:migrate:undo:all",
-    "db:rollmigrate":"yarn run db:rollback && yarn run db:migrate && yarn run db:seed"
+    "db:rollmigrate": "yarn db:rollback && yarn db:migrate && yarn db:seed"
   },
   "repository": {
     "type": "git",

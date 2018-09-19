@@ -4,6 +4,7 @@ import handleServerError from '../../helpers/serverError';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import notFoundError from '../../helpers/notFoundError';
+import NotificationEngine from '../notifications/NotificationEngine';
 
 class ApprovalsController {
   static fillWithRequestData(approval) {
@@ -52,18 +53,21 @@ class ApprovalsController {
     }
   }
 
-  // updates rewuest table with new request
+  // updates request table with new request
   static async updateRequestStatus(req, res) {
     const { newStatus } = req.body;
-    const { request } = req;
+    const { request, user } = req;
     try {
       const updateApproval = await ApprovalsController.updateApprovals(
-        res, [request, newStatus]
+        res, [request, newStatus, user]
       );
-      if (updateApproval) {
+      if (updateApproval.approverId) {
         const updatedRequest = await request.update({
           status: newStatus,
         });
+
+        ApprovalsController
+          .sendNotificationAfterApproval(user, updatedRequest);
 
         await ApprovalsController.generateCountAndMessage(
           res, updatedRequest
@@ -75,7 +79,7 @@ class ApprovalsController {
     }
   }
 
-  // finds and updates approval table with new request status
+  // updates approval table with new request status
   static async updateApprovals(res, request) {
     try {
       const requestToApprove = await models.Approval.find({
@@ -88,6 +92,7 @@ class ApprovalsController {
         const error = 'Request not found';
         return notFoundError(error, res);
       }
+
       const { status } = requestToApprove;
       if (['Approved', 'Rejected'].includes(status)) {
         return res.status(400).json({
@@ -95,6 +100,7 @@ class ApprovalsController {
           message: `Request has been ${status.toLowerCase()} already`
         });
       }
+
       return await requestToApprove.update({
         status: request[1]
       });
@@ -115,6 +121,28 @@ class ApprovalsController {
         request: updatedRequest,
       },
     });
+  }
+
+  static async sendNotificationAfterApproval(user, updatedRequest) {
+    try {
+      const { status, id, userId } = updatedRequest;
+      const { name, picture } = user.UserInfo;
+      const notificationData = {
+        senderId: user.UserInfo.id,
+        senderName: name,
+        senderImage: picture,
+        recipientId: userId,
+        notificationType: 'general',
+        requestId: id,
+        message: 'approved your request',
+        notificationLink: `/requests/${id}`,
+      };
+
+      return status === 'Approved'
+        && await NotificationEngine.notify(notificationData);
+    } catch (error) {
+      return handleServerError(error);
+    }
   }
 }
 
