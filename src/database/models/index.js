@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { createNamespace } from 'cls-hooked';
 import Sequelize from 'sequelize';
 import config from '../../config/database';
 
@@ -8,6 +9,8 @@ const env = process.env.NODE_ENV || 'development';
 
 const db = {};
 
+const namespace = createNamespace('sequelize-transaction');
+Sequelize.useCLS(namespace);
 const sequelize = new Sequelize(config[env].databaseUrl, config[env]);
 
 fs.readdirSync(__dirname)

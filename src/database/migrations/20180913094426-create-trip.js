@@ -2,9 +2,8 @@ module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('Trips', {
     id: {
       allowNull: false,
-      autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     requestId: {
       allowNull: false,
@@ -26,11 +25,11 @@ module.exports = {
     },
     departureDate: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATEONLY
     },
     returnDate: {
       allowNull: true,
-      type: Sequelize.DATE
+      type: Sequelize.DATEONLY
     },
     createdAt: {
       allowNull: false,

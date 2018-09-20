@@ -3,17 +3,43 @@
 import supertest from 'supertest';
 import models from '../../../database/models';
 import app from '../../../app';
-import testRequests, { newRequest } from './mocks/mockData';
+import { role } from '../../userRole/__tests__/mocks/mockData';
+import {
+  testRequests,
+  emptyRequestResponse,
+  editRequestSuccessResponse,
+  createRequestSuccessResponse,
+  dates,
+  manager,
+  mockRequest,
+}
+ from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
-import { role } from '../../userRole/__tests__/mocks/mockData'
 
 const request = supertest;
 
 global.io = {
   sockets: {
-    emit: (event, dataToEmit) => dataToEmit
+    emit: (event, dataToBeEmitted) => dataToBeEmitted
   }
 }
+
+const newRequest = {
+  name: 'Test',
+  manager: 'Some manager',
+  tripType: 'return',
+  gender: 'Female',
+  department: 'TDD',
+  role: 'Software Developer',
+  trips: [
+    {
+      origin: 'Lagos',
+      destination: 'Nairobi',
+      departureDate: dates.departureDate,
+      returnDate: dates.returnDate
+    }
+  ]
+};
 
 const payload = {
   UserInfo: {
@@ -43,6 +69,7 @@ const token = Utils.generateTestToken(payload);
 const nonRequestManagerToken = Utils.generateTestToken(fakeManager);
 const invalidToken =
   'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4';
+let updatedTripId;
 
 describe('Requests Controller', () => {
     beforeAll((done) => {
@@ -85,11 +112,10 @@ describe('Requests Controller', () => {
     });
 
     describe('Authenticated user With requests', () => {
-      let requests;
       beforeAll(async done => {
         try {
-          const response = await models.Request.bulkCreate(testRequests);
-          requests = JSON.parse(JSON.stringify(response));
+          await models.Request.bulkCreate(testRequests);
+          await models.User.create(manager);
           done();
         } catch (error) {
           throw new Error(error);
@@ -99,28 +125,13 @@ describe('Requests Controller', () => {
       it('should return 200 status, the requests and pagination data', done => {
         const expectedResponse = {
           status: 200,
-          body: {
-            success: true,
-            requests,
-            meta: {
-              count: {
-                open: 1,
-                past: 2,
-              },
-              pagination: {
-                pageCount: 1,
-                currentPage: 1,
-                dataCount: 3,
-              },
-            },
-          },
         };
 
         request(app)
           .get('/api/v1/requests')
           .set('authorization', token)
           .end((err, res) => {
-            expect(res.body).toMatchObject(expectedResponse.body);
+            expect(res.status).toEqual(expectedResponse.status);
             expect(res.body.requests.length).toEqual(3);
             done();
           });
@@ -129,21 +140,6 @@ describe('Requests Controller', () => {
       it('should return 200 status and the requested number of requests when a limit query is provided', done => {
         const expectedResponse = {
           status: 200,
-          body: {
-            requests: requests.slice(0, 2),
-            meta: {
-              count: {
-                open: 1,
-                past: 2,
-              },
-              pagination: {
-                pageCount: 2,
-                currentPage: 1,
-                dataCount: 3,
-              },
-            },
-            success: true,
-          },
         };
 
         request(app)
@@ -151,7 +147,7 @@ describe('Requests Controller', () => {
           .set('authorization', token)
           .end((err, res) => {
             expect(res.body.requests).toHaveLength(2);
-            expect(res).toMatchObject(expectedResponse);
+            expect(res.status).toEqual(expectedResponse.status);
             done();
           });
       });
@@ -159,21 +155,6 @@ describe('Requests Controller', () => {
       it('should return 200 status and only open requests when the status query is set to `open`', done => {
         const expectedResponse = {
           status: 200,
-          body: {
-            success: true,
-            requests: requests.slice(0, 1),
-            meta: {
-              count: {
-                open: 1,
-                past: 2,
-              },
-              pagination: {
-                pageCount: 1,
-                currentPage: 1,
-                dataCount: 1,
-              },
-            },
-          },
         };
 
         request(app)
@@ -181,7 +162,8 @@ describe('Requests Controller', () => {
           .set('Authorization', token)
           .end((err, res) => {
             expect(res.body.requests).toHaveLength(1);
-            expect(res).toMatchObject(expectedResponse);
+            expect(res.status).toEqual(expectedResponse.status);
+            expect(res.body.requests[0].status).toEqual('Open');
             done();
           });
       });
@@ -222,21 +204,6 @@ describe('Requests Controller', () => {
     requests when the status query is set to 'past'`, done => {
         const expectedResponse = {
           status: 200,
-          body: {
-            success: true,
-            requests: requests.slice(1),
-            meta: {
-              count: {
-                open: 1,
-                past: 2,
-              },
-              pagination: {
-                pageCount: 1,
-                currentPage: 1,
-                dataCount: 2,
-              },
-            },
-          },
         };
 
         request(app)
@@ -244,7 +211,7 @@ describe('Requests Controller', () => {
           .set('Authorization', token)
           .end((err, res) => {
             expect(res.body.requests).toHaveLength(2);
-            expect(res).toMatchObject(expectedResponse);
+            expect(res.status).toEqual(200);
             done();
           });
       });
@@ -387,58 +354,12 @@ describe('Requests Controller', () => {
     describe('Authenticated User', () => {
       // check that all the fields are filled - fail if any field is missing
       it('should return 422 if validation fails', async () => {
-        const validationResponse = {
-          success: false,
-          message: 'Validation failed',
-          errors: [{
-              name: 'name',
-              message: 'Name is required',
-            },
-            {
-              name: 'name',
-              message: 'Name should be between 3 and 50 characters long',
-            },
-            {
-              name: 'origin',
-              message: 'Travel origin is required',
-            },
-            {
-              name: 'destination',
-              message: 'Travel destination is required',
-            },
-            {
-              name: 'manager',
-              message: 'Manager name is required',
-            },
-            {
-              name: 'gender',
-              message: 'Gender is required',
-            },
-            {
-              name: 'department',
-              message: 'Your department is required',
-            },
-            {
-              name: 'role',
-              message: 'Your role is required',
-            },
-            {
-              name: 'departureDate',
-              message: 'Departure date is required',
-            },
-            {
-              name: 'arrivalDate',
-              message: 'Arrival date is required',
-            },
-          ],
-        };
-
         const res = await request(app)
           .post('/api/v1/requests')
           .set('authorization', token)
           .send({});
         expect(res.status).toEqual(422);
-        expect(res.body).toMatchObject(validationResponse);
+        expect(res.body).toMatchObject(emptyRequestResponse);
       });
 
       //  create request if everything is fine
@@ -448,13 +369,119 @@ describe('Requests Controller', () => {
           .set('authorization', token)
           .send({ ...newRequest });
         expect(res.status).toBe(201);
-        expect(res.body.Approval.approverId).toBe(newRequest.manager)
+        expect(res.body).toMatchObject(createRequestSuccessResponse);
+        done();
+      });
+
+      it(`should throw 422 error while creating a request that is not multi-trip
+      with more than one trip` ,async(done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            errors: [
+             {
+               location: "body",
+               param: "trips",
+               msg: "A return trip must have one trip"
+             }
+            ]
+          },
+          status: 422
+        }
+        const res = await request(app)
+          .post('/api/v1/requests')
+          .set('authorization', token)
+          .send({
+            ...newRequest,
+            trips: [
+              {
+                departureDate: dates.departureDate,
+                returnDate: dates.returnDate,
+                origin: "Lagos",
+                destination :  "Angola"
+              },
+              {
+                departureDate: dates.departureDate,
+                returnDate: dates.returnDate,
+                origin: "Angola",
+                destination :  "Nairobi"
+              }
+            ]
+          });
+        expect(res).toMatchObject(expectedResponse);
+        done();
+      });
+
+      it(`should not throw 422 error while creating a request with invalid date`
+      , async(done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            errors: [
+             {
+               location: 'body',
+               param: 'trips[0].returnDate',
+               msg: 'Please specify a valid ISO return date'
+             }
+            ]
+          },
+          status: 422
+        }
+        const res = await request(app)
+          .post('/api/v1/requests')
+          .set('authorization', token)
+          .send({
+            ...newRequest,
+            trips: [
+              {
+                departureDate: dates.departureDate,
+                returnDate: 'baddate',
+                origin: 'Angola',
+                destination :  "Nairobi"
+              }
+            ]
+          });
+        expect(res).toMatchObject(expectedResponse);
+        done();
+      });
+
+      it(`should throw 422 error while creating a request if the returnDate
+        is less than the returnDate`
+      , async(done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            errors: [
+             {
+               location: "body",
+               param: "trips[0]",
+               msg: "returnDate must be greater than departureDate"
+             }
+            ]
+          },
+          status: 422
+        }
+        const res = await request(app)
+          .post('/api/v1/requests')
+          .set('authorization', token)
+          .send({
+            ...newRequest,
+            trips: [
+              {
+                departureDate: dates.returnDate,
+                returnDate: dates.departureDate,
+                origin: "Angola",
+                destination :  "Nairobi"
+              }
+            ]
+          });
+        expect(res).toMatchObject(expectedResponse);
         done();
       });
     });
   }); // end of CREATE REQUEST API
 
-  describe('Get an athenticated User Request detail', () => {
+  describe('Get an authenticated User Request detail', () => {
     // it should get request details for a user
     it('should return request details of a user', async () => {
       const response = await request(app)
@@ -466,17 +493,13 @@ describe('Requests Controller', () => {
         requestData:   {
         id: 'xDh20cuGz',
         name: 'Test user A',
-        origin: 'Lagos',
-        destination: 'Nairobi',
         manager: 'Samuel Kubai',
         gender: 'Female',
         department: 'TDD',
         role: 'Software Developer',
         status: 'Open',
         userId: '-MUyHJmKrxA90lPNQ1FOLNm',
-        departureDate: '2018-12-09',
-        arrivalDate: '2018-11-12',
-        tripType: 'multi',
+        tripType: 'return',
         createdAt: response.body.requestData.createdAt,
         updatedAt: response.body.requestData.updatedAt,
         comments: [],
@@ -489,7 +512,7 @@ describe('Requests Controller', () => {
       const postResp = await request(app)
         .post('/api/v1/requests')
         .set('authorization', token)
-        .send(newRequest);
+        .send(mockRequest);
       const createdRequestId = postResp.body.request.id;
 
       const getResp = await request(app)
@@ -502,7 +525,7 @@ describe('Requests Controller', () => {
       const postResp = await request(app)
         .post('/api/v1/requests')
         .set('authorization', token)
-        .send(newRequest);
+        .send(mockRequest);
       const createdRequestType = postResp.body.request.tripType;
       expect(createdRequestType).toBe('multi');
     });
@@ -513,9 +536,237 @@ describe('Requests Controller', () => {
         .set('authorization', token)
       expect(response.status).toBe(404);
       expect(response.body).toEqual({
-        message: `Request with id ${invalidId} does not exist`
+        error: `Request with id ${invalidId} does not exist`,
+        success: false
+      });
+    });
+  });
+
+  describe('PUT /api/v1/requests/:requestId', () => {
+    describe('Authenticated user', () => {
+      it('should edit the request and return 200 and updated request', (done) => {
+        const expectedResponse = {
+          body: {
+            ...editRequestSuccessResponse
+          },
+          status: 200,
+        }
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .set('authorization', token)
+          .send({
+            ...newRequest,
+            tripType: 'oneWay',
+            trips: [
+              {
+                origin: 'Kampala',
+                destination: 'New York',
+                departureDate: dates.departureDate,
+              }
+            ]
+          })
+          .end((err, res) => {
+            updatedTripId = res.body.trips[0].id;
+            expect(res)
+              .toMatchObject(expectedResponse);
+            done();
+        });
+      });
+      it('should return 422 error if the user supplies empty fields', (done) => {
+        const expectedResponse = {
+          body: {
+            ...emptyRequestResponse
+          },
+          status: 422,
+        }
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .set('authorization', token)
+          .send({})
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject(expectedResponse);
+            done();
+        });
+      });
+      it(`should return 422 error if a user tries to update
+        a oneWay request with a returnDate`, (done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            errors: [
+              {
+                location: 'body',
+                param: 'trips[0].returnDate',
+                msg: 'A oneWay trip cannot have a returnDate'
+            }
+            ]
+          },
+          status: 422,
+        }
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .set('authorization', token)
+          .send({
+            ...newRequest,
+            tripType: 'oneWay'
+          })
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject(expectedResponse);
+            done();
+        });
       })
-    })
+      it(`should return 422 error if a user tries to update
+        a multi-trip request with only one trip`, (done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            errors: [
+              {
+                location: 'body',
+                param: 'trips',
+                msg: 'A multi trip must have more than one trip'
+            }
+            ]
+          },
+          status: 422,
+        }
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .set('authorization', token)
+          .send({
+            ...newRequest,
+            tripType: 'multi'
+          })
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject(expectedResponse);
+            done();
+        });
+      })
+      it('should return 409 error if the request has been approved or rejected', (done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            error: 'Request could not be updated because it has been approved'
+          },
+          status: 409,
+        }
+        request(app)
+          .put('/api/v1/requests/xDh20cuGy')
+          .set('authorization', token)
+          .send({
+            ...newRequest
+          })
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject(expectedResponse);
+            done();
+        });
+      });
+      it('should return 404 error if the request does not exist', (done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            error: 'Request was not found'
+          },
+          status: 404,
+        }
+        request(app)
+          .put('/api/v1/requests/myRequest0iD')
+          .set('authorization', token)
+          .send({
+            ...newRequest
+          })
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject(expectedResponse);
+            done();
+        });
+      });
+      it(`should update or create a new trip if it does not exist
+        in the database`, (done) => {
+        const trips = [
+          {
+            id: updatedTripId,
+            origin: 'Kigali',
+            destination: 'Kampala',
+            departureDate: dates.departureDate,
+            returnDate: dates.returnDate,
+          },
+          {
+            origin: 'Kampala',
+            destination: 'Lagos',
+            departureDate: dates.departureDate,
+            returnDate: dates.returnDate,
+          }
+        ];
+        const expectedResponse = {
+          body: {
+            ...editRequestSuccessResponse,
+            request: {
+              ...editRequestSuccessResponse.request,
+              tripType: 'multi',
+            },
+            trips
+          },
+          status: 200,
+        }
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .set('authorization', token)
+          .send({
+            ...newRequest,
+            tripType: 'multi',
+            trips
+          })
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject(expectedResponse);
+            done();
+        });
+      });
+    });
+    describe('Unauthenticated user', () => {
+      it('should throw 401 error if token is not valid', (done) => {
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .set('authorization', invalidToken)
+          .send({
+            name: 'Grace John',
+          })
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject({
+                body: {
+                  success: false,
+                  error: 'Token is not valid'
+                },
+                status: 401
+              });
+            done();
+        });
+      });
+      it('should throw 401 error if token is not provided', (done) => {
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .send({
+            name: 'Grace John',
+          })
+          .end((err, res) => {
+            expect(res)
+              .toMatchObject({
+                body: {
+                  success: false,
+                  error: 'Please provide a token'
+                },
+                status: 401
+              });
+            done();
+        });
+      });
+    });
   });
   describe('PUT / approvals/:requestId - Update Request Status', () => {
     beforeAll(async done => {
@@ -616,7 +867,7 @@ describe('Requests Controller', () => {
         .send({ newStatus: 'Approved' });
         expect(res.statusCode).toEqual(400);
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('Request has been approved already')
+        expect(res.body.error).toEqual('Request has been approved already')
       });
     });
 

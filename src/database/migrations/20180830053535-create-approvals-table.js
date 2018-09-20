@@ -22,6 +22,11 @@ module.exports = {
         }
       }
     },
+    status: {
+      allowNull: false,
+      type: Sequelize.ENUM('Open', 'Approved', 'Rejected'),
+      defaultValue: 'Open',
+    },
     approverId: {
       // FIX: In future, this should be the manager's email address or unique ID
       allowNull: false,

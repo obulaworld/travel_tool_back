@@ -1,6 +1,9 @@
 import express from 'express';
 import middleware from '../../middlewares';
-import validators from '../../helpers/validators';
+import {
+  getRequestsValidators,
+  editAndCreateRequestValidators,
+} from '../../helpers/validators';
 import RequestsController from './RequestsController';
 
 const RequestsRouter = express.Router();
@@ -10,8 +13,8 @@ const { authenticate, Validator } = middleware;
 RequestsRouter.get(
   '/requests',
   authenticate,
-  validators,
-  Validator.validateGetRequests,
+  getRequestsValidators,
+  Validator.validateRequest,
   RequestsController.getUserRequests,
 );
 
@@ -24,8 +27,17 @@ RequestsRouter.get(
 RequestsRouter.post(
   '/requests',
   authenticate,
-  Validator.validateCreateRequests, // check req.body
+  editAndCreateRequestValidators,
+  Validator.validateRequest, // check req.body
   RequestsController.createRequest,
+);
+
+RequestsRouter.put(
+  '/requests/:requestId',
+  authenticate,
+  editAndCreateRequestValidators,
+  Validator.validateRequest,
+  RequestsController.updateRequest,
 );
 
 export default RequestsRouter;

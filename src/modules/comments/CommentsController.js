@@ -1,7 +1,6 @@
 import models from '../../database/models';
 import Utils from '../../helpers/Utils';
-import handleServerError from '../../helpers/serverError';
-import notFoundError from '../../helpers/notFoundError';
+import Error from '../../helpers/Error';
 
 class CommentsController {
   static async createComment(req, res) {
@@ -25,9 +24,9 @@ class CommentsController {
           comment: newComment,
         });
       }
-      return notFoundError('Request does not exist', res);
+      return Error.handleError('Request does not exist', 404, res);
     } catch (error) { /* istanbul ignore next */
-      return handleServerError('Server Error', res);
+      return Error.handleError('Server Error', 500, res);
     }
   }
 
@@ -41,11 +40,11 @@ class CommentsController {
       };
       const request = await models.Request.findById(requestId);
       if (!request) {
-        return notFoundError('Request does not exist', res);
+        return Error.handleError('Request does not exist', 404, res);
       }
       const foundComment = await models.Comment.findById(commentId);
       if (!foundComment) {
-        return notFoundError('Comment does not exist', res);
+        return Error.handleError('Comment does not exist', 404, res);
       }
       const editedComment = await models.Comment.update(commentData,
         { where: { id: commentId }, returning: true, plain: true });
@@ -55,7 +54,7 @@ class CommentsController {
         comment: editedComment[1],
       });
     } catch (error) { /* istanbul ignore next */
-      return handleServerError('Server Error', res);
+      return Error.handleError('Server Error', 500, res);
     }
   }
 }

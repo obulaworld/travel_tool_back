@@ -9,14 +9,6 @@ module.exports = {
       allowNull: false,
       type: Sequelize.STRING
     },
-    origin: {
-      allowNull: false,
-      type: Sequelize.STRING
-    },
-    destination: {
-      allowNull: false,
-      type: Sequelize.STRING
-    },
     manager: {
       allowNull: false,
       type: Sequelize.STRING
@@ -35,20 +27,12 @@ module.exports = {
     },
     status: {
       allowNull: false,
-      type: Sequelize.STRING,
-      defaultValue: 'Open'
+      type: Sequelize.ENUM('Open', 'Approved', 'Rejected'),
+      defaultValue: 'Open',
     },
     userId: {
       allowNull: false,
       type: Sequelize.STRING
-    },
-    departureDate: {
-      allowNull: false,
-      type: Sequelize.DATEONLY
-    },
-    arrivalDate: {
-      allowNull: false,
-      type: Sequelize.DATEONLY
     },
     tripType: {
       allowNull: false,
@@ -57,12 +41,12 @@ module.exports = {
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE
+      type: Sequelize.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE
-    }
+      type: Sequelize.DATE,
+    },
   }),
   down: queryInterface => queryInterface.dropTable('Requests')
 };

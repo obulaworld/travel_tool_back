@@ -19,7 +19,8 @@ export default (sequelize, DataTypes) => {
     },
     status: {
       allowNull: false,
-      type: DataTypes.ENUM('Open', 'Approved', 'Rejected')
+      type: DataTypes.ENUM('Open', 'Approved', 'Rejected'),
+      defaultValue: 'Open',
     },
     createdAt: {
       allowNull: false,
@@ -34,7 +35,8 @@ export default (sequelize, DataTypes) => {
     Approval.belongsTo(models.Request, {
       foreignKey: 'requestId',
       targetKey: 'id',
-      as: 'Request'
+      as: 'Request',
+      onDelete: 'CASCADE',
     });
   };
   return Approval;

@@ -1,6 +1,5 @@
 import models from '../../database/models';
-import handleServerError from '../../helpers/serverError';
-import notFoundError from '../../helpers/notFoundError';
+import Error from '../../helpers/Error';
 
 class NotificationController {
   static async retrieveNotifications(req, res) {
@@ -18,9 +17,10 @@ class NotificationController {
           notifications,
         });
       }
-      return notFoundError('You have no notifications at the moment', res);
-    } catch (error) {
-      return handleServerError('Server Error', res);
+      return Error
+        .handleError('You have no notifications at the moment', 404, res);
+    } catch (error) { /* istanbul ignore next */
+      Error.handleError(error, 500, res);
     }
   }
 }

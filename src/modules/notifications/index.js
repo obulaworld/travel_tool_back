@@ -9,7 +9,7 @@ const { authenticate, Validator } = middleware;
 NotificationsRouter.get(
   '/notifications',
   authenticate,
-  Validator.validateGetRequests,
+  Validator.validateRequest,
   NotificationController.retrieveNotifications
 );
 

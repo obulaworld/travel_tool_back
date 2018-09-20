@@ -1,9 +1,8 @@
 import models from '../../database/models';
 import { createSubquery, countByStatus } from '../../helpers/requests';
-import handleServerError from '../../helpers/serverError';
+import Error from '../../helpers/Error';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
-import notFoundError from '../../helpers/notFoundError';
 import NotificationEngine from '../notifications/NotificationEngine';
 
 class ApprovalsController {
@@ -17,7 +16,7 @@ class ApprovalsController {
     const approvalData = {
       requestId: newRequest.id,
       approverId: newRequest.manager,
-      status: 'Open'
+      status: newRequest.status
     };
     const newApproval = await models.Approval.create(approvalData);
     return newApproval;
@@ -49,7 +48,7 @@ class ApprovalsController {
         },
       });
     } catch (error) { /* istanbul ignore next */
-      return handleServerError('Server error', res);
+      return Error.handleError('Server error', 500, res);
     }
   }
 
@@ -67,7 +66,7 @@ class ApprovalsController {
         });
 
         ApprovalsController
-          .sendNotificationAfterApproval(user, updatedRequest);
+          .sendNotificationAfterApproval(user, updatedRequest, res);
 
         await ApprovalsController.generateCountAndMessage(
           res, updatedRequest
@@ -75,7 +74,7 @@ class ApprovalsController {
       }
     } catch (error) {
       /* istanbul ignore next */
-      return handleServerError(error, res);
+      return Error.handleError(error, 500, res);
     }
   }
 
@@ -90,15 +89,13 @@ class ApprovalsController {
 
       if (!requestToApprove) {
         const error = 'Request not found';
-        return notFoundError(error, res);
+        return Error.handleError(error, 404, res);
       }
 
       const { status } = requestToApprove;
       if (['Approved', 'Rejected'].includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: `Request has been ${status.toLowerCase()} already`
-        });
+        const error = `Request has been ${status.toLowerCase()} already`;
+        return Error.handleError(error, 400, res);
       }
 
       return await requestToApprove.update({
@@ -106,7 +103,7 @@ class ApprovalsController {
       });
     } catch (error) {
       /* istanbul ignore next */
-      return handleServerError(error, res);
+      return Error.handleError(error, 500, res);
     }
   }
 
@@ -123,7 +120,7 @@ class ApprovalsController {
     });
   }
 
-  static async sendNotificationAfterApproval(user, updatedRequest) {
+  static async sendNotificationAfterApproval(user, updatedRequest, res) {
     try {
       const { status, id, userId } = updatedRequest;
       const { name, picture } = user.UserInfo;
@@ -141,7 +138,7 @@ class ApprovalsController {
       return status === 'Approved'
         && await NotificationEngine.notify(notificationData);
     } catch (error) {
-      return handleServerError(error);
+      return Error.handleError(error, 500, res);
     }
   }
 }

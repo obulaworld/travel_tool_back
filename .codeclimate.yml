@@ -1,3 +1,7 @@
+checks:
+  method-lines:
+    config:
+      threshold: 35
 exclude_patterns:
 - "**/node_modules/"
 - "**/test/"
@@ -5,3 +9,4 @@ exclude_patterns:
 - "**/__tests__/"
 - "src/database/migrations"
 - "src/database/seeders"
+- "src/database/models"

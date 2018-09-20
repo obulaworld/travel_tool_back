@@ -50,7 +50,7 @@ describe('server integration tests', () => {
   });
 
   it('validates query parameters before controller handles request', (done) => {
-    const validator = middleware.Validator.validateGetRequests;
+    const validator = middleware.Validator.validateRequest;
     testClient(app)
       .get('/api/v1/approvals')
       .end((err, res) => {

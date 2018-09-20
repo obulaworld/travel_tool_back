@@ -15,7 +15,7 @@ const mockValidateDirectReport = (req, res, next) => {
 const middleware = {
   authenticate: jest.fn(mockAuthenticate),
   Validator: {
-    validateGetRequests: jest.fn(invokeNextMiddleware),
+    validateRequest: jest.fn(invokeNextMiddleware),
     validateCreateRequests: jest.fn(invokeNextMiddleware),
     validateUser: jest.fn(invokeNextMiddleware),
     validateAddRole: jest.fn(invokeNextMiddleware),

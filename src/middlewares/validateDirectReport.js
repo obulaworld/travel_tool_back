@@ -1,5 +1,5 @@
 import models from '../database/models';
-import notFoundError from '../helpers/notFoundError';
+import Error from '../helpers/Error';
 
 const validateDirectReport = async (req, res, next) => {
   const { user } = req;
@@ -7,7 +7,7 @@ const validateDirectReport = async (req, res, next) => {
   const request = await models.Request.findById(requestId);
   if (!request) {
     const error = 'Request not found';
-    return notFoundError(error, res);
+    return Error.handleError(error, 404, res);
   }
   // FIX: replace name with Id
   if (user.UserInfo.name !== request.manager) {

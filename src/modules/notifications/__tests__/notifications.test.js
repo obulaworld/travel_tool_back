@@ -136,25 +136,6 @@ describe('Notifications Controller', () => {
         await models.sequelize.sync();
         done();
       });
-
-      it('should return 500 status, and error message', done => {
-        const expectedResponse = {
-          status: 500,
-          body: {
-            success: false,
-            error: 'Server Error',
-          },
-        };
-
-        request(app)
-          .get('/api/v1/notifications')
-          .set('authorization', token)
-          .end((err, res) => {
-            expect(res.body).toMatchObject(expectedResponse.body);
-            expect(res.body.notifications).toBe(undefined);
-            done();
-          });
-      });
     });
   });
 });

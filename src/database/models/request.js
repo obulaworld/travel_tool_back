@@ -15,25 +15,10 @@ export default (sequelize, DataTypes) => {
         },
       },
     },
-    origin: {
+    tripType: {
       allowNull: false,
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: {
-          args: true,
-          msg: 'Origin cannot be empty',
-        },
-      },
-    },
-    destination: {
-      allowNull: false,
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: {
-          args: true,
-          msg: 'Destination cannot be empty',
-        },
-      },
+      type: DataTypes.ENUM,
+      values: ['return', 'oneWay', 'multi']
     },
     manager: {
       allowNull: false,
@@ -74,7 +59,7 @@ export default (sequelize, DataTypes) => {
     },
     status: {
       allowNull: false,
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('Open', 'Approved', 'Rejected'),
       defaultValue: 'Open',
       validate: {
         notEmpty: {
@@ -93,19 +78,6 @@ export default (sequelize, DataTypes) => {
         },
       },
     },
-    departureDate: {
-      allowNull: false,
-      type: DataTypes.DATEONLY,
-    },
-    arrivalDate: {
-      allowNull: false,
-      type: DataTypes.DATEONLY,
-    },
-    tripType: {
-      allowNull: false,
-      type: DataTypes.ENUM,
-      values: ['return', 'oneWay', 'multi']
-    },
   });
 
   Request.associate = (models) => {
@@ -113,10 +85,9 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'requestId',
       as: 'comments',
     });
-
     Request.hasMany(models.Trip, {
       foreignKey: 'requestId',
-      as: 'trips'
+      as: 'trips',
     });
   };
   return Request;
