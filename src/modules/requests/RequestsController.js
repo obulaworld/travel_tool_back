@@ -27,8 +27,13 @@ class RequestsController {
             ...trip,
             requestId: request.id,
             id: Utils.generateUniqueId()
-          })));
+          }
+        )));
         const approval = await ApprovalsController.createApproval(request);
+        const message = 'created a new travel request';
+
+        RequestsController.sendNotificationToManager(req, res, request, message);
+
         return res.status(201).json({
           success: true,
           message: 'Request created successfully',
@@ -37,26 +42,32 @@ class RequestsController {
           approval
         });
       });
-      RequestsController.sendNotificationToManager(req, request);
+      const message = 'created a new travel request';
+      RequestsController.sendNotificationToManager(req, res, request, message);
     } catch (error) { /* istanbul ignore next */
-      return Error.handleError(error, 500, res);
+      console.log(error);
+      return Error.handleError(error.toString(), 500, res);
     }
   }
 
-  static async sendNotificationToManager(req, request) {
-    const { userId, id, manager } = request;
-    const recipient = await UserRoleController.getRecipientId(manager);
-    const notificationData = {
-      senderId: userId,
-      recipientId: recipient.userId,
-      notificationType: 'pending',
-      requestId: id,
-      message: 'created a new travel request',
-      notificationLink: `/request/${id}`,
-      senderName: req.user.UserInfo.name,
-      senderImage: req.user.UserInfo.picture,
-    };
-    NotificationEngine.notify(notificationData);
+  static async sendNotificationToManager(req, res, request, message) {
+    try {
+      const { userId, id, manager } = request;
+      const recipientId = await UserRoleController.getRecipientId(manager);
+
+      const notificationData = {
+        senderId: userId,
+        recipientId: recipientId.userId,
+        notificationType: 'pending',
+        message,
+        notificationLink: `/requests/my-approvals/${id}`,
+        senderName: req.user.UserInfo.name,
+        senderImage: req.user.UserInfo.picture,
+      };
+      return NotificationEngine.notify(notificationData);
+    } catch (error) { /* istanbul ignore next */
+      Error.handleError(error, 500, res);
+    }
   }
 
   static async getUserRequests(req, res) {
@@ -141,10 +152,7 @@ class RequestsController {
     try {
       await models.sequelize.transaction(async () => {
         const request = await models.Request.find({
-          where: {
-            userId: req.user.UserInfo.id,
-            id: requestId
-          }
+          where: {userId: req.user.UserInfo.id, id: requestId }
         });
         if (!request) {
           return Error.handleError('Request was not found', 404, res);
@@ -159,6 +167,8 @@ class RequestsController {
         )));
         delete requestDetails.status; // status cannot be updated by requester
         const updatedRequest = await request.updateAttributes(requestDetails);
+        const message = 'edited a travel request';
+        RequestsController.sendNotificationToManager(req, res, request, message);
         return res.status(200).json({
           success: true,
           request: updatedRequest,

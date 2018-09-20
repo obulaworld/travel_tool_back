@@ -1,10 +1,11 @@
+
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.createTable(
     'Notifications', {
       id: {
         allowNull: false,
-        primaryKey: true,
         autoIncrement: true,
+        primaryKey: true,
         type: Sequelize.INTEGER
       },
       senderId: {
@@ -19,11 +20,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      message: {
-        allowNull: false,
-        type: Sequelize.STRING
-      },
-      notificationLink: {
+      senderName: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -31,13 +28,17 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      senderName: {
+      notificationLink: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
       },
       senderImage: {
         allowNull: false,
-        type: Sequelize.STRING,
+        type: Sequelize.STRING
+      },
+      message: {
+        allowNull: false,
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

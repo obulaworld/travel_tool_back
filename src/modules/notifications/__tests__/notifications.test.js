@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import supertest from 'supertest';
 import models from '../../../database/models';
 import app from '../../../app';
@@ -10,14 +9,16 @@ const request = supertest;
 const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
-    name: 'Samuel Kubai'
+    name: 'Samuel Kubai',
+    picture: 'this is me'
   },
 };
 
 const payload1 = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNOLNm',
-    name: 'Optimum Price'
+    name: 'Optimum Price',
+    picture: 'this is me'
   },
 };
 

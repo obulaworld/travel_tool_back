@@ -16,6 +16,9 @@ class CommentsController {
       };
       const request = await models.Request.findById(requestId);
       // only create a comment if the request exists
+
+      // TODO: the person working on comments can build on this by adding
+      // the appropriate data to the arguments
       if (request) {
         const newComment = await models.Comment.create(commentData);
         return res.status(201).json({

@@ -18,6 +18,11 @@ import Utils from '../../../helpers/Utils';
 
 const request = supertest;
 
+const dataToBeEmitted = {
+  sender: 'Ademola Ariya',
+  recipient: 'Samuel Kubai'
+};
+
 global.io = {
   sockets: {
     emit: (event, dataToBeEmitted) => dataToBeEmitted
@@ -45,7 +50,7 @@ const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     name: 'Samuel Kubai',
-    picture: 'fake picture'
+    picture:'this amara'
   },
 };
 
@@ -57,11 +62,11 @@ const fakeManager = {
 };
 
 const user = {
-  fullName: 'Samuel Kubai',
+  fullName: 'Some manager',
   email: '',
   userId: '-MUyHJmKrxA90lPNQ1FOLNm',
-  roleId: '53019'
-}
+  roleId: '53019',
+ }
 
 const requestId = 'xDh20cuGz'
 const invalidId = 'xghvhbdebdhhe'
@@ -72,11 +77,12 @@ const invalidToken =
 let updatedTripId;
 
 describe('Requests Controller', () => {
-    beforeAll((done) => {
+  beforeAll((done) => {
     models.Role.bulkCreate(role);
     done();
   });
   describe('GET /api/v1/requests', () => {
+    let requests;
     describe('Authenticated user with no requests', () => {
       it(`should return 200 status and the appropriate
       message for a user without requests`, done => {
@@ -114,8 +120,9 @@ describe('Requests Controller', () => {
     describe('Authenticated user With requests', () => {
       beforeAll(async done => {
         try {
-          await models.Request.bulkCreate(testRequests);
-          await models.User.create(manager);
+          const response = await models.Request.bulkCreate(testRequests);
+          await models.User.create(user);
+          requests = JSON.parse(JSON.stringify(response));
           done();
         } catch (error) {
           throw new Error(error);
