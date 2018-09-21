@@ -28,7 +28,16 @@ class ApprovalsController {
     const { status } = req.query.status || '';
     // create query using `approverId` as the column name bearing the user id
     const subquery = createSubquery(req, limit, offset, 'Approval');
-    subquery.include = ['Request'];
+    subquery.include = [
+      {
+        model: models.Request,
+        as: 'Request',
+        include: [{
+          model: models.Trip,
+          as: 'trips',
+        }],
+      },
+    ];
 
     try {
       const result = await models.Approval.findAndCountAll(subquery);
@@ -44,10 +53,11 @@ class ApprovalsController {
         approvals,
         meta: {
           count,
-          pagination,
-        },
+          pagination
+        }
       });
-    } catch (error) { /* istanbul ignore next */
+    } catch (error) {
+      /* istanbul ignore next */
       return Error.handleError('Server error', 500, res);
     }
   }
@@ -57,20 +67,23 @@ class ApprovalsController {
     const { newStatus } = req.body;
     const { request, user } = req;
     try {
-      const updateApproval = await ApprovalsController.updateApprovals(
-        res, [request, newStatus, user]
-      );
+      const updateApproval = await ApprovalsController.updateApprovals(res, [
+        request,
+        newStatus,
+        user
+      ]);
       if (updateApproval.approverId) {
         const updatedRequest = await request.update({
-          status: newStatus,
+          status: newStatus
         });
 
-        ApprovalsController
-          .sendNotificationAfterApproval(user, updatedRequest, res);
-
-        await ApprovalsController.generateCountAndMessage(
-          res, updatedRequest
+        ApprovalsController.sendNotificationAfterApproval(
+          user,
+          updatedRequest,
+          res
         );
+
+        await ApprovalsController.generateCountAndMessage(res, updatedRequest);
       }
     } catch (error) {
       /* istanbul ignore next */
@@ -108,15 +121,13 @@ class ApprovalsController {
   }
 
   static async generateCountAndMessage(res, updatedRequest) {
-    const message = Utils.getRequestStatusUpdateResponse(
-      updatedRequest.status,
-    );
+    const message = Utils.getRequestStatusUpdateResponse(updatedRequest.status);
     return res.status(200).json({
       success: true,
       message,
       updatedRequest: {
-        request: updatedRequest,
-      },
+        request: updatedRequest
+      }
     });
   }
 
@@ -132,11 +143,13 @@ class ApprovalsController {
         notificationType: 'general',
         requestId: id,
         message: 'approved your request',
-        notificationLink: `/requests/${id}`,
+        notificationLink: `/requests/${id}`
       };
 
-      return status === 'Approved'
-        && await NotificationEngine.notify(notificationData);
+      return (
+        status === 'Approved'
+        && (await NotificationEngine.notify(notificationData))
+      );
     } catch (error) {
       return Error.handleError(error, 500, res);
     }
