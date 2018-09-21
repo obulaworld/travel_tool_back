@@ -18,11 +18,6 @@ import Utils from '../../../helpers/Utils';
 
 const request = supertest;
 
-const dataToBeEmitted = {
-  sender: 'Ademola Ariya',
-  recipient: 'Samuel Kubai'
-};
-
 global.io = {
   sockets: {
     emit: (event, dataToBeEmitted) => dataToBeEmitted
@@ -60,13 +55,6 @@ const fakeManager = {
     name: 'Oratorio Platimus'
   },
 };
-
-const user = {
-  fullName: 'Some manager',
-  email: '',
-  userId: '-MUyHJmKrxA90lPNQ1FOLNm',
-  roleId: '53019',
- }
 
 const requestId = 'xDh20cuGz'
 const invalidId = 'xghvhbdebdhhe'
@@ -121,7 +109,7 @@ describe('Requests Controller', () => {
       beforeAll(async done => {
         try {
           const response = await models.Request.bulkCreate(testRequests);
-          await models.User.create(user);
+          await models.User.create(manager);
           requests = JSON.parse(JSON.stringify(response));
           done();
         } catch (error) {
@@ -329,10 +317,6 @@ describe('Requests Controller', () => {
   });
 
   describe('POST / requests - Create New Request', () => {
-    beforeAll((done) => {
-      models.User.create(user);
-      done();
-    });
     describe('Unauthenticated User', () => {
       it('should check if the token exists and return 401 if it does not', async () => {
         const res = await request(app)

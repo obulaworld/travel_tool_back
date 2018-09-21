@@ -110,15 +110,15 @@ export const createRequestSuccessResponse = {
     gender: 'Female',
     department: 'TDD',
     role: 'Software Developer',
+    trips: [
+      {
+        origin: 'Lagos',
+        destination: 'Nairobi',
+        departureDate,
+        returnDate,
+      }
+    ],
   },
-  trips: [
-    {
-      origin: 'Lagos',
-      destination: 'Nairobi',
-      departureDate,
-      returnDate,
-    }
-  ],
   approval: {
     approverId: 'Some manager',
     status: 'Open',

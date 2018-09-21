@@ -30,15 +30,11 @@ class RequestsController {
           }
         )));
         const approval = await ApprovalsController.createApproval(request);
-        const message = 'created a new travel request';
-
-        RequestsController.sendNotificationToManager(req, res, request, message);
-
+        request.dataValues.trips = requestTrips;
         return res.status(201).json({
           success: true,
           message: 'Request created successfully',
           request,
-          trips: requestTrips,
           approval
         });
       });

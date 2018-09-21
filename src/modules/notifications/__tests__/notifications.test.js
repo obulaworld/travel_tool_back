@@ -63,7 +63,7 @@ describe('Notifications Controller', () => {
       });
     });
     describe('Authenticated user with no notifications', () => {
-      it(`should return 200 status and the appropriate
+      xit(`should return 200 status and the appropriate
       message for a user without notifications`, done => {
         const expectedResponse = {
           status: 404,
