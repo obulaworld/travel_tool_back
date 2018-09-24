@@ -19,4 +19,10 @@ Router.put(
   CommentsController.editComment,
 );
 
+Router.delete(
+  '/comments/:id',
+  authenticate,
+  CommentsController.deleteComment,
+);
+
 export default Router;

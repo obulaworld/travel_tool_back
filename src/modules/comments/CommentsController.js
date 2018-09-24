@@ -60,6 +60,33 @@ class CommentsController {
       return Error.handleError('Server Error', 500, res);
     }
   }
+
+  static async deleteComment(req, res) {
+    try {
+      const commentId = req.params.id;
+      const foundComment = await models.Comment.findById(commentId);
+      if (!foundComment) {
+        return res.status(404).json({
+          success: false,
+          error: 'Comment does not exist',
+        });
+      }
+      const isAllowed = req.user.UserInfo.email === foundComment.userEmail;
+      if (isAllowed) {
+        await foundComment.destroy();
+        return res.status(200).json({
+          success: true,
+          message: 'Comment deleted successfully',
+        });
+      }
+      return res.status(401).json({
+        success: false,
+        message: 'You are not allowed to delete this comment',
+      });
+    } catch (error) { /* istanbul ignore next */
+      return handleServerError('Server Error', res);
+    }
+  }
 }
 
 export default CommentsController;

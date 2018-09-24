@@ -15,7 +15,18 @@ const payload = {
   }
 };
 
+const otherUser = {
+  UserInfo: {
+    id: '-MUnaemKrxA90lPNQ1FOLNm',
+    name: 'Dark Knight',
+    email: 'dark.knight@andela.com',
+    picture: 'fakepicture.png'
+  }
+};
+
 const token = Utils.generateTestToken(payload);
+const otherUsertoken = Utils.generateTestToken(otherUser);
+
 const invalidToken = 'eyJhbGciOiJSUzI1NiIsXVCJ9.eyJVc2VySW5mbyI6eyJpZ';
 
 describe('Comments controller', () => {
@@ -145,6 +156,47 @@ describe('Comments controller', () => {
             comment: "I thought we agreed you'd spend only one week",
           });
         expect(response.statusCode).toEqual(200);
+      });
+    });
+
+    describe('DELETE api/v1/comments/:id', () => {
+      it('throws 404 if the commentId is not found', async () => {
+        const expectedResponse = {
+          success: false,
+          error: 'Comment does not exist'
+        };
+        const response = await request
+          .delete('/api/v1/comments/666')
+          .set('authorization', token);
+
+        expect(response.statusCode).toEqual(404);
+        expect(response.body).toEqual(expectedResponse);
+      });
+      it('throws 401 if comment was created by a different user', async () => {
+        const { id } = res.body.comment;
+        const expectedResponse = {
+          success: false,
+          message: 'You are not allowed to delete this comment',
+        };
+        const response = await request
+          .delete(`/api/v1/comments/${id}`)
+          .set('authorization', otherUsertoken);
+
+        expect(response.statusCode).toEqual(401);
+        expect(response.body).toEqual(expectedResponse);
+      });
+      it('returns 200 and deletes a comment', async () => {
+        const { id } = res.body.comment;
+        const expectedResponse = {
+          success: true,
+          message: 'Comment deleted successfully',
+        };
+        const response = await request
+          .delete(`/api/v1/comments/${id}`)
+          .set('authorization', token);
+
+        expect(response.statusCode).toEqual(200);
+        expect(response.body).toEqual(expectedResponse);
       });
     });
   });

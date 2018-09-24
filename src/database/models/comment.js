@@ -15,7 +15,8 @@ module.exports = (sequelize, DataTypes) => {
     picture: {
       type: DataTypes.STRING,
     },
-  });
+  }, { paranoid: true });
+
   Comment.associate = (models) => {
     Comment.belongsTo(models.Request, {
       foreignKey: 'requestId',
