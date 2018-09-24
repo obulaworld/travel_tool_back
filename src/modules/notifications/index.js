@@ -13,4 +13,11 @@ NotificationsRouter.get(
   NotificationController.retrieveNotifications
 );
 
+NotificationsRouter.put(
+  '/notifications',
+  authenticate,
+  Validator.validateNotificationStatus,
+  NotificationController.updateNotificationStatus
+);
+
 export default NotificationsRouter;

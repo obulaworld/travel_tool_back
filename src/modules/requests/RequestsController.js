@@ -38,8 +38,6 @@ class RequestsController {
           approval
         });
       });
-      const message = 'created a new travel request';
-      RequestsController.sendNotificationToManager(req, res, request, message);
     } catch (error) { /* istanbul ignore next */
       return Error.handleError(error.toString(), 500, res);
     }
@@ -147,7 +145,7 @@ class RequestsController {
     try {
       await models.sequelize.transaction(async () => {
         const request = await models.Request.find({
-          where: {userId: req.user.UserInfo.id, id: requestId }
+          where: { userId: req.user.UserInfo.id, id: requestId }
         });
         if (!request) {
           return Error.handleError('Request was not found', 404, res);

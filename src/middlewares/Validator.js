@@ -100,6 +100,36 @@ export default class Validator {
     Validator.errorHandler(res, errors, next);
   }
 
+  static validateNotificationStatus(req, res, next) {
+    Object.keys(req.body).forEach((key) => {
+      req.body[`${key}`] = req.body[`${key}`].toLowerCase();
+    });
+
+    req
+      .checkBody('currentStatus', 'currentStatus field is required')
+      .notEmpty();
+    req
+      .checkBody('newStatus', 'newStatus field is required')
+      .notEmpty();
+    req
+      .checkBody('notificationType', 'notificationType field is required')
+      .notEmpty();
+
+    req
+      .checkBody('currentStatus', 'currentStatus must be "unread"')
+      .isIn(['unread']);
+    req
+      .checkBody('newStatus', 'newStatus must be "read"')
+      .isIn(['read']);
+    req
+      .checkBody(
+        'notificationType', 'notificationType can only be pending or general'
+      )
+      .isIn(['pending', 'general']);
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
+
   static validateComment(req, res, next) {
     req.checkBody('comment', 'Comment is required').notEmpty();
     req.checkBody('requestId', 'RequestId is required').notEmpty();

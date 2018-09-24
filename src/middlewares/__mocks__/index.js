@@ -27,6 +27,7 @@ const middleware = {
     validateWorkInformation: jest.fn(invokeNextMiddleware),
     validateManager: jest.fn(invokeNextMiddleware),
     validateComment: jest.fn(invokeNextMiddleware),
+    validateNotificationStatus: jest.fn(invokeNextMiddleware)
   },
   validateDirectReport: jest.fn(mockValidateDirectReport)
 };
