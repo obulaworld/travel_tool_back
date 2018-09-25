@@ -38,6 +38,8 @@ class RequestsController {
           approval
         });
       });
+      const message = 'created a new travel request';
+      RequestsController.sendNotificationToManager(req, res, request, message);
     } catch (error) { /* istanbul ignore next */
       return Error.handleError(error.toString(), 500, res);
     }
