@@ -477,6 +477,7 @@ describe('Notifications Controller', () => {
             notificationType: 'general'
           })
           .end((err, res) => {
+            console.log('this is it', res.body)
             if (err) return done(err);
             expect(res.status).toEqual(expectedResponse.status);
             expect(res.body).toMatchObject(expectedResponse.body);

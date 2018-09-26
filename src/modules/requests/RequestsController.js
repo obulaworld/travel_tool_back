@@ -49,6 +49,7 @@ class RequestsController {
     try {
       const { userId, id, manager } = request;
       const recipientId = await UserRoleController.getRecipientId(manager);
+
       const notificationData = {
         senderId: userId,
         recipientId: recipientId.userId,
@@ -162,8 +163,7 @@ class RequestsController {
         delete requestDetails.status; // status cannot be updated by requester
         const updatedRequest = await request.updateAttributes(requestDetails);
         const message = 'edited a travel request';
-        RequestsController
-          .sendNotificationToManager(req, res, request, message);
+        RequestsController.sendNotificationToManager(req, res, request, message);
         return res.status(200).json({
           success: true,
           request: updatedRequest,
