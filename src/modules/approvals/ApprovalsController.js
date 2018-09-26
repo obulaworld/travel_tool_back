@@ -150,7 +150,7 @@ class ApprovalsController {
         status === 'Approved'
         && (await NotificationEngine.notify(notificationData))
       );
-    } catch (error) {
+    } catch (error) { /* istanbul ignore next */
       return Error.handleError(error, 500, res);
     }
   }

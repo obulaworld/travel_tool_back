@@ -508,7 +508,7 @@ describe('Requests Controller', () => {
 
       const getResp = await request(app)
         .get(`/api/v1/requests/${createdRequestId}`)
-        .set('authorization', token)
+        .set('authorization', token)        
       expect(getResp.body.requestData.trips).toHaveLength(2);
     });
 
