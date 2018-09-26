@@ -1,10 +1,20 @@
 import models from '../../database/models';
-import { createSubquery, countByStatus } from '../../helpers/requests';
+import {
+  countByStatus,
+  getTotalCount,
+  asyncWrapper,
+  retrieveParams
+} from '../../helpers/requests';
+import {
+  createApprovalSubquery
+} from '../../helpers/approvals';
 import Error from '../../helpers/Error';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
 
+const noResult = 'No records found';
+let params = {};
 class ApprovalsController {
   static fillWithRequestData(approval) {
     const request = approval.Request;
@@ -22,32 +32,30 @@ class ApprovalsController {
     return newApproval;
   }
 
-  static async getUserApprovals(req, res) {
-    const { page, limit, offset } = Pagination.initializePagination(req);
-    const userName = req.user.UserInfo.name;
-    const { status } = req.query.status || '';
-    // create query using `approverId` as the column name bearing the user id
-    const subquery = createSubquery(req, limit, offset, 'Approval');
-    subquery.include = [
-      {
-        model: models.Request,
-        as: 'Request',
-        include: [{
-          model: models.Trip,
-          as: 'trips',
-        }],
-      },
-    ];
+  static setParameters(req) {
+    params = retrieveParams(req);
+    params.userName = req.user.UserInfo.name;
+    params.parameters = {
+      req,
+      limit: params.limit,
+      offset: params.offset,
+      search: params.search
+    };
+  }
 
-    try {
-      const result = await models.Approval.findAndCountAll(subquery);
-      // FIXME: countByStatus should use a unique user identity, not userName
-      const count = await countByStatus(models.Approval, userName);
-      const pagination = Pagination.getPaginationData(page, limit, result);
-      const { fillWithRequestData } = ApprovalsController;
-      const message = Utils.getResponseMessage(pagination, status, 'Approval');
-      const approvals = result.rows.map(fillWithRequestData);
-      return res.status(200).json({
+  static async sendResult(req, res, result) {
+    const count = await asyncWrapper(res, countByStatus, models.Approval,
+      params.userName, params.search);
+    const pagination = Pagination.getPaginationData(
+      params.page, params.limit, getTotalCount(params.status, count)
+    );
+    const { fillWithRequestData } = ApprovalsController;
+    const message = (params.search && !result.count)
+      ? noResult
+      : Utils.getResponseMessage(pagination, params.status, 'Approval');
+    const approvals = result.rows.map(fillWithRequestData);
+    return res.status(200)
+      .json({
         success: true,
         message,
         approvals,
@@ -56,8 +64,33 @@ class ApprovalsController {
           pagination
         }
       });
-    } catch (error) {
-      /* istanbul ignore next */
+  }
+
+  static async getApprovalsFromDb(subquery) {
+    const result = await models.Approval.findAndCountAll(subquery);
+    return result;
+  }
+
+  static async processQuery(req, res, repeat) {
+    // create query using `approverId` as the column name bearing the user id
+    const subquery = createApprovalSubquery({
+      ...params.parameters,
+      searchRequest: !repeat
+    });
+    let result = { count: 0 };
+    result = await
+    asyncWrapper(res, ApprovalsController.getApprovalsFromDb, subquery);
+    if (!result.count && repeat) {
+      return ApprovalsController.processQuery(req, res, false);
+    }
+    return ApprovalsController.sendResult(req, res, result);
+  }
+
+  static async getUserApprovals(req, res) {
+    ApprovalsController.setParameters(req);
+    try {
+      await ApprovalsController.processQuery(req, res, true);
+    } catch (error) { /* istanbul ignore next */
       return Error.handleError('Server error', 500, res);
     }
   }
@@ -150,7 +183,7 @@ class ApprovalsController {
         status === 'Approved'
         && (await NotificationEngine.notify(notificationData))
       );
-    } catch (error) {
+    } catch (error) { /* istanbul ignore next */
       return Error.handleError(error, 500, res);
     }
   }

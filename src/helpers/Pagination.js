@@ -11,7 +11,7 @@ class Pagination {
     return paginationInit;
   }
 
-  static getPaginationData(page, limit, { count }) {
+  static getPaginationData(page, limit, count) {
     const pageCount = Math.ceil(count / limit);
     const pagination = {
       pageCount,

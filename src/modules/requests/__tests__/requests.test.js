@@ -56,9 +56,17 @@ const fakeManager = {
   },
 };
 
+const someManager = {
+  UserInfo: {
+    id: '-MUyHJmKrxA90lPNQ1FOLNm',
+    name: 'Some manager'
+  },
+};
+
 const requestId = 'xDh20cuGz'
 const invalidId = 'xghvhbdebdhhe'
 const token = Utils.generateTestToken(payload);
+const someManagerToken = Utils.generateTestToken(someManager);
 const nonRequestManagerToken = Utils.generateTestToken(fakeManager);
 const invalidToken =
   'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4';
@@ -211,6 +219,143 @@ describe('Requests Controller', () => {
           });
       });
 
+    it(`should return 200 status code and matching response data if search 
+        match is found `, done => {
+          const expectedResponse = {
+            status: 200,
+            body: {
+              requests: requests.slice(0, 1),
+              meta: {
+                count: {
+                  open: 1,
+                  past: 0,
+                },
+                pagination: {
+                  pageCount: 1,
+                  currentPage: 1,
+                  dataCount: 1,
+                },
+              },
+              success: true,
+            },
+          };
+  
+          request(app)
+            .get('/api/v1/requests?limit=2&search=user%20A')
+            .set('authorization', token)
+            .end((err, res) => {
+              expect(res.body.requests).toHaveLength(1);
+              expect(res).toMatchObject(expectedResponse);
+              done();
+            });
+      });
+
+      it(`should return 200 status code and matching response data if search 
+        match is found and parameter is a status `, done => {
+          const expectedResponse = {
+            status: 200,
+            body: {
+              requests: requests.slice(0, 1),
+              meta: {
+                count: {
+                  open: 1,
+                  past: 0,
+                },
+                pagination: {
+                  pageCount: 1,
+                  currentPage: 1,
+                  dataCount: 1,
+                },
+              },
+              success: true,
+            },
+          };
+  
+          request(app)
+            .get('/api/v1/requests?limit=2&search=open')
+            .set('authorization', token)
+            .end((err, res) => {
+              expect(res.body.requests).toHaveLength(1);
+              expect(res).toMatchObject(expectedResponse);
+              done();
+            });
+      });
+
+    it(`should return 200 status code and paginated response
+        if search parameter is capitalized`, (done) => {
+          const expectedResponse = {
+            status: 200,
+            body: {
+              requests: requests.slice(1, 2),
+              meta: {
+                count: {
+                  open: 0,
+                  past: 1,
+                },
+                pagination: {
+                  pageCount: 1,
+                  currentPage: 1,
+                  dataCount: 1,
+                },
+              },
+              success: true,
+            },
+          };
+  
+          request(app)
+            .get('/api/v1/requests?limit=2&search=USER%20B')
+            .set('authorization', token)
+            .end((err, res) => {
+              expect(res.body.requests).toHaveLength(1);
+              expect(res).toMatchObject(expectedResponse);
+              done();
+            });
+        });
+
+    it(`should return 200 status code and response data
+      if search parameter is empty`, (done) => {
+        const expectedResponse = {
+          status: 200,
+          body: {
+            requests: [requests[1], requests[0]],
+            meta: {
+              count: {
+                open: 1,
+                past: 2,
+              },
+              pagination: {
+                pageCount: 2,
+                currentPage: 1,
+                dataCount: 3,
+              },
+            },
+            success: true,
+          },
+        };
+
+        request(app)
+          .get('/api/v1/requests?limit=2&search=')
+          .set('authorization', token)
+          .end((err, res) => {
+            expect(res.body.requests).toHaveLength(2);
+            expect(res).toMatchObject(expectedResponse);
+            expect(res.body.requests).toHaveLength(2);
+            done();
+          });
+      });
+
+      it(`should return proper status code and proper error
+        message if no search result is found`, (done) => {
+          request(app)
+            .get('/api/v1/requests?limit=2&status=open&search=xshdje')
+            .set('authorization', token)
+            .end((err, res) => {
+              expect(res.status).toBe(200);
+              expect(res.body.message).toBe('No records found');
+              done();
+            });
+        });
+
       it('should throw 422 error if the status query is not open, approved, rejected or past', done => {
         const expectedResponse = {
           status: 422,
@@ -315,7 +460,6 @@ describe('Requests Controller', () => {
       });
     });
   });
-
   describe('POST / requests - Create New Request', () => {
     describe('Unauthenticated User', () => {
       it('should check if the token exists and return 401 if it does not', async () => {
@@ -471,6 +615,46 @@ describe('Requests Controller', () => {
       });
     });
   }); // end of CREATE REQUEST API
+
+  describe('Test suite for approval endpoints GET: api/v1/approvals', () => {
+    it(`should return 404 status code and message if search 
+    match is not found`, (done) => {
+      supertest(app)
+        .get('/api/v1/approvals?status=open&search=qwert')
+        .set('authorization', someManagerToken)
+        .end((err, res) => {
+          expect(res.status).toBe(200);
+          expect(res.body.message).toBe('No records found');
+          done();
+        });
+    });
+  
+    it(`should return 200 status code and matching response data if search 
+    match is found`, (done) => {
+      supertest(app)
+        .get('/api/v1/approvals?page=1&status=open&search=test')
+        .set('authorization', someManagerToken)
+        .end((err, res) => {
+          expect(res.status).toBe(200);
+          expect(res.body.approvals).toHaveLength(1);
+          expect(res.body.message).toBe('Approvals retrieved successfully');
+          done();
+        });
+    });
+  
+    it(`should return 200 status code and response data
+        if search parameter is empty`, (done) => {
+          supertest(app)
+            .get('/api/v1/approvals?page=1&status=open&search=')
+            .set('authorization', someManagerToken)
+            .end((err, res) => {
+              expect(res.status).toBe(200)
+          expect(res.body.approvals).toHaveLength(1);
+          expect(res.body.message).toBe('Approvals retrieved successfully');
+              done();
+            });
+        });
+  });
 
   describe('Get an authenticated User Request detail', () => {
     // it should get request details for a user
