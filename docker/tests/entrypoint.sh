@@ -9,3 +9,5 @@ printf "\n\n======================================\n"
 printf "Running tests"
 printf "\n======================================\n\n"
 yarn test
+
+exit 0

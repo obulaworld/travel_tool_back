@@ -1,5 +1,5 @@
 .PHONY: help
-PROJECT_NAME ?= travella-backend
+PROJECT_NAME ?= travela-backend
 DOCKER_DEV_COMPOSE_FILE := docker/dev/docker-compose.yml
 DOCKER_TEST_COMPOSE_FILE := docker/tests/docker-compose.yml
 TARGET_MAX_CHAR_NUM=10
@@ -31,7 +31,7 @@ env_file:
 ## Start local development server containers
 start:
 	${INFO} "Creating postgresql database volume"
-	@ docker volume create --name=travella_data > /dev/null
+	@ docker volume create --name=travela_data > /dev/null
 	@ echo "  "
 	@ ${INFO} "Building required docker images"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build app
@@ -46,17 +46,15 @@ stop:
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
 	${INFO} "All containers stopped successfully"
 
-## Run travella local test suites
+## Run travela local test suites
 test:
-	${INFO} "Starting background application containers"
-	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) up -d database
-	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) up -d test
-	${INFO} "Making migrations in the background"
-	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) exec -d test yarn db:migrate
-	${INFO} "Running local travella test suites"
-	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) exec test /usr/app/entrypoint.sh
+	@ ${INFO} "Building required docker images"
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) build test
+	${INFO} "Running local travela test suites"
+	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) run --rm test /usr/app/entrypoint.sh
 	${INFO} "Stop and remove docker containers"
 	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) down
+	${SUCCESS} "Docker containers stopped and removed successfully"
 
 ## Remove all development containers and volumes
 clean:
@@ -64,6 +62,7 @@ clean:
 	${INFO} "Note all ephemeral volumes will be destroyed"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down -v
 	@ docker-compose -f $(DOCKER_TEST_COMPOSE_FILE) down -v
+	@ docker volume rm travela_data
 	@ docker images -q -f label=application=$(PROJECT_NAME) | xargs -I ARGS docker rmi -f ARGS
 	${INFO} "Removing dangling images"
 	@ docker images -q -f dangling=true -f label=application=$(PROJECT_NAME) | xargs -I ARGS docker rmi -f ARGS
@@ -72,30 +71,42 @@ clean:
 
 ## [ service ] Ssh into service container
 ssh:
+	@ ${INFO} "Building required docker images"
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build app
+	@ ${INFO} "Starting containers"
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
 	${INFO} "Open app container terminal"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec $(SSH_ARGS) bash
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app bash
 
 migrate:
-	${INFO} "Starting background application containers"
+	@ ${INFO} "Starting containers"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
-	${INFO} "Running local travella migrations"
+	${INFO} "Running local travela migrations"
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:migrate
 	${SUCCESS} "Migration executed successfully"
+	${INFO} "Stop and remove docker containers"
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down
+	${SUCCESS} "Docker containers stopped and removed successfully"
 
 seed:
 	${INFO} "Starting background application containers"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
-	${INFO} "Running local travella migrations"
+	${INFO} "Running local travela migrations"
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:seed
 	${SUCCESS} "Migration executed successfully"
+	${INFO} "Stop and remove docker containers"
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down
+	${SUCCESS} "Docker containers stopped and removed successfully"
 
 rollback:
 	${INFO} "Starting background application containers"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
-	${INFO} "Running local travella migrations rollback"
+	${INFO} "Running local travela migrations rollback"
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:rollback
 	${SUCCESS} "Migration rollback executed successfully"
-
+	${INFO} "Stop and remove docker containers"
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down
+	${SUCCESS} "Docker containers stopped and removed successfully"
 
 # COLORS
 GREEN  := $(shell tput -Txterm setaf 2)

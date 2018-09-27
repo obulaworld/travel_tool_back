@@ -1,7 +1,7 @@
 FROM node:carbon
 
 LABEL MAINTAINER="Harith Javed <harith.bakhrani@andela.com>"
-LABEL application="travella-backend"
+LABEL application="travela-backend"
 
 ENV TERM=xterm-256color
 
