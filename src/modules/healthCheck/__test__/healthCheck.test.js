@@ -6,10 +6,9 @@ describe('User Role Test', () => {
     request(app)
       .get('/api/v1/_healthz')
       .expect(200)
-      .end((err) => {
-        if (err) {
-          done(err);
-        }
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.body.message).toEqual('Welcome to Travel Tool');
         done();
       });
   });

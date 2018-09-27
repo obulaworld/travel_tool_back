@@ -1,6 +1,8 @@
 import models from '../../database/models';
 import Utils from '../../helpers/Utils';
 import Error from '../../helpers/Error';
+import NotificationEngine from '../notifications/NotificationEngine';
+import UserRoleController from '../userRole/UserRoleController';
 
 class CommentsController {
   static async createComment(req, res) {
@@ -15,11 +17,8 @@ class CommentsController {
         picture,
       };
       const request = await models.Request.findById(requestId);
-      // only create a comment if the request exists
-
-      // TODO: the person working on comments can build on this by adding
-      // the appropriate data to the arguments
       if (request) {
+        await CommentsController.createNotificationByManager(req, res, request);
         const newComment = await models.Comment.create(commentData);
         return res.status(201).json({
           success: true,
@@ -32,6 +31,32 @@ class CommentsController {
       return Error.handleError('Server Error', 500, res);
     }
   }
+
+  static async createNotificationByManager(req, res, request) {
+    try {
+      const {
+        name, picture
+      } = req.user.UserInfo;
+      const { manager, id } = request;
+      const managerDetail = await UserRoleController.getRecipientId(manager);
+      const newNotificationDetail = {
+        senderId: managerDetail.userId,
+        recipientId: request.userId,
+        notificationType: 'general',
+        message: 'posted a comment',
+        notificationLink: `/requests/my-requests${id}`,
+        senderName: name,
+        senderImage: picture
+      };
+      /* istanbul ignore next */
+      if (managerDetail.userId === req.user.UserInfo.id) {
+        return NotificationEngine.notify(newNotificationDetail);
+      }
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError('Server Error', 500, res);
+    }
+  }
+
 
   static async editComment(req, res) {
     try {
@@ -84,7 +109,7 @@ class CommentsController {
         message: 'You are not allowed to delete this comment',
       });
     } catch (error) { /* istanbul ignore next */
-      return handleServerError('Server Error', res);
+      return Error.handleError('Server Error', res);
     }
   }
 }
