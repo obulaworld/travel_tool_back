@@ -8,7 +8,10 @@ class NotificationController {
       const notifications = await models.Notification.findAll({
         where: {
           recipientId: id
-        }
+        },
+        order: [
+          ['updatedAt', 'DESC']
+        ],
       });
       if (notifications.length !== 0) {
         return res.status(200).json({
