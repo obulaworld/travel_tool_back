@@ -78,6 +78,16 @@ export default (sequelize, DataTypes) => {
         },
       },
     },
+    picture: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: {
+          args: true,
+          msg: 'Picture cannot be empty',
+        },
+      },
+    },
   });
 
   Request.associate = (models) => {

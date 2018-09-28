@@ -20,6 +20,7 @@ export const testRequests = [
     tripType: 'return',
     status: 'Open',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    picture: 'https://sgeeegege',
     trips: [],
   },
   {
@@ -32,6 +33,7 @@ export const testRequests = [
     status: 'Approved',
     role: 'Software Developer',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    picture: 'https://sgeeegege',
     trips: [],
   },
   {
@@ -44,6 +46,7 @@ export const testRequests = [
     status: 'Rejected',
     role: 'Software Developer',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    picture: 'https://sgeeegege',
     trips: [],
   },
 ];
@@ -134,6 +137,7 @@ export const editRequestSuccessResponse = {
     gender: 'Female',
     department: 'TDD',
     role: 'Software Developer',
+    picture: 'https://sgeeegege',
   },
   trips: [
     {
@@ -163,6 +167,7 @@ export const mockRequest = {
   department: 'TDD',
   role: 'Senior Consultant',
   tripType: 'multi',
+  picture: 'https://sgeeegege',
   trips: [
     {
       origin: 'Nairobi',

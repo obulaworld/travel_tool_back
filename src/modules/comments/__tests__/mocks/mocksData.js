@@ -15,6 +15,7 @@ const mockData = {
       status: 'Open',
       role: 'Software Developer',
       userId: '-LHJmKrxA8SlPNQFOVVm',
+      picture: 'fakepicture.png',
       createdAt: '2018-08-16 012:11:52.181+01',
       updatedAt: '2018-08-16 012:11:52.181+01',
       tripType: 'oneWay'
@@ -29,6 +30,7 @@ const mockData = {
       status: 'Open',
       role: 'Software Developer',
       userId: '-LHJmKrxA8SlPNQFOVVm',
+      picture: 'fakepicture.png',
       createdAt: '2018-08-16 012:11:52.181+01',
       updatedAt: '2018-08-16 012:11:52.181+01',
     },
@@ -42,6 +44,7 @@ const mockData = {
       status: 'Open',
       role: 'Software Developer',
       userId: '-LHJmKrxA8SlPNQFOVVm',
+      picture: 'fakepicture.png',
       createdAt: '2018-08-16 012:11:52.181+01',
       updatedAt: '2018-08-16 012:11:52.181+01',
     },

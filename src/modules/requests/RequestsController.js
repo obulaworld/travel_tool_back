@@ -39,7 +39,8 @@ class RequestsController {
       const requestData = {
         ...requestDetails,
         id: Utils.generateUniqueId(),
-        userId: req.user.UserInfo.id
+        userId: req.user.UserInfo.id,
+        picture: req.user.UserInfo.picture
       };
       await models.sequelize.transaction(async () => {
         request = await models.Request.create(requestData);
