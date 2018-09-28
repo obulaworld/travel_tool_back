@@ -1,4 +1,3 @@
-// /* eslint-disable */
 import request from 'supertest';
 import app from '../../../app';
 import models from '../../../database/models';
@@ -18,6 +17,7 @@ const payload = {
     email: 'captain.america@andela.com',
   },
 };
+
 const payload2 = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
@@ -40,8 +40,14 @@ const token3 = Utils.generateTestToken(payload3);
 
 describe('User Role Test', () => {
   beforeAll((done) => {
+    models.Role.destroy({ force: true, truncate: { cascade: true } });
     models.Role.bulkCreate(role);
     process.env.DEFAULT_ADMIN = 'captain.america@andela.com';
+    done();
+  });
+
+  afterAll((done) => {
+    models.Role.destroy({ force: true, truncate: { cascade: true } });
     done();
   });
 
@@ -148,7 +154,6 @@ describe('User Role Test', () => {
       });
   });
 
-
   it('should return only one user from the database', (done) => {
     request(app)
       .get('/api/v1/user/JNDVNFSFDK')
@@ -161,7 +166,6 @@ describe('User Role Test', () => {
         done();
       });
   });
-
 
   it('should return error if login user does not exist in database when changing user role', (done) => {
     request(app)

@@ -65,7 +65,7 @@ const invalidId = 'xghvhbdebdhhe';
 const token = Utils.generateTestToken(payload);
 const someManagerToken = Utils.generateTestToken(someManager);
 const nonRequestManagerToken = Utils.generateTestToken(fakeManager);
-const invalidToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4';
+const invalidToken = 'eyJhbGciOiJSUzI1Ni6IkpXVCJ9.eyJVc2CI6Ii1MSEptS3J4';
 let updatedTripId;
 
 describe('Requests Controller', () => {

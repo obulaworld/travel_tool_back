@@ -27,6 +27,14 @@ describe('Notifications Controller', () => {
       },
     };
 
+    beforeAll(async () => {
+      await models.Notification.truncate();
+    });
+
+    afterAll(async () => {
+      await models.Notification.truncate();
+    });
+
     const token = Utils.generateTestToken(payload);
     const token1 = Utils.generateTestToken(payload1);
 
@@ -177,9 +185,7 @@ describe('Notifications Controller', () => {
 
     beforeAll(async () => {
       await models.Notification.truncate();
-      await userOgoNotifications.map(
-        notification => models.Notification.create(notification)
-      );
+      await models.Notification.bulkCreate(userOgoNotifications);
     });
 
     afterAll(async () => {
@@ -269,7 +275,7 @@ describe('Notifications Controller', () => {
           });
       });
 
-      it('should return 400 if newStatus is not `read`', (done) => {
+      it('should return 422 if newStatus is not `read`', (done) => {
         const expectedResponse = {
           status: 422,
           body: {
@@ -299,7 +305,7 @@ describe('Notifications Controller', () => {
           });
       });
 
-      it('should return 400 if currentStatus is not `unread`', (done) => {
+      it('should return 422 if currentStatus is not `unread`', (done) => {
         const expectedResponse = {
           status: 422,
           body: {
@@ -328,7 +334,7 @@ describe('Notifications Controller', () => {
           });
       });
 
-      it(`should return 400 if notificationType is
+      it(`should return 422 if notificationType is
         neither pending nor general`, (done) => {
         const expectedResponse = {
           status: 422,
@@ -359,7 +365,7 @@ describe('Notifications Controller', () => {
           });
       });
 
-      it('should return 400 if payload doesn\'t have `newStatus` property',
+      it('should return 422 if payload doesn\'t have `newStatus` property',
         (done) => {
           const expectedResponse = {
             status: 422,
@@ -394,7 +400,7 @@ describe('Notifications Controller', () => {
             });
         });
 
-      it(`should return 400 if payload
+      it(`should return 422 if payload
           doesn't have "notificationType" property`,
       (done) => {
         const expectedResponse = {
