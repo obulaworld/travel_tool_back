@@ -175,12 +175,14 @@ class ApprovalsController {
         recipientId: userId,
         notificationType: 'general',
         requestId: id,
-        message: 'approved your request',
+        message: (status === 'Approved')
+          ? 'approved your request'
+          : 'rejected your request',
         notificationLink: `/requests/${id}`
       };
 
       return (
-        status === 'Approved'
+        ['Approved', 'Rejected'].includes(status)
         && (await NotificationEngine.notify(notificationData))
       );
     } catch (error) { /* istanbul ignore next */
