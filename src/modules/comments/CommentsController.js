@@ -44,7 +44,7 @@ class CommentsController {
         recipientId: request.userId,
         notificationType: 'general',
         message: 'posted a comment',
-        notificationLink: `/requests/my-requests${id}`,
+        notificationLink: `/requests/${id}`,
         senderName: name,
         senderImage: picture
       };
