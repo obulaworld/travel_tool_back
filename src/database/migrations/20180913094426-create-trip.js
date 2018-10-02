@@ -38,7 +38,17 @@ module.exports = {
     updatedAt: {
       allowNull: false,
       type: Sequelize.DATE
-    }
+    },
+    bedId: {
+      type: Sequelize.INTEGER,
+      onDelete: 'set null',
+      allowNull: true,
+      references: {
+        model: 'Beds',
+        key: 'id',
+        as: 'beds',
+      },
+    },
   }),
   down: queryInterface => queryInterface.dropTable('Trips')
 };

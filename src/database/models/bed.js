@@ -1,0 +1,22 @@
+export default (sequelize, DataTypes) => {
+  const Bed = sequelize.define(
+    'Bed', {
+      bedName: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+    },
+    {}
+  );
+  Bed.associate = (models) => {
+    Bed.belongsTo(models.Room, {
+      foreignKey: 'roomId',
+      as: 'rooms'
+    });
+    Bed.hasMany(models.Trip, {
+      foreignKey: 'bedId',
+      as: 'trips',
+    });
+  };
+  return Bed;
+};

@@ -1,4 +1,5 @@
 import { validationResult } from 'express-validator/check';
+import models from '../database/models';
 
 export default class Validator {
   static validateRequest(req, res, next) {
@@ -135,5 +136,52 @@ export default class Validator {
     req.checkBody('requestId', 'RequestId is required').notEmpty();
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
+  }
+
+  static validateCreateGuestHouse(req, res, next) {
+    req.checkBody('houseName', 'House name is required').notEmpty();
+    req.checkBody('location', 'Location is required').notEmpty();
+    req.checkBody('bathRooms', 'bathRooms is required and must be a Number')
+      .isInt();
+    req.checkBody('imageUrl', 'Image Url is required').notEmpty();
+    req.checkBody('rooms.*.roomName', 'Room Name is required').notEmpty();
+    req.checkBody('rooms.*.roomType', 'Room Type is required').notEmpty();
+    req.checkBody('rooms.*.bedCount',
+      'Beds is required is and must be a number')
+      .isInt();
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
+
+  static async checkUserRole(req, res, next) {
+    const emailAddress = req.user.UserInfo.email;
+    const action = req.method === 'GET' ? 'view' : 'create';
+    const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
+    const checkUrl = reg.test(req.body.imageUrl);
+    try {
+      const userRole = await models.User.findOne({
+        where: {
+          email: emailAddress
+        },
+      });
+      if (userRole.roleId !== 29187 && userRole.roleId !== 10948) {
+        return res.status(401).json({
+          success: false,
+          message: `Only a Travel Admin can ${action} a Guest House`
+        });
+      }
+      if (action === 'create' && !checkUrl) {
+        return res.status(400).json({
+          success: false,
+          message: 'Only Url allowed for Image'
+        });
+      }
+      next();
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: 'User not found in database'
+      });
+    }
   }
 }

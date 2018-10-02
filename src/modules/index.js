@@ -4,6 +4,7 @@ import approvalsRouter from './approvals';
 import userRoleRouter from './userRole';
 import commentsRouter from './comments';
 import notificationRouter from './notifications';
+import GuestHouseRouter from './guestHouse';
 
 const apiPrefix = '/api/v1';
 
@@ -14,6 +15,8 @@ const routes = (app) => {
   app.use(apiPrefix, userRoleRouter);
   app.use(apiPrefix, commentsRouter);
   app.use(apiPrefix, notificationRouter);
+  app.use(apiPrefix, GuestHouseRouter);
+
   return app;
 };
 

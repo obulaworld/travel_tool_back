@@ -35,8 +35,12 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.DATEONLY,
     },
   });
-
   Trip.associate = (models) => {
+    Trip.belongsTo(models.Bed, {
+      foreignKey: 'bedId',
+      as: 'beds'
+    });
+
     Trip.belongsTo(models.Request, {
       foreignKey: 'requestId',
       as: 'request',

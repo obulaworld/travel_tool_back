@@ -13,7 +13,8 @@ export default (sequelize, DataTypes) => {
       },
       userId: {
         allowNull: false,
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        unique: true
       },
       passportName: {
         allowNull: true,
@@ -42,6 +43,10 @@ export default (sequelize, DataTypes) => {
     User.belongsTo(models.Role, {
       foreignKey: 'roleId',
       as: 'roles'
+    });
+    User.hasMany(models.GuestHouse, {
+      foreignKey: 'userId',
+      as: 'guesthouse',
     });
   };
   return User;
