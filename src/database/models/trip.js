@@ -15,7 +15,6 @@ export default (sequelize, DataTypes) => {
         },
       },
     },
-
     destination: {
       allowNull: false,
       type: DataTypes.STRING,
@@ -34,6 +33,28 @@ export default (sequelize, DataTypes) => {
       allowNull: true,
       type: DataTypes.DATEONLY,
     },
+    checkStatus: {
+      allowNull: false,
+      defaultValue: 'Not Checked In',
+      type: DataTypes.ENUM('Not Checked In', 'Checked In', 'Checked Out'),
+    },
+    checkInDate: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
+    checkOutDate: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
+    lastNotifyDate: {
+      allowNull: true,
+      type: DataTypes.DATE
+    },
+    notificationCount: {
+      allowNull: false,
+      defaultValue: 0,
+      type: DataTypes.INTEGER
+    }
   });
   Trip.associate = (models) => {
     Trip.belongsTo(models.Bed, {

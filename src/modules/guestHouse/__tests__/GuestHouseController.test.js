@@ -75,7 +75,6 @@ describe('Guest Role Test', () => {
       });
   });
 
-
   it('should change user to admin', (done) => {
     request(app)
       .put('/api/v1/user/admin')

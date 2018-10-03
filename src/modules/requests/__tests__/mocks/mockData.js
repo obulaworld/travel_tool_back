@@ -184,4 +184,29 @@ export const mockRequest = {
   ],
 };
 
+export const anotherMockRequest = {
+  name: 'Tester Stephen',
+  origin: 'Lagos',
+  destination: 'New york',
+  gender: 'Male',
+  manager: 'Some manager',
+  department: 'TDD',
+  role: 'Software Developer',
+  tripType: 'multi',
+  trips: [
+    {
+      origin: 'Nairobi',
+      destination: 'New York',
+      departureDate,
+      returnDate,
+    },
+    {
+      origin: 'New York',
+      destination: 'Nairobi',
+      departureDate,
+      returnDate
+    }
+  ],
+};
+
 export default testRequests;

@@ -113,6 +113,7 @@ describe('User Role Test', () => {
       .send(user.user1)
       .expect(201)
       .end((err, res) => {
+        expect(res.body.result[0]).toHaveProperty('userId');
         expect(res.body.result[0]).toHaveProperty('fullName');
         expect(res.body.result[0]).toHaveProperty('email');
         expect(res.body.result[0].email).toEqual(user.user1.email);
@@ -131,6 +132,7 @@ describe('User Role Test', () => {
       .send(user.user2)
       .expect(201)
       .end((err, res) => {
+        expect(res.body.result[0]).toHaveProperty('userId');
         expect(res.body.result[0]).toHaveProperty('fullName');
         expect(res.body.result[0]).toHaveProperty('email');
         expect(res.body.result[0].email).toEqual(user.user2.email);
