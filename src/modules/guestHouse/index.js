@@ -13,8 +13,13 @@ Router.get('/guesthouses',
 Router.post('/guesthouses',
   authenticate,
   Validator.checkUserRole,
-  Validator.validateCreateGuestHouse,
-  Validator.checkUserRole,
+  Validator.validateGuestHouse,
   GuestHouseController.postGuestHouse);
+
+Router.put('/guesthouses/:id',
+  authenticate,
+  Validator.checkUserRole,
+  Validator.validateGuestHouse,
+  GuestHouseController.editGuestHouse);
 
 export default Router;

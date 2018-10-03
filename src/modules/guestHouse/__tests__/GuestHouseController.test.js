@@ -1,6 +1,7 @@
 import request from 'supertest';
 import app from '../../../app';
 import { postGuestHouse, postGuestHouse2 } from './mocks/guestHouseData';
+import models from '../../../database/models';
 import Utils from '../../../helpers/Utils';
 
 const payload = {
@@ -30,6 +31,12 @@ describe('Guest Role Test', () => {
         if (err) return done(err);
         done();
       });
+  });
+
+  afterAll((done) => {
+    models.Role.destroy({ force: true, truncate: { cascade: true } });
+    models.User.truncate();
+    done();
   });
 
 

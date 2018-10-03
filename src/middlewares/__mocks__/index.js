@@ -28,7 +28,7 @@ const middleware = {
     validateManager: jest.fn(invokeNextMiddleware),
     validateComment: jest.fn(invokeNextMiddleware),
     validateNotificationStatus: jest.fn(invokeNextMiddleware),
-    validateCreateGuestHouse: jest.fn(invokeNextMiddleware),
+    validateGuestHouse: jest.fn(invokeNextMiddleware),
     checkUserRole: jest.fn(invokeNextMiddleware),
     checkUrl: jest.fn(invokeNextMiddleware),
   },

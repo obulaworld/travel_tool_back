@@ -138,7 +138,7 @@ export default class Validator {
     Validator.errorHandler(res, errors, next);
   }
 
-  static validateCreateGuestHouse(req, res, next) {
+  static validateGuestHouse(req, res, next) {
     req.checkBody('houseName', 'House name is required').notEmpty();
     req.checkBody('location', 'Location is required').notEmpty();
     req.checkBody('bathRooms', 'bathRooms is required and must be a Number')
@@ -147,7 +147,7 @@ export default class Validator {
     req.checkBody('rooms.*.roomName', 'Room Name is required').notEmpty();
     req.checkBody('rooms.*.roomType', 'Room Type is required').notEmpty();
     req.checkBody('rooms.*.bedCount',
-      'Beds is required is and must be a number')
+      'Number of beds is required and must be a number')
       .isInt();
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
@@ -156,7 +156,8 @@ export default class Validator {
 
   static async checkUserRole(req, res, next) {
     const emailAddress = req.user.UserInfo.email;
-    const action = req.method === 'GET' ? 'view' : 'create';
+    const methodName = req.method;
+    const action = { POST: 'create', GET: 'view', PUT: 'update' };
     const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
     const checkUrl = reg.test(req.body.imageUrl);
     try {
@@ -168,10 +169,10 @@ export default class Validator {
       if (userRole.roleId !== 29187 && userRole.roleId !== 10948) {
         return res.status(401).json({
           success: false,
-          message: `Only a Travel Admin can ${action} a Guest House`
+          message: `Only a Travel Admin can ${action[methodName]} a Guest House`
         });
       }
-      if (action === 'create' && !checkUrl) {
+      if (action[methodName] === 'create' && !checkUrl) {
         return res.status(400).json({
           success: false,
           message: 'Only Url allowed for Image'

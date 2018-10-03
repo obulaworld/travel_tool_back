@@ -5,8 +5,12 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
+      booked: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
     },
-    {}
   );
   Bed.associate = (models) => {
     Bed.belongsTo(models.Room, {
