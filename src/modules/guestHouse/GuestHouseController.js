@@ -8,29 +8,35 @@ dotenv.config();
 class GuestHouseController {
   static async postGuestHouse(req, res) {
     const { rooms, ...data } = req.body;
-    const generate = Utils.generateUniqueId();
+    const generateId = Utils.generateUniqueId();
     const user = req.user.UserInfo.id;
-    let getRooms;
-    const guestHouses = { ...data, userId: user, id: generate };
+    let createdRooms;
+    const guestHouse = { ...data, userId: user, id: generateId };
     await models.sequelize.transaction(async () => {
-      const getHouse = await models.GuestHouse.create(guestHouses);
-      getRooms = await models.Room.bulkCreate(rooms.map(room => (
-        { ...room, id: Utils.generateUniqueId(), guestHouseId: getHouse.id }
-      )));
-
-      const makeBed = await Promise.all(getRooms.map(async (roomId) => {
-        const bedNumber = roomId.bedCount;
-        const createBed = Promise.all(new Array(+bedNumber).fill(1).map((_, i) => {
-          const newBed = models.Bed.create({ roomId: roomId.id, bedName: `bed ${i + 1}` });
-          return newBed;
-        }));
-        return createBed;
-      }));
+      const house = await models.GuestHouse.create(guestHouse);
+      createdRooms = await models.Room.bulkCreate(rooms.map(room => ({
+        ...room, id: Utils.generateUniqueId(), guestHouseId: house.id
+      })));
+      const makeBed = await Promise.all(
+        createdRooms.map(async (roomId) => {
+          const bedNumber = roomId.bedCount;
+          const createdBed = Promise.all(
+            new Array(+bedNumber).fill(1).map((_, i) => {
+              const newBed = models.Bed.create({
+                roomId: roomId.id,
+                bedName: `bed ${i + 1}`
+              });
+              return newBed;
+            })
+          );
+          return createdBed;
+        })
+      );
       res.status(201).json({
         success: true,
         message: 'Guest House created successfully',
-        guestHouse: getHouse,
-        rooms: getRooms,
+        guestHouse: house,
+        rooms: createdRooms,
         bed: makeBed
       });
     });

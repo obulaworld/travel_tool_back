@@ -40,7 +40,6 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'bedId',
       as: 'beds'
     });
-
     Trip.belongsTo(models.Request, {
       foreignKey: 'requestId',
       as: 'request',

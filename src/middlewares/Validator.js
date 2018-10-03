@@ -153,6 +153,7 @@ export default class Validator {
     Validator.errorHandler(res, errors, next);
   }
 
+
   static async checkUserRole(req, res, next) {
     const emailAddress = req.user.UserInfo.email;
     const action = req.method === 'GET' ? 'view' : 'create';

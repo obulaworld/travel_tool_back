@@ -17,6 +17,24 @@ export const postGuestHouse = {
   ]
 };
 
+export const postGuestHouse2 = {
+  houseName: 'Mini flat',
+  location: 'Lagos Nigeria',
+  bathRooms: '1',
+  imageUrl: 'ded',
+  rooms: [
+    {
+      roomName: 'big cutter',
+      roomType: 'ensuited',
+      bedCount: '1'
+    },
+    {
+      roomName: 'small cutter',
+      roomType: 'non-ensuited',
+      bedCount: '1'
+    }
+  ]
+};
 
 export const guestHouseResponse = {
   success: true,

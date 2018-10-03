@@ -13,8 +13,8 @@ export default (sequelize, DataTypes) => {
       },
       userId: {
         allowNull: false,
-        type: DataTypes.STRING,
-        unique: true
+        unique: true,
+        type: DataTypes.STRING
       },
       passportName: {
         allowNull: true,
@@ -46,7 +46,7 @@ export default (sequelize, DataTypes) => {
     });
     User.hasMany(models.GuestHouse, {
       foreignKey: 'userId',
-      as: 'guesthouse',
+      as: 'guesthouses',
     });
   };
   return User;

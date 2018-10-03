@@ -17,7 +17,6 @@ module.exports = {
     },
     userId: {
       allowNull: false,
-      unique: true,
       type: Sequelize.STRING,
     },
     passportName: {

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import app from '../../../app';
-import { postGuestHouse } from './mocks/guestHouseData';
+import { postGuestHouse, postGuestHouse2 } from './mocks/guestHouseData';
 import Utils from '../../../helpers/Utils';
 
 const payload = {
@@ -26,6 +26,7 @@ describe('Guest Role Test', () => {
       .expect(400)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('User not found in database');
         if (err) return done(err);
         done();
       });
@@ -61,8 +62,7 @@ describe('Guest Role Test', () => {
       .expect(401)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message)
-          .toEqual('Only a Travel Admin can create a Guest House');
+        expect(res.body.message).toEqual('Only a Travel Admin can create a Guest House');
         if (err) return done(err);
         done();
       });
@@ -77,8 +77,21 @@ describe('Guest Role Test', () => {
       .expect(200)
       .end((err, res) => {
         expect(res.body.success).toEqual(true);
-        expect(res.body.message)
-          .toEqual('Your role has been Updated to a Super Admin');
+        expect(res.body.message).toEqual('Your role has been Updated to a Super Admin');
+        if (err) return done(err);
+        done();
+      });
+  });
+  it('should not add new guest house if image is not url', (done) => {
+    request(app)
+      .post('/api/v1/guesthouses')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .send(postGuestHouse2)
+      .expect(400)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('Only Url allowed for Image');
         if (err) return done(err);
         done();
       });
@@ -93,6 +106,7 @@ describe('Guest Role Test', () => {
       .expect(201)
       .end((err, res) => {
         expect(res.body.success).toEqual(true);
+        expect(res.body.message).toEqual('Guest House created successfully');
         if (err) return done(err);
         done();
       });
