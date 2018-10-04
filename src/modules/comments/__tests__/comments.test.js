@@ -1,9 +1,12 @@
 import supertest from 'supertest';
+import sgMail from '@sendgrid/mail';
 import app from '../../../app';
 import models from '../../../database/models';
 import Utils from '../../../helpers/Utils';
 import mockData from './mocks/mocksData';
 import { role } from '../../userRole/__tests__/mocks/mockData';
+
+sgMail.send = jest.fn();
 
 global.io = {
   sockets: {
@@ -107,6 +110,7 @@ describe('Comments controller', () => {
             done();
           });
       });
+
       it('returns 201 and creates a new comment', (done) => {
         const expectedResponse = {
           success: true,
@@ -142,9 +146,10 @@ describe('Comments controller', () => {
       });
     });
     describe('PUT api/v1/comments/:id', () => {
-      beforeAll(async () => {
+      beforeAll(async (done) => {
         await models.Comment.truncate();
         await models.Comment.create(mockData.commentMock);
+        done();
       });
       it('throws 404 if the requestId does not match', (done) => {
         const expectedResponse = {
@@ -202,7 +207,7 @@ describe('Comments controller', () => {
     });
     describe('DELETE api/v1/comments/:id', () => {
       const { id } = mockData.commentMock;
-      it('throws 404 if the commentId is not found', async () => {
+      it('throws 404 if the commentId is not found', async (done) => {
         const expectedResponse = {
           success: false,
           error: 'Comment does not exist'
@@ -212,8 +217,9 @@ describe('Comments controller', () => {
           .set('authorization', token);
         expect(response.statusCode).toEqual(404);
         expect(response.body).toEqual(expectedResponse);
+        done();
       });
-      it('throws 401 if comment was created by a different user', async () => {
+      it('throws 401 if comment was created by a different user', async (done) => {
         const expectedResponse = {
           success: false,
           message: 'You are not allowed to delete this comment',
@@ -223,8 +229,9 @@ describe('Comments controller', () => {
           .set('authorization', otherUsertoken);
         expect(response.statusCode).toEqual(401);
         expect(response.body).toEqual(expectedResponse);
+        done();
       });
-      it('returns 200 and deletes a comment', async () => {
+      it('returns 200 and deletes a comment', async (done) => {
         const expectedResponse = {
           success: true,
           message: 'Comment deleted successfully',
@@ -234,6 +241,7 @@ describe('Comments controller', () => {
           .set('authorization', token);
         expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual(expectedResponse);
+        done();
       });
     });
   });

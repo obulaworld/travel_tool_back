@@ -49,7 +49,6 @@ export default class NotificationEngine {
         requestId
       )
     };
-
     await sgMail.send(mail);
   }
 }

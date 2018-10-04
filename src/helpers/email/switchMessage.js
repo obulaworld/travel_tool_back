@@ -17,7 +17,13 @@ const switchMessage = (msgDetail) => {
       return (
         `Your travel request <b>#${msgDetail.requestId}</b> was rejected by
         ${msgDetail.senderName}. Login to your travela account for details.
+        `);
+    case 'Comments':
+      return (
         `
+      <b>${msgDetail.senderName}</b> posted a comment.
+      Login to your travela account for details.
+      `
       );
     default:
       return '';

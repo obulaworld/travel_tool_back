@@ -29,4 +29,20 @@ describe('switchMessage helper', () => {
     expect(receivedMessage.split(' ')[3]).toEqual('<b>#36Ydgha42e</b>');
     done();
   });
+
+  it('should return posted comment message', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'Comments', senderName: 'Tester' }
+    );
+    expect(receivedMessage.split(' ')).toContain('<b>Tester</b>');
+    expect(receivedMessage.split(' ')[6]).toEqual('<b>Tester</b>');
+    done();
+  });
+  it('should return nothing for non-available type', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'notification', senderName: 'Tester' }
+    );
+    expect(receivedMessage).toEqual('');
+    done();
+  });
 });

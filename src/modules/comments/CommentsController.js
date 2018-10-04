@@ -18,8 +18,8 @@ class CommentsController {
       };
       const request = await models.Request.findById(requestId);
       if (request) {
-        await CommentsController.createNotificationByManager(req, res, request);
         const newComment = await models.Comment.create(commentData);
+        await CommentsController.createNotificationByManager(req, res, request);
         return res.status(201).json({
           success: true,
           message: 'Comment created successfully',
@@ -35,9 +35,9 @@ class CommentsController {
   static async createNotificationByManager(req, res, request) {
     try {
       const {
-        name, picture
+        name, picture, email
       } = req.user.UserInfo;
-      const { manager, id } = request;
+      const { manager, id, userId } = request;
       const managerDetail = await UserRoleController.getRecipient(manager);
       const newNotificationDetail = {
         senderId: managerDetail.userId,
@@ -48,6 +48,21 @@ class CommentsController {
         senderName: name,
         senderImage: picture
       };
+      
+      let redirectLink = `${process.env.REDIRECT_URL}
+      /requests/${id}`;
+      let recipientEmail = email;
+      let recipientName = name;
+
+      /* istanbul ignore next */
+      if (userId === req.user.UserInfo.id) {
+        redirectLink = `${process.env.REDIRECT_URL}
+        /requests/my-approvals/${id}`;
+        recipientEmail = managerDetail.email;
+        recipientName = manager;
+      }
+
+      CommentsController.sendEmail(recipientEmail, recipientName, name, redirectLink);
       /* istanbul ignore next */
       if (managerDetail.userId === req.user.UserInfo.id) {
         return NotificationEngine.notify(newNotificationDetail);
@@ -55,6 +70,19 @@ class CommentsController {
     } catch (error) { /* istanbul ignore next */
       return Error.handleError('Server Error', 500, res);
     }
+  }
+
+  static sendEmail(recipientEmail, recipientName, name, redirectLink) {
+    return NotificationEngine.sendMail({
+      recipient: {
+        email: recipientEmail,
+        name: recipientName
+      },
+      sender: name,
+      topic: 'Travela Notification',
+      type: 'Comments',
+      redirectLink
+    });
   }
 
 

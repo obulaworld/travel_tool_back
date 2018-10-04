@@ -90,12 +90,13 @@ describe('Requests Controller', () => {
     done();
   });
 
-  afterAll(async () => {
+  afterAll(async (done) => {
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.Request.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.truncate();
     await models.Notification.truncate();
     await models.User.truncate();
+    done();
   });
 
   describe('GET /api/v1/requests', () => {
@@ -490,7 +491,7 @@ describe('Requests Controller', () => {
   describe('POST / requests - Create New Request', () => {
     describe('Unauthenticated User', () => {
       it('should check if the token exists and return 401 if it does not',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .post('/api/v1/requests')
             .send({
@@ -499,10 +500,11 @@ describe('Requests Controller', () => {
           expect(res.statusCode).toEqual(401);
           expect(res.body.success).toEqual(false);
           expect(res.body.error).toEqual('Please provide a token');
+          done();
         });
 
       it('should check if the token is valid and return 401 if it is not',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .post('/api/v1/requests')
             .set('Authorization', invalidToken)
@@ -512,18 +514,20 @@ describe('Requests Controller', () => {
           expect(res.status).toEqual(401);
           expect(res.body.success).toEqual(false);
           expect(res.body.error).toEqual('Token is not valid');
+          done();
         });
     });
 
     describe('Authenticated User', () => {
       // check that all the fields are filled - fail if any field is missing
-      it('should return 422 if validation fails', async () => {
+      it('should return 422 if validation fails', async (done) => {
         const res = await request(app)
           .post('/api/v1/requests')
           .set('authorization', token)
           .send({});
         expect(res.status).toEqual(422);
         expect(res.body).toMatchObject(emptyRequestResponse);
+        done();
       });
 
       //  create request if everything is fine
@@ -687,7 +691,7 @@ describe('Requests Controller', () => {
 
   describe('Get an authenticated User Request detail', () => {
     // it should get request details for a user
-    it('should return request details of a user', async () => {
+    it('should return request details of a user', async (done) => {
       const response = await request(app)
         .get(`/api/v1/requests/${requestId}`)
         .set('authorization', token);
@@ -710,9 +714,10 @@ describe('Requests Controller', () => {
           trips: []
         }
       });
+      done();
     });
 
-    it('should return the expected number of trips', async () => {
+    it('should return the expected number of trips', async (done) => {
       const postResp = await request(app)
         .post('/api/v1/requests')
         .set('authorization', token)
@@ -723,19 +728,21 @@ describe('Requests Controller', () => {
         .get(`/api/v1/requests/${createdRequestId}`)
         .set('authorization', token);
       expect(getResp.body.requestData.trips).toHaveLength(2);
+      done();
     });
 
-    it('should return the correct type of the request', async () => {
+    it('should return the correct type of the request', async (done) => {
       const postResp = await request(app)
         .post('/api/v1/requests')
         .set('authorization', token)
         .send(mockRequest);
       const createdRequestType = postResp.body.request.tripType;
       expect(createdRequestType).toBe('multi');
+      done();
     });
 
     it('should return a 404 ststus code for unexisting requestId',
-      async () => {
+      async (done) => {
         const response = await request(app)
           .get(`/api/v1/requests/${invalidId}`)
           .set('authorization', token);
@@ -744,6 +751,7 @@ describe('Requests Controller', () => {
           error: `Request with id ${invalidId} does not exist`,
           success: false
         });
+        done();
       });
   });
 
@@ -996,7 +1004,7 @@ describe('Requests Controller', () => {
 
     describe('Requesters Manager', () => {
       it('should successfully update a requests status',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .put('/api/v1/approvals/xDh20cuGy')
             .set('authorization', token)
@@ -1004,10 +1012,11 @@ describe('Requests Controller', () => {
           expect(res.statusCode).toEqual(200);
           expect(res.body.success).toEqual(true);
           expect(res.body.message).toEqual('Request approved successfully');
+          done();
         });
 
       it(`should throw validation error when
-        newStatus does not match expected input`, async () => {
+        newStatus does not match expected input`, async (done) => {
         const newStatus = 'ApprovedRejected';
 
         const res = await request(app)
@@ -1015,21 +1024,23 @@ describe('Requests Controller', () => {
           .set('authorization', token)
           .send({ newStatus });
         expect(res.statusCode).toEqual(422);
+        done();
       });
 
       it('should return an error if request is not found',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .put('/api/v1/approvals/xDh20cu8T0')
             .set('authorization', token)
             .send({ newStatus: 'Approved' });
           expect(res.statusCode).toEqual(404);
           expect(res.body.success).toEqual(false);
+          done();
         });
     });
 
     describe('Not Requesters Manager', () => {
-      it('should return an error message', async () => {
+      it('should return an error message', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuGy')
           .set('authorization', nonRequestManagerToken)
@@ -1039,22 +1050,24 @@ describe('Requests Controller', () => {
           success: false,
           error: 'Permission denied, you are not requesters manager',
         });
+        done();
       });
     });
 
     describe('Unauthenticated User', () => {
       it('should check if the token exists and return 401 if it does not',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .put('/api/v1/approvals/xDh20cuT0')
             .send({ newStatus: 'Rejected' });
           expect(res.statusCode).toEqual(401);
           expect(res.body.success).toEqual(false);
           expect(res.body.error).toEqual('Please provide a token');
+          done();
         });
 
       it('should check if the token is valid and return 401 if it is not',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .put('/api/v1/approvals/xDh20cuT0')
             .set('Authorization', invalidToken)
@@ -1062,12 +1075,13 @@ describe('Requests Controller', () => {
           expect(res.status).toEqual(401);
           expect(res.body.success).toEqual(false);
           expect(res.body.error).toEqual('Token is not valid');
+          done();      
         });
     });
 
     describe('Requesters Manager', () => {
       it('should not update a requests status twice',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .put('/api/v1/approvals/xDh20cuGy')
             .set('authorization', token)
@@ -1075,6 +1089,7 @@ describe('Requests Controller', () => {
           expect(res.statusCode).toEqual(400);
           expect(res.body.success).toEqual(false);
           expect(res.body.error).toEqual('Request has been approved already');
+          done();
         });
     });
 
@@ -1089,7 +1104,7 @@ describe('Requests Controller', () => {
       });
 
       it('should return an error message if approval does not exist',
-        async () => {
+        async (done) => {
           const res = await request(app)
             .put('/api/v1/approvals/xDh20cuGy')
             .set('authorization', token)
@@ -1099,6 +1114,7 @@ describe('Requests Controller', () => {
             success: false,
             error: 'Request not found',
           });
+          done();
         });
     });
   });// end of REQUEST STATUS UPDATE
