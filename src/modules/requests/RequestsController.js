@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
@@ -14,6 +15,8 @@ import ApprovalsController from '../approvals/ApprovalsController';
 import UserRoleController from '../userRole/UserRoleController';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
+
+dotenv.config();
 
 const { Op } = models.Sequelize;
 const noResult = 'No records found';
@@ -250,8 +253,8 @@ class RequestsController {
         delete requestDetails.status; // status cannot be updated by requester
         const updatedRequest = await request.updateAttributes(requestDetails);
         const message = 'edited a travel request';
-        RequestsController
-          .sendNotificationToManager(req, res, request, message);
+        RequestsController.sendNotificationToManager(req, res, request, message,
+          'Updated Travel Request', 'Updated Request');
         return res.status(200).json({
           success: true,
           request: updatedRequest,

@@ -40,8 +40,8 @@ class TripsController {
 
   static async sendNotification(req, request, checkType) {
     const message = (checkType === 'checkIn')
-      ? 'You just checked in to your guest house'
-      : 'You just checked out of your guest house';
+      ? 'You have successfully checked-in'
+      : 'You have successfully checked-out';
     const { userId } = request;
     const notificationData = {
       senderId: userId,

@@ -18,6 +18,7 @@ sgMail.send = jest.fn();
 
 const request = supertest;
 
+
 global.io = {
   sockets: {
     emit: (event, dataToBeEmitted) => dataToBeEmitted

@@ -11,8 +11,7 @@ const switchMessage = (msgDetail) => {
       return (
         `Your travel request <b>#${msgDetail.requestId}</b> was just approved
         by ${msgDetail.senderName}. Login to your travela account for details.
-        `
-      );
+        `);
     case 'Rejected':
       return (
         `Your travel request <b>#${msgDetail.requestId}</b> was rejected by
@@ -20,11 +19,15 @@ const switchMessage = (msgDetail) => {
         `);
     case 'Comments':
       return (
-        `
-      <b>${msgDetail.senderName}</b> posted a comment.
-      Login to your travela account for details.
-      `
-      );
+        `<b>${msgDetail.senderName}</b> posted a comment.
+        Login to your travela account for details.
+        `);
+    case 'Updated Request':
+      return (
+        `<b style="text-transform: capitalize;">${msgDetail.senderName}</b>
+        just updated a travel request for your approval. Login to your
+        travela account for details.
+        `);
     default:
       return '';
   }

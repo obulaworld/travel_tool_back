@@ -34,15 +34,33 @@ describe('switchMessage helper', () => {
     const receivedMessage = switchMessage(
       { type: 'Comments', senderName: 'Tester' }
     );
-    expect(receivedMessage.split(' ')).toContain('<b>Tester</b>');
-    expect(receivedMessage.split(' ')[6]).toEqual('<b>Tester</b>');
+    expect(receivedMessage.split(' ')).toContain('Login');
     done();
   });
+
   it('should return nothing for non-available type', (done) => {
     const receivedMessage = switchMessage(
       { type: 'notification', senderName: 'Tester' }
     );
     expect(receivedMessage).toEqual('');
+    done();
+  });
+
+  it('should return update Request message', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'Updated Request', senderName: 'Malibua' }
+    );
+
+    expect(receivedMessage.split(' ')).toContain('Login');
+    done();
+  });
+
+  it('should return empty string with invalid type', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'deleted Request', senderName: 'Malibua' }
+    );
+
+    expect(receivedMessage.split(' ')).toContain('');
     done();
   });
 });
