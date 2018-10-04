@@ -35,13 +35,19 @@ export default class NotificationEngine {
   }
 
   static async sendMail({
-    recipient, sender, topic, type, redirectLink
+    recipient, sender, topic, type, redirectLink, requestId
   }) {
     const mail = {
       to: recipient.email,
       from: process.env.APP_EMAIL,
       subject: topic,
-      html: mailTemplate(recipient.name, sender, type, redirectLink)
+      html: mailTemplate(
+        recipient.name,
+        sender,
+        type,
+        redirectLink,
+        requestId
+      )
     };
 
     await sgMail.send(mail);

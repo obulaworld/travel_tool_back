@@ -3,7 +3,11 @@ import switchMessage from './switchMessage';
 
 dotenv.config();
 
-const mailTemplate = (recipientName, senderName, type, redirectLink) => (
+const mailTemplate = (recipientName,
+  senderName,
+  type,
+  redirectLink,
+  requestId) => (
   `
   <div
     style="background-color: #ececec;
@@ -50,7 +54,7 @@ const mailTemplate = (recipientName, senderName, type, redirectLink) => (
         color: #4F4F4F;
         margin: 0 auto 50px auto;"
     >
-      ${switchMessage({ type, senderName })}
+      ${switchMessage({ type, senderName, requestId })}
     </p>
     <a
       href="${redirectLink}"

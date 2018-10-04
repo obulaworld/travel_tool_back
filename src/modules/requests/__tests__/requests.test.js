@@ -64,6 +64,13 @@ const someManager = {
   },
 };
 
+const userMock = {
+  fullName: 'Samuel Kubai',
+  email: 'captan.ameria@andela.com',
+  userId: '--MUyHJmKrxA90lPNQ1FOLNm',
+  roleId: 53019
+};
+
 const requestId = 'xDh20cuGz';
 const invalidId = 'xghvhbdebdhhe';
 const token = Utils.generateTestToken(payload);
@@ -78,8 +85,8 @@ describe('Requests Controller', () => {
     models.Request.destroy({ force: true, truncate: { cascade: true } });
     models.Trip.truncate();
     models.Notification.truncate();
-
     models.Role.bulkCreate(role);
+    models.User.create(userMock);
     done();
   });
 
@@ -1013,7 +1020,7 @@ describe('Requests Controller', () => {
       it('should return an error if request is not found',
         async () => {
           const res = await request(app)
-            .put('/api/v1/approvals/xDh20cuT0')
+            .put('/api/v1/approvals/xDh20cu8T0')
             .set('authorization', token)
             .send({ newStatus: 'Approved' });
           expect(res.statusCode).toEqual(404);

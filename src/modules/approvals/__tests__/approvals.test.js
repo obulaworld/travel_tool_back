@@ -1,6 +1,9 @@
 /* eslint-disable */
 import supertest from 'supertest';
+import sgMail from '@sendgrid/mail'
 import { mockRouterMiddleware, mockApprovals } from './mocks/mockModules';
+
+sgMail.send = jest.fn();
 
 /* SERVER INTEGRATION TESTS */
 describe('server integration tests', () => {

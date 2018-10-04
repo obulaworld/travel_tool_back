@@ -12,6 +12,7 @@ import Error from '../../helpers/Error';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
+import UserRoleController from '../userRole/UserRoleController';
 
 const noResult = 'No records found';
 let params = {};
@@ -168,6 +169,8 @@ class ApprovalsController {
     try {
       const { status, id, userId } = updatedRequest;
       const { name, picture } = user.UserInfo;
+      const recipientEmail = await UserRoleController
+        .getRecipient(null, userId);
       const notificationData = {
         senderId: user.UserInfo.id,
         senderName: name,
@@ -181,13 +184,36 @@ class ApprovalsController {
         notificationLink: `/requests/${id}`
       };
 
+      const emailData = ApprovalsController
+        .emailData(updatedRequest, recipientEmail, name);
+
+      const emailNotification = await NotificationEngine
+        .sendMail(emailData);
+
+      const inAppNotification = NotificationEngine
+        .notify(notificationData);
       return (
         ['Approved', 'Rejected'].includes(status)
-        && (await NotificationEngine.notify(notificationData))
+        && inAppNotification && emailNotification
       );
     } catch (error) { /* istanbul ignore next */
       return Error.handleError(error, 500, res);
     }
+  }
+
+  static emailData(request, recipient, name) {
+    return {
+      recipient: {
+        name: request.name,
+        email: recipient && recipient.email
+      },
+      sender: name,
+      topic: `Travela ${request.status} Request`,
+      type: request.status,
+      redirectLink:
+      `${process.env.REDIRECT_URL}/requests/${request.id}`,
+      requestId: request.id
+    };
   }
 }
 

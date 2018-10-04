@@ -12,6 +12,7 @@ const request = supertest;
 const invalidToken =  'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4'; // eslint-disable-line
 
 describe('Notifications Controller', () => {
+  // jest.mock('@sendgrid/mail');
   describe('GET /api/v1/notifications', () => {
     const payload = {
       UserInfo: {

@@ -7,6 +7,18 @@ const switchMessage = (msgDetail) => {
         travela account for details.
         `
       );
+    case 'Approved':
+      return (
+        `Your travel request <b>#${msgDetail.requestId}</b> was just approved
+        by ${msgDetail.senderName}. Login to your travela account for details.
+        `
+      );
+    case 'Rejected':
+      return (
+        `Your travel request <b>#${msgDetail.requestId}</b> was rejected by
+        ${msgDetail.senderName}. Login to your travela account for details.
+        `
+      );
     default:
       return '';
   }

@@ -198,10 +198,17 @@ class UserRoleController {
     }
   }
 
-  static async getRecipient(recipientName) {
+  static async getRecipient(recipientName, recipientId) {
     const recipient = await models.User.findOne({
       where: {
-        fullName: recipientName
+        $or: [
+          {
+            fullName: recipientName
+          },
+          {
+            userId: recipientId
+          },
+        ]
       }
     });
     return recipient;
