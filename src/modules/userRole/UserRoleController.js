@@ -198,13 +198,13 @@ class UserRoleController {
     }
   }
 
-  static async getRecipientId(recipientName) {
-    const recipientId = await models.User.findOne({
+  static async getRecipient(recipientName) {
+    const recipient = await models.User.findOne({
       where: {
         fullName: recipientName
       }
     });
-    return recipientId;
+    return recipient;
   }
 }
 

@@ -45,11 +45,7 @@ class RequestsController {
       await models.sequelize.transaction(async () => {
         request = await models.Request.create(requestData);
         const requestTrips = await models.Trip.bulkCreate(trips.map(trip => (
-          {
-            ...trip,
-            requestId: request.id,
-            id: Utils.generateUniqueId()
-          }
+          { ...trip, requestId: request.id, id: Utils.generateUniqueId() }
         )));
         const approval = await ApprovalsController.createApproval(request);
         request.dataValues.trips = requestTrips;
@@ -61,30 +57,48 @@ class RequestsController {
         });
       });
       const message = 'created a new travel request';
-      RequestsController.sendNotificationToManager(req, res, request, message);
+      RequestsController.sendNotificationToManager(
+        req, res, request, message, 'New Travel Request', 'New Request'
+      );
     } catch (error) { /* istanbul ignore next */
       return Error.handleError(error.toString(), 500, res);
     }
   }
 
-  static async sendNotificationToManager(req, res, request, message) {
+  static async sendNotificationToManager(
+    req, res, request, message, mailTopic, mailType
+  ) {
     try {
       const { userId, id, manager } = request;
-      const recipientId = await UserRoleController.getRecipientId(manager);
-
+      const recipient = await UserRoleController.getRecipient(manager);
       const notificationData = {
         senderId: userId,
-        recipientId: recipientId.userId,
+        recipientId: recipient.userId,
         notificationType: 'pending',
         message,
         notificationLink: `/requests/my-approvals/${id}`,
         senderName: req.user.UserInfo.name,
         senderImage: req.user.UserInfo.picture,
       };
-      return NotificationEngine.notify(notificationData);
+      NotificationEngine.notify(notificationData);
+      const mailData = RequestsController
+        .getMailData(request, recipient, mailTopic, mailType);
+      return NotificationEngine.sendMail(mailData);
     } catch (error) { /* istanbul ignore next */
       Error.handleError(error, 500, res);
     }
+  }
+
+  static getMailData(request, recipient, topic, type) {
+    const mailBody = {
+      recipient: { name: request.manager, email: recipient.email },
+      sender: request.name,
+      topic,
+      type,
+      redirectLink:
+        `${process.env.REDIRECT_URL}/requests/my-approvals/${request.id}`
+    };
+    return mailBody;
   }
 
   static removeTripWhere(subquery) {

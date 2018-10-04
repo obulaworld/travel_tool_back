@@ -38,7 +38,7 @@ class CommentsController {
         name, picture
       } = req.user.UserInfo;
       const { manager, id } = request;
-      const managerDetail = await UserRoleController.getRecipientId(manager);
+      const managerDetail = await UserRoleController.getRecipient(manager);
       const newNotificationDetail = {
         senderId: managerDetail.userId,
         recipientId: request.userId,

@@ -1,4 +1,5 @@
 import supertest from 'supertest';
+import sgMail from '@sendgrid/mail';
 import models from '../../../database/models';
 import app from '../../../app';
 import { role } from '../../userRole/__tests__/mocks/mockData';
@@ -13,6 +14,8 @@ import {
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 
+sgMail.send = jest.fn();
+
 const request = supertest;
 
 global.io = {
@@ -20,6 +23,7 @@ global.io = {
     emit: (event, dataToBeEmitted) => dataToBeEmitted
   }
 };
+
 
 const newRequest = {
   name: 'Test',
@@ -228,7 +232,7 @@ describe('Requests Controller', () => {
           });
       });
 
-      it(`should return 200 status code and matching response data if search 
+      it(`should return 200 status code and matching response data if search
         match is found `, (done) => {
         const expectedResponse = {
           status: 200,
@@ -259,7 +263,7 @@ describe('Requests Controller', () => {
           });
       });
 
-      it(`should return 200 status code and matching response data if search 
+      it(`should return 200 status code and matching response data if search
         match is found and parameter is a status `, (done) => {
         const expectedResponse = {
           status: 200,
@@ -635,7 +639,7 @@ describe('Requests Controller', () => {
   }); // end of CREATE REQUEST API
 
   describe('Test suite for approval endpoints GET: api/v1/approvals', () => {
-    it(`should return 404 status code and message if search 
+    it(`should return 404 status code and message if search
     match is not found`, (done) => {
       supertest(app)
         .get('/api/v1/approvals?status=open&search=qwert')
@@ -647,7 +651,7 @@ describe('Requests Controller', () => {
         });
     });
 
-    it(`should return 200 status code and matching response data if search 
+    it(`should return 200 status code and matching response data if search
     match is found`, (done) => {
       supertest(app)
         .get('/api/v1/approvals?page=1&status=open&search=test')
