@@ -24,6 +24,17 @@ export default class Validator {
     next();
   }
 
+  static checkFaultRoomStatus(req, res, next) {
+    const { body: { fault } } = req;
+    if (fault !== true && fault !== false) {
+      return res.status(400).json({
+        success: false,
+        message: 'Room status can only be true or false'
+      });
+    }
+    next();
+  }
+
   static errorHandler(res, errors, next) {
     if (errors) {
       const errorObj = errors.map(err => ({
@@ -191,6 +202,30 @@ export default class Validator {
         return res.status(400).json({
           success: false,
           message: 'Only Url allowed for Image'
+        });
+      }
+      next();
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: 'User not found in database'
+      });
+    }
+  }
+
+
+  static async validateRole(req, res, next) {
+    const emailAddress = req.user.UserInfo.email;
+    try {
+      const userRole = await models.User.findOne({
+        where: {
+          email: emailAddress
+        },
+      });
+      if (userRole.roleId !== 29187 && userRole.roleId !== 10948) {
+        return res.status(401).json({
+          success: false,
+          message: 'Only a Travel Admin can edit fault status a Guest House'
         });
       }
       next();

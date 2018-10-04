@@ -36,6 +36,14 @@ export const postGuestHouse2 = {
   ]
 };
 
+export const updateRoomFaultStatus = {
+  room1: {
+    fault: false
+  },
+  room2: {
+    fault: 'falses'
+  }
+};
 
 export const guestHouseResponse = {
   success: true,
@@ -93,6 +101,7 @@ export const guestHouseResponse = {
     ]
   ]
 };
+
 
 export const GuestHouseEpic = {
   id: 'ND56thdW',

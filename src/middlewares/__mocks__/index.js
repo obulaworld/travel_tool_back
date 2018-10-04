@@ -31,8 +31,10 @@ const middleware = {
     validateCreateGuestHouse: jest.fn(invokeNextMiddleware),
     checkDate: jest.fn(invokeNextMiddleware),
     checkUserRole: jest.fn(invokeNextMiddleware),
+    checkFaultRoomStatus: jest.fn(invokeNextMiddleware),
+    validateRole: jest.fn(invokeNextMiddleware),
+    checkUrl: jest.fn(invokeNextMiddleware),
     validateGuestHouse: jest.fn(invokeNextMiddleware),
-    checkUrl: jest.fn(invokeNextMiddleware)
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),

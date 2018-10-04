@@ -16,6 +16,16 @@ Router.post('/guesthouses',
   Validator.validateGuestHouse,
   GuestHouseController.postGuestHouse);
 
+
+Router.put(
+  '/room/:id',
+  authenticate,
+  Validator.validateRole,
+  Validator.checkFaultRoomStatus,
+  GuestHouseController.updateRoomFaultyStatus
+);
+
+
 Router.put('/guesthouses/:id',
   authenticate,
   Validator.checkUserRole,
@@ -29,5 +39,6 @@ Router.get(
   Validator.checkUserRole,
   GuestHouseController.getGuestHouseDetails
 );
+
 
 export default Router;

@@ -30,6 +30,7 @@ describe('Get Guest Houses', () => {
         done();
       });
   });
+
   describe('Unauthenticated user', () => {
     it('returns 401 error if user is not a travel admin', (done) => {
       request(app)
@@ -81,6 +82,7 @@ describe('Get Guest Houses', () => {
           done();
         });
     });
+
     it(`returns 200 and the appropriate message when
       there are no guesthouses`, (done) => {
       request(app)
@@ -95,7 +97,7 @@ describe('Get Guest Houses', () => {
           done();
         });
     });
-    describe('Authenticated travel admin', () => {
+    describe('Authenticated travel admin with guesthouse', () => {
       beforeAll((done) => {
         request(app)
           .post('/api/v1/guesthouses')

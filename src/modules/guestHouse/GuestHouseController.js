@@ -45,6 +45,31 @@ class GuestHouseController {
     });
   }
 
+
+  static async updateRoomFaultyStatus(req, res) {
+    const guestRoomId = req.params.id;
+    const room = await models.Room.findOne({
+      where: {
+        id: guestRoomId
+      }
+    });
+    if (!room) {
+      return res.status(400).json({
+        success: false,
+        message: 'The room does not exist'
+      });
+    }
+    const result = await room.update({
+      faulty: req.body.fault
+    });
+    return res.status(201).json({
+      success: true,
+      message: 'Room maintainance details updated successfully',
+      result
+    });
+  }
+
+
   static async getGuestHouses(req, res) {
     try {
       const guestHouses = await models.GuestHouse.findAll({
@@ -61,6 +86,44 @@ class GuestHouseController {
     } catch (error) { /* istanbul ignore next */
       Error.handleError(error, 500, res);
     }
+  }
+
+
+  static makeTripsWhereClauseFor(column, operatorType, startDate, endDate) {
+    const { Op } = models.Sequelize;
+    const { sequelize } = models;
+    const operator = Op[operatorType]; // Op.between, Op.lt ...
+    const opValue = operatorType === 'between'
+      ? [startDate, endDate]
+      : startDate;
+    return sequelize.where(sequelize.col(column), { [operator]: opValue });
+  }
+
+  static makeTripsDateClauseFrom(reqQuery) {
+    const { startDate, endDate } = reqQuery;
+    const { makeTripsWhereClauseFor } = GuestHouseController;
+
+    return models.sequelize.or(
+      // pick a trip if its departureDate is between dates
+      makeTripsWhereClauseFor('departureDate', 'between', startDate, endDate),
+      /*  also include trips whose departureDate is less than startDate but
+        touch into or span across the date range
+      */
+      models.sequelize.and(
+        makeTripsWhereClauseFor('departureDate', 'lt', startDate),
+        makeTripsWhereClauseFor('returnDate', 'gte', startDate)
+      )
+    );
+  }
+
+
+  static doInclude(modelName, alias, where = {}, required = true) {
+    return {
+      model: models[modelName],
+      as: alias,
+      where,
+      required // set false to enforce a LEFT OUTER JOIN
+    };
   }
 
   static async getGuestHouseDetails(req, res) {
