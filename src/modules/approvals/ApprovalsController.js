@@ -184,14 +184,16 @@ class ApprovalsController {
         notificationLink: `/requests/${id}`
       };
 
+      const inAppNotification = NotificationEngine
+        .notify(notificationData);
+
       const emailData = ApprovalsController
         .emailData(updatedRequest, recipientEmail, name);
+
 
       const emailNotification = await NotificationEngine
         .sendMail(emailData);
 
-      const inAppNotification = NotificationEngine
-        .notify(notificationData);
       return (
         ['Approved', 'Rejected'].includes(status)
         && inAppNotification && emailNotification
