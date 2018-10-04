@@ -2,7 +2,9 @@ import dotenv from 'dotenv';
 import Utils from '../../helpers/Utils';
 import models from '../../database/models';
 import Error from '../../helpers/Error';
-import BedName from '../../helpers/guestHouse/index';
+import BedName, {
+  GuestHouseIncludeHelper
+} from '../../helpers/guestHouse/index';
 
 dotenv.config();
 
@@ -59,6 +61,38 @@ class GuestHouseController {
     } catch (error) { /* istanbul ignore next */
       Error.handleError(error, 500, res);
     }
+  }
+
+  static async getGuestHouseDetails(req, res) {
+    const { guestHouseId } = req.params;
+    const { query } = req;
+
+    const { doInclude, makeTripsDateClauseFrom } = GuestHouseIncludeHelper;
+    const bedTripsWhereClause = makeTripsDateClauseFrom(query);
+    const srcRequestWhereClause = { status: 'Approved' };
+    const guestHouse = await models.GuestHouse.findOne({
+      where: { id: guestHouseId },
+      include: [{
+        ...doInclude('Room', 'rooms'),
+        include: [{
+          ...doInclude('Bed', 'beds'),
+          include: [{
+            // enforce a LEFT OUTER JOIN for trips `where`, set false on require
+            ...doInclude('Trip', 'trips', bedTripsWhereClause, false),
+            include: [{
+              ...doInclude('Request', 'request', srcRequestWhereClause),
+            }]
+          }]
+        }]
+      }]
+    });
+    if (!guestHouse) {
+      const error = `Guest house with id ${guestHouseId} does not exist`;
+      return Error.handleError(error, 404, res);
+    }
+    res.status(200).json({
+      guestHouse
+    });
   }
 
   // Update rooms

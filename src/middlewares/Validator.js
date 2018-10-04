@@ -1,4 +1,5 @@
 import { validationResult } from 'express-validator/check';
+import moment from 'moment';
 import models from '../database/models';
 
 export default class Validator {
@@ -153,6 +154,20 @@ export default class Validator {
     Validator.errorHandler(res, errors, next);
   }
 
+  static checkDate(req, res, next) {
+    const { startDate, endDate } = req.query;
+    if (!startDate && !endDate) return next();
+    const isValidStartDate = moment(startDate, 'YYYY-MM-DD', true).isValid();
+    const isValidEndDate = moment(endDate, 'YYYY-MM-DD', true).isValid();
+
+    if (!isValidStartDate || !isValidEndDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid start date or end date'
+      });
+    }
+    next();
+  }
 
   static async checkUserRole(req, res, next) {
     const emailAddress = req.user.UserInfo.email;

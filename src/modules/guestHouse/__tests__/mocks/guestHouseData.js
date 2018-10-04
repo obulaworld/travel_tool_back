@@ -36,6 +36,7 @@ export const postGuestHouse2 = {
   ]
 };
 
+
 export const guestHouseResponse = {
   success: true,
   message: 'Guest House created successfully',

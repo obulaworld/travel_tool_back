@@ -22,4 +22,12 @@ Router.put('/guesthouses/:id',
   Validator.validateGuestHouse,
   GuestHouseController.editGuestHouse);
 
+Router.get(
+  '/guesthouses/:guestHouseId',
+  authenticate,
+  Validator.checkDate,
+  Validator.checkUserRole,
+  GuestHouseController.getGuestHouseDetails
+);
+
 export default Router;
