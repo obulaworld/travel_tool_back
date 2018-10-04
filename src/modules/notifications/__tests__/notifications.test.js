@@ -7,6 +7,7 @@ import {
   userOgo,
   userOgoNotifications
 } from './__mocks__/notificationsData';
+import { dates } from '../../requests/__tests__/mocks/mockData';
 
 const request = supertest;
 const invalidToken =  'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4'; // eslint-disable-line
@@ -525,6 +526,139 @@ describe('Notifications Controller', () => {
             done();
           });
       });
+    });
+  });
+
+  describe('PUT /api/v1/notifications/id', () => {
+    const payload = {
+      UserInfo: {
+        id: '-wonder-woman-',
+        name: 'Wonder Woman',
+        picture: 'wonderwoman.jpg'
+      },
+    };
+    const notification = {
+      id: 123,
+      senderId: 'alice-doe-req-id',
+      recipientId: '-wonder-woman-',
+      notificationType: 'pending',
+      message: 'created a new travel request',
+      notificationLink: 'notify.com',
+      notificationStatus: 'unread',
+      senderName: 'Alice Doe',
+      senderImage: 'image.com',
+    };
+
+    const token = Utils.generateTestToken(payload);
+    beforeAll(async () => {
+      const newRequest = {
+        "name": "Alice Doe",
+        "origin": "Kampala",
+        "destination": "New yorker",
+        "gender": "Male",
+        "manager": "Ademola Ariya",
+        "department": "TDD",
+        "status" : "Open",
+        "role": "Senior Consultant",
+        "departureDate": "2018-08-16",
+        "arrivalDate": "2018-08-30",
+        "tripType": "oneWay",
+        "trips": [
+          {
+            "origin": "Lagos",
+            "destination": "Kenya",
+            "departureDate": dates.departureDate
+          }
+        ],
+        "createdAt": new Date(),
+        "updatedAt": new Date(),
+        "id": "-wonder-woman-",
+        "userId": "alice-doe-id",
+        "picture": "picture.jpg"
+      };
+      await models.Request.create(newRequest);
+      await models.Notification.create(notification);
+    });
+
+    afterAll(async () => {
+      await models.Notification.sync({ force: true });
+      await models.Request.sync({ force: true });
+    });
+
+    it('should return 401 for unathorized users', async () => {
+      const expectedResponse = {
+        status: 401,
+        body: {
+          success: false,
+          error: 'Token is not valid',
+        },
+      };
+      const res = await request(app)
+        .put('/api/v1/notifications/123')
+        .set('Authorization', 'invalid token')
+      expect(res.statusCode).toEqual(expectedResponse.status);
+      expect(res.body).toEqual(expectedResponse.body);
+    });
+
+    it('should not mark a notification that does not exist as read', async () => {
+      const expectedResponse = {
+        status: 404,
+        body: {
+          success: false,
+          error: 'This notification does not exist',
+        },
+      };
+      const res = await request(app)
+        .put('/api/v1/notifications/1')
+        .set('Authorization', token)
+      expect(res.statusCode).toEqual(expectedResponse.status);
+      expect(res.body).toEqual(expectedResponse.body);
+    });
+
+    it('should mark a notification as read', async () => {
+      const expectedResponse = {
+        status: 200,
+        body: {
+          success: true,
+          message: 'Notification updated successfully',
+          notification: { ...notification, notificationStatus: 'read' }
+        },
+      };
+      const res = await request(app)
+        .put('/api/v1/notifications/123')
+        .set('Authorization', token)
+      expect(res.statusCode).toEqual(expectedResponse.status);
+      expect(res.body).toMatchObject(expectedResponse.body);
+    });
+
+    it('should not mark a read notification as read', async () => {
+      const expectedResponse = {
+        status: 409,
+        body: {
+          success: false,
+          error: 'You\'ve already read this notification',
+        },
+      };
+      const res = await request(app)
+        .put('/api/v1/notifications/123')
+        .set('Authorization', token)
+      expect(res.statusCode).toEqual(expectedResponse.status);
+      expect(res.body).toMatchObject(expectedResponse.body);
+    });
+
+    it('should check if notification id is an integer', async () => {
+      const expectedResponse = {
+        status: 422,
+        body: {
+          success: false,
+          error: 'Notification id must be an integer',
+        },
+      };
+      const res = await request(app)
+        .put('/api/v1/notifications/demola')
+        .set('Authorization', token)
+      expect(res.statusCode).toEqual(expectedResponse.status);
+      expect(res.body).toMatchObject(expectedResponse.body);
     });
   });
 });

@@ -4,7 +4,7 @@ const setPublicKey = (nodeEnv) => {
   switch (nodeEnv) {
     case 'test':
       return process.env.JWT_PUBLIC_KEY;
-    default:
+    default: /* istanbul ignore next */
       return Buffer.from(process.env.JWT_PUBLIC_KEY, 'base64');
   }
 };

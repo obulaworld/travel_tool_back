@@ -27,21 +27,20 @@ class NotificationController {
     }
   }
 
-  /**
-   * Updates notification statuses
-   *
-   * @param {object} req - Request object
-   * @param  {object} res - Response object
-   * @return {json} res.send
-   * @memberof NotificationController
-   */
   static async updateNotificationStatus(req, res) {
     const { id } = req.user.UserInfo;
     const { currentStatus, newStatus, notificationType } = req.body;
+    const msg = `You have no ${notificationType} notifications at the moment`;
     try {
       const notificationIsUpdated = await models.Notification
         .update({ notificationStatus: newStatus },
-          { where: { notificationStatus: currentStatus, recipientId: id, notificationType } }); // eslint-disable-line
+          {
+            where: {
+              notificationStatus: currentStatus,
+              recipientId: id,
+              notificationType
+            }
+          });
       if (notificationIsUpdated[0]) {
         return res.status(200).json({
           success: true,
@@ -49,13 +48,44 @@ class NotificationController {
             `All ${notificationType} notifications have been marked as read`
         });
       } if (!notificationIsUpdated[0]) {
-        throw new Error(`You have no ${notificationType} notifications at the moment`); // eslint-disable-line
+        throw new Error(msg);
       }
     } catch (error) {
-      if (error.message === `You have no ${notificationType} notifications at the moment`) { // eslint-disable-line
+      if (error.message === msg) {
         return CustomError.handleError(error.message, 404, res);
       }
       return CustomError.handleError('Server Error', 505, res);
+    }
+  }
+
+  static async markNotificationAsRead(req, res) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (Number.isNaN(id)) {
+        return CustomError
+          .handleError('Notification id must be an integer', 422, res);
+      }
+      const notification = await models.Notification.find({
+        where: { recipientId: req.user.UserInfo.id, id }
+      });
+      if (!notification) {
+        return CustomError
+          .handleError('This notification does not exist', 404, res);
+      }
+      if (notification.notificationStatus !== 'unread') {
+        const error = 'You\'ve already read this notification';
+        return CustomError.handleError(error, 409, res);
+      }
+      const updatedNotification = await notification.updateAttributes({
+        notificationStatus: 'read'
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'Notification updated successfully',
+        notification: updatedNotification,
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
     }
   }
 }

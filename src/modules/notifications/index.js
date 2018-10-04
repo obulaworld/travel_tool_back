@@ -20,4 +20,10 @@ NotificationsRouter.put(
   NotificationController.updateNotificationStatus
 );
 
+NotificationsRouter.put(
+  '/notifications/:id',
+  authenticate,
+  NotificationController.markNotificationAsRead
+);
+
 export default NotificationsRouter;

@@ -30,8 +30,8 @@ export default class NotificationEngine {
       ...data,
       notificationStatus: 'unread',
     };
-    await models.Notification.create(notification);
-    global.io.sockets.emit('notification', notification);
+    const newNotification = await models.Notification.create(notification);
+    global.io.sockets.emit('notification', newNotification);
   }
 
   static async sendMail({
