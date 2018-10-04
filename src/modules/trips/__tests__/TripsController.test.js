@@ -7,7 +7,8 @@ import {
 import {
   requestsData,
   tripsData,
-  checkInData
+  checkInData,
+  checkOutData,
 } from './mocks/tripData';
 import {
   role,
@@ -226,6 +227,22 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
+      it(`should not update trip record to check out if user has not been
+        checked in`, (done) => {
+        request(app)
+          .put('/api/v1/trips/2')
+          .set('authorization', token)
+          .send(checkOutData)
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('User has either checked out or not checked in');
+            if (err) return done(err);
+            done();
+          });
+      });
+
       it('should update trip record to check in', (done) => {
         request(app)
           .put('/api/v1/trips/2')
@@ -253,6 +270,37 @@ describe('Test Suite for Trips Controller', () => {
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message).toEqual('User has already checked in');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should update trip record to check out successfully', (done) => {
+        request(app)
+          .put('/api/v1/trips/2')
+          .set('authorization', token)
+          .send(checkOutData)
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body.trip.id).toEqual('2');
+            expect(res.body.trip.checkStatus).toEqual('Checked Out');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it(`should not update trip record to check out if user has been
+       checked out`, (done) => {
+        request(app)
+          .put('/api/v1/trips/2')
+          .set('authorization', token)
+          .send(checkOutData)
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('User has either checked out or not checked in');
             if (err) return done(err);
             done();
           });

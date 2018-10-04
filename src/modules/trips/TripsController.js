@@ -2,27 +2,46 @@ import models from '../../database/models';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
 
+const { Op } = models.Sequelize;
 let checkTypeErrorMessage = '';
 class TripsController {
-  static createWhereClause(tripId) {
-    const where = {
-      id: tripId,
-      checkInDate: null,
-    };
-    checkTypeErrorMessage = 'User has already checked in';
+  static createWhereClause(tripId, checkType) {
+    let where = {};
+    if (checkType === 'checkIn') {
+      where = {
+        id: tripId,
+        checkInDate: null,
+      };
+      checkTypeErrorMessage = 'User has already checked in';
+    } else {
+      where = {
+        id: tripId,
+        checkInDate: { [Op.ne]: null },
+        checkOutDate: null,
+      };
+      checkTypeErrorMessage = 'User has either checked out or not checked in';
+    }
     return where;
   }
 
-  static async updateTrip(trip) {
+  static async updateTrip(trip, checkType) {
     const tripModel = trip;
-    tripModel.checkInDate = new Date();
-    tripModel.checkStatus = 'Checked In';
-    await tripModel.save();
+    if (checkType === 'checkIn') {
+      tripModel.checkInDate = new Date();
+      tripModel.checkStatus = 'Checked In';
+      await tripModel.save();
+    } else {
+      tripModel.checkOutDate = new Date();
+      tripModel.checkStatus = 'Checked Out';
+      await tripModel.save();
+    }
     return tripModel;
   }
 
-  static async sendNotification(req, request) {
-    const message = 'You just checked in to your guest house';
+  static async sendNotification(req, request, checkType) {
+    const message = (checkType === 'checkIn')
+      ? 'You just checked in to your guest house'
+      : 'You just checked out of your guest house';
     const { userId } = request;
     const notificationData = {
       senderId: userId,
@@ -38,8 +57,9 @@ class TripsController {
 
   static async updateCheckStatus(req, res) {
     const { tripId } = req.params;
+    const { checkType } = req.body;
     const userId = req.user.UserInfo.id;
-    const where = TripsController.createWhereClause(tripId);
+    const where = TripsController.createWhereClause(tripId, checkType);
     try {
       const returnedTrip = await models.Trip.findOne({
         where,
@@ -60,8 +80,8 @@ class TripsController {
         });
       }
       const updatedTrip = await TripsController
-        .updateTrip(returnedTrip);
-      TripsController.sendNotification(req, updatedTrip.request);
+        .updateTrip(returnedTrip, checkType);
+      TripsController.sendNotification(req, updatedTrip.request, checkType);
       return res.status(200).json({
         success: true,
         trip: updatedTrip,

@@ -181,7 +181,6 @@ export const editGuestHouseEpic = {
 
 // edit data two
 
-
 export const GuestHouseEpicData = {
   id: 'Rh46thdW',
   houseName: 'Mutungo Heights',

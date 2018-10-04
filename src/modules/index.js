@@ -18,7 +18,6 @@ const routes = (app) => {
   app.use(apiPrefix, notificationRouter);
   app.use(apiPrefix, guestHouseRouter);
   app.use(apiPrefix, tripsRouter);
-
   return app;
 };
 

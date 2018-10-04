@@ -85,3 +85,66 @@ export const tripsData = [
     returnDate: dates.returnDate,
   }
 ];
+
+export const tripsResponse = {
+  success: true,
+  trips: [
+    {
+      id: '2',
+      origin: 'New York',
+      destination: 'Nairobi',
+      departureDate: '2018-09-30',
+      returnDate: '2018-10-03',
+      checkStatus: 'Checked Out',
+      checkInDate: '2018-09-29T18:56:49.132Z',
+      checkOutDate: '2018-09-29T18:56:49.180Z',
+      lastNotifyDate: null,
+      notificationCount: 0,
+      createdAt: '2018-09-29T18:56:49.018Z',
+      updatedAt: '2018-09-29T18:56:49.180Z',
+      bedId: 1,
+      requestId: 'xDh20cuGy',
+      request: {
+        id: 'xDh20cuGy',
+        name: 'Samuel Jackson',
+        tripType: 'oneWay',
+        manager: 'Samuel Kubai',
+        gender: 'Female',
+        department: 'TDD',
+        role: 'Software Developer',
+        status: 'Approved',
+        userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+        createdAt: '2018-09-29T18:56:49.014Z',
+        updatedAt: '2018-09-29T18:56:49.014Z'
+      },
+      beds: {
+        id: 1,
+        bedName: 'bed 1',
+        createdAt: '2018-09-29T18:56:49.008Z',
+        updatedAt: '2018-09-29T18:56:49.008Z',
+        roomId: 'Xi9htlDeC4',
+        rooms: {
+          id: 'Xi9htlDeC4',
+          roomName: 'big cutter',
+          roomType: 'ensuited',
+          bedCount: 1,
+          faulty: 'false',
+          createdAt: '2018-09-29T18:56:49.005Z',
+          updatedAt: '2018-09-29T18:56:49.005Z',
+          guestHouseId: '-5mKYgpcl',
+          guestHouses: {
+            id: '-5mKYgpcl',
+            houseName: 'Mini flat',
+            location: 'Lagos Nigeria',
+            bathRooms: 1,
+            imageUrl: 'https://www.lol.com',
+            createdAt: '2018-09-29T18:56:49.002Z',
+            updatedAt: '2018-09-29T18:56:49.002Z',
+            userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+          }
+        }
+      }
+    }
+  ],
+  message: 'Retrieved Successfully'
+};
