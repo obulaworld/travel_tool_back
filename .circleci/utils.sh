@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 BOLD='\e[1m'
 BLUE='\e[34m'
 RED='\e[31m'

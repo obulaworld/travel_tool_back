@@ -3,11 +3,17 @@ import bodyParser from 'body-parser';
 import passport from 'passport';
 import cors from 'cors';
 import morgan from 'morgan';
-
+import bugsnag from 'bugsnag';
 import expressValidator from 'express-validator';
 import modules from './modules';
 
 const app = express();
+
+if (process.env.BUGSNAG_API_KEY) {
+  bugsnag.register(process.env.BUGSNAG_API_KEY);
+  app.use(bugsnag.requestHandler);
+  app.use(bugsnag.errorHandler);
+}
 
 app.use(cors());
 app.use(morgan('dev'));

@@ -48,6 +48,7 @@
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
     "body-parser": "^1.18.3",
+    "bugsnag": "^2.4.3",
     "cls-hooked": "^4.2.2",
     "cors": "^2.8.4",
     "debug": "^3.1.0",
