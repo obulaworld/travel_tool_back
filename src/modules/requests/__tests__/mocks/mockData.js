@@ -179,7 +179,7 @@ export const mockRequest = {
       origin: 'New York',
       destination: 'Nairobi',
       departureDate,
-      returnDate
+      returnDate,
     }
   ],
 };
@@ -199,6 +199,7 @@ export const anotherMockRequest = {
       destination: 'New York',
       departureDate,
       returnDate,
+
     },
     {
       origin: 'New York',
@@ -207,6 +208,33 @@ export const anotherMockRequest = {
       returnDate
     }
   ],
+};
+
+export const newRequest = {
+  name: 'Tester Stephen',
+  origin: 'Lagos',
+  destination: 'New york',
+  gender: 'Male',
+  manager: 'Travel Admin',
+  department: 'TDD',
+  role: 'Software Developer',
+  tripType: 'return',
+  trips: [
+    {
+      origin: 'Lagos',
+      destination: 'New York',
+      departureDate,
+      returnDate,
+      bedId: 1,
+    },
+  ],
+};
+
+export const travelAdmin = {
+  fullName: 'Travel Admin',
+  email: 'travel.admin@andela.com',
+  userId: '-HyfghjTUGfghjkIJM',
+  passportName: 'Travel Admin',
 };
 
 export default testRequests;

@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import getRequests from './getRequests.data';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
@@ -189,11 +190,9 @@ class RequestsController {
 
   static async getUserRequestDetails(req, res) {
     const { requestId } = req.params;
+    const userId = req.user.UserInfo.id;
     try {
-      const requestData = await models.Request.find({
-        where: { id: requestId },
-        include: ['comments', 'trips'],
-      });
+      const requestData = await getRequests(requestId, userId, models);
       if (!requestData) {
         const error = `Request with id ${requestId} does not exist`;
         return Error.handleError(error, 404, res);
