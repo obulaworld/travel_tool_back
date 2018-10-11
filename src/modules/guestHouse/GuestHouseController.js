@@ -169,7 +169,7 @@ class GuestHouseController {
         const updateRoom = await foundRoom.update({
           roomName: room.roomName || foundRoom.roomName,
           roomType: room.roomType || foundRoom.roomType,
-          beds: room.bedCount || foundRoom.bedCount
+          bedCount: room.bedCount || foundRoom.bedCount
         });
         return updateRoom.dataValues;
       })
@@ -188,7 +188,7 @@ class GuestHouseController {
         const BookedBeds = await models.Bed
           .findAll({ where: { roomId, booked: true }, raw: true });
         if (BookedBeds.length > newBedNumbers) {
-          return Error.handleError(`There are currently ${BookedBeds.length} booked beds unable to update beds`, 409, res);
+          return Error.handleError(`There are currently ${BookedBeds.length} booked beds, unable to update bed numbers`, 409, res);
         }
         const foundBeds = await models.Bed.findAll({ where: { roomId }, raw: true });
         if (newBedNumbers === foundBeds.length) { return foundBeds; }
