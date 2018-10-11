@@ -2,7 +2,7 @@ module.exports = {
   up: queryInterface => queryInterface.bulkInsert('Beds',
     [
       {
-        id: 1,
+        id: 6000,
         bedName: 'bed 1',
         roomId: 'room-id-1',
         booked: false,
@@ -10,7 +10,7 @@ module.exports = {
         updatedAt: '2018-08-16 012:11:52.181+01'
       },
       {
-        id: 2,
+        id: 6001,
         bedName: 'bed 2',
         roomId: 'room-id-1',
         booked: false,
@@ -18,7 +18,7 @@ module.exports = {
         updatedAt: '2018-08-16 012:11:52.181+01'
       },
       {
-        id: 3,
+        id: 6002,
         bedName: 'bed 1',
         roomId: 'room-id-2',
         booked: false,
@@ -26,7 +26,7 @@ module.exports = {
         updatedAt: '2018-08-16 012:11:52.181+01'
       },
       {
-        id: 4,
+        id: 6003,
         bedName: 'bed 2',
         roomId: 'room-id-2',
         booked: false,
@@ -34,7 +34,7 @@ module.exports = {
         updatedAt: '2018-08-16 012:11:52.181+01'
       },
       {
-        id: 5,
+        id: 6004,
         bedName: 'bed 3',
         roomId: 'room-id-2',
         booked: false,

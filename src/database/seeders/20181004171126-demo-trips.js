@@ -11,7 +11,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 1,
+        bedId: 6004,
         requestId: 'request-id-1',
         checkInDate: '2018-10-05'
       },
@@ -25,7 +25,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 2,
+        bedId: 6001,
         requestId: 'request-id-1',
         checkInDate: '2018-10-02'
       },
@@ -39,7 +39,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 3,
+        bedId: 6003,
         requestId: 'request-id-2',
         checkInDate: '2018-09-16'
       },
@@ -53,7 +53,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 3,
+        bedId: 6002,
         requestId: 'request-id-2',
         checkInDate: '2018-10-16'
       },
@@ -67,7 +67,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 3,
+        bedId: 6004,
         requestId: 'request-id-3',
         checkInDate: '2018-03-16',
         checkOutDate: '2018-07-20'
@@ -82,7 +82,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 4,
+        bedId: 6003,
         requestId: 'request-id-4',
         checkInDate: '2018-11-04',
         checkOutDate: '2018-11-30'
@@ -97,7 +97,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 5,
+        bedId: 6002,
         requestId: 'request-id-4',
         checkInDate: '2018-02-03',
         checkOutDate: '2018-05-30'
@@ -112,7 +112,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 5,
+        bedId: 6000,
         requestId: 'request-id-5',
         checkInDate: '2018-08-02',
         checkOutDate: '2018-11-10'
@@ -127,7 +127,7 @@ module.exports = {
         notificationCount: 0,
         createdAt: '2018-10-05T08:36:11.170Z',
         updatedAt: '2018-10-05T08:36:11.170Z',
-        bedId: 1,
+        bedId: 6001,
         requestId: 'request-id-5',
         checkInDate: '2018-11-03'
       }
