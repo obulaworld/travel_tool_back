@@ -17,7 +17,7 @@ const token = Utils.generateTestToken(payload);
 
 describe('Update the room fault status', () => {
   beforeAll((done) => {
-    models.GuestHouse.sync({ force: true });
+    models.GuestHouse.sync({ force: true }); 
     process.env.DEFAULT_ADMIN = 'collins.muru@andela.com';
     request(app)
       .post('/api/v1/user')
