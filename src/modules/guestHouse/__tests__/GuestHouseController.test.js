@@ -3,6 +3,7 @@ import app from '../../../app';
 import { postGuestHouse, postGuestHouse2 } from './mocks/guestHouseData';
 import models from '../../../database/models';
 import Utils from '../../../helpers/Utils';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 
 const payload = {
   UserInfo: {
@@ -14,8 +15,18 @@ const payload = {
 
 const token = Utils.generateTestToken(payload);
 describe('Guest Role Test', () => {
-  beforeAll((done) => {
+  beforeAll(async (done) => {
+    await models.Role.sync({ force: true });
+    await models.Role.bulkCreate(role);
+    await models.User.sync({ force: true });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     process.env.DEFAULT_ADMIN = 'john.snow@andela.com';
+    done();
+  });
+  afterAll(async (done) => {
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     done();
   });
   it('should not save a new guest house if user does not exist', (done) => {
@@ -27,19 +38,12 @@ describe('Guest Role Test', () => {
       .expect(400)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('User not found in database');
+        expect(res.body.message)
+          .toEqual('You are not signed in to the application');
         if (err) return done(err);
         done();
       });
   });
-
-  afterAll((done) => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-    models.User.truncate();
-    done();
-  });
-
-
   it('should add a new user to the database', (done) => {
     request(app)
       .post('/api/v1/user')
@@ -52,8 +56,8 @@ describe('Guest Role Test', () => {
       })
       .expect(201)
       .end((err, res) => {
-        expect(res.body.result[0]).toHaveProperty('fullName');
-        expect(res.body.result[0]).toHaveProperty('email');
+        expect(res.body.result).toHaveProperty('fullName');
+        expect(res.body.result).toHaveProperty('email');
         expect(res.body.success).toEqual(true);
         if (err) return done(err);
         done();
@@ -66,10 +70,10 @@ describe('Guest Role Test', () => {
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send(postGuestHouse)
-      .expect(401)
+      .expect(403)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('Only a Travel Admin can create a Guest House');
+        expect(res.body.error).toEqual('You don\'t have access to perform this action');
         if (err) return done(err);
         done();
       });

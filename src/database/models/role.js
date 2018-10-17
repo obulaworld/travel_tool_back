@@ -11,9 +11,15 @@ export default (sequelize, DataTypes) => {
     },
   });
   Role.associate = (models) => {
-    Role.hasMany(models.User, {
+    Role.belongsToMany(models.User, {
       foreignKey: 'roleId',
       as: 'users',
+      through: models.UserRole
+    });
+    Role.belongsToMany(models.Center, {
+      foreignKey: 'roleId',
+      as: 'centers',
+      through: models.UserRole
     });
   };
   return Role;

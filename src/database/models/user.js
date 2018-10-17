@@ -40,9 +40,15 @@ export default (sequelize, DataTypes) => {
     {}
   );
   User.associate = (models) => {
-    User.belongsTo(models.Role, {
-      foreignKey: 'roleId',
-      as: 'roles'
+    User.belongsToMany(models.Role, {
+      foreignKey: 'userId',
+      as: 'roles',
+      through: models.UserRole
+    });
+    User.belongsToMany(models.Center, {
+      foreignKey: 'userId',
+      as: 'centers',
+      through: models.UserRole
     });
     User.hasMany(models.GuestHouse, {
       foreignKey: 'userId',

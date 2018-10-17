@@ -42,12 +42,14 @@ describe('User Role Test', () => {
   beforeAll((done) => {
     models.Role.destroy({ force: true, truncate: { cascade: true } });
     models.Role.bulkCreate(role);
+    models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     process.env.DEFAULT_ADMIN = 'captain.america@andela.com';
     done();
   });
 
   afterAll((done) => {
     models.Role.destroy({ force: true, truncate: { cascade: true } });
+    models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     done();
   });
 
@@ -113,11 +115,11 @@ describe('User Role Test', () => {
       .send(user.user1)
       .expect(201)
       .end((err, res) => {
-        expect(res.body.result[0]).toHaveProperty('userId');
-        expect(res.body.result[0]).toHaveProperty('fullName');
-        expect(res.body.result[0]).toHaveProperty('email');
-        expect(res.body.result[0].email).toEqual(user.user1.email);
-        expect(res.body.result[0].fullName).toEqual(user.user1.fullName);
+        expect(res.body.result).toHaveProperty('userId');
+        expect(res.body.result).toHaveProperty('fullName');
+        expect(res.body.result).toHaveProperty('email');
+        expect(res.body.result.email).toEqual(user.user1.email);
+        expect(res.body.result.fullName).toEqual(user.user1.fullName);
         expect(res.body.success).toEqual(true);
         if (err) return done(err);
         done();
@@ -132,11 +134,11 @@ describe('User Role Test', () => {
       .send(user.user2)
       .expect(201)
       .end((err, res) => {
-        expect(res.body.result[0]).toHaveProperty('userId');
-        expect(res.body.result[0]).toHaveProperty('fullName');
-        expect(res.body.result[0]).toHaveProperty('email');
-        expect(res.body.result[0].email).toEqual(user.user2.email);
-        expect(res.body.result[0].fullName).toEqual(user.user2.fullName);
+        expect(res.body.result).toHaveProperty('userId');
+        expect(res.body.result).toHaveProperty('fullName');
+        expect(res.body.result).toHaveProperty('email');
+        expect(res.body.result.email).toEqual(user.user2.email);
+        expect(res.body.result.fullName).toEqual(user.user2.fullName);
         expect(res.body.success).toEqual(true);
         if (err) return done(err);
         done();
@@ -169,6 +171,21 @@ describe('User Role Test', () => {
       });
   });
 
+  it(`should throw 404 error when getting a user that does
+  not exist in the database`, (done) => {
+    request(app)
+      .get('/api/v1/user/JNDVNFSFDKuytom')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .expect(404)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
+        expect(res.body.error).toEqual('User not found');
+        if (err) return done(err);
+        done();
+      });
+  });
+
   it('should return error if login user does not exist in database when changing user role', (done) => {
     request(app)
       .put('/api/v1/user/role/update')
@@ -179,7 +196,7 @@ describe('User Role Test', () => {
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
         expect(res.body.message).toEqual(
-          'Logged in user Email does not exist in Database',
+          'You are not signed in to the application',
         );
         if (err) return done(err);
         done();
@@ -192,15 +209,15 @@ describe('User Role Test', () => {
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send(userRole.superAdminRole)
-      .expect(400)
+      .expect(403)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('Only a Super admin can do that');
+        expect(res.body.error)
+          .toEqual('You don\'t have access to perform this action');
         if (err) return done(err);
         done();
       });
   });
-
   it('should throw error if user does not exist in the database when user is set to super admin', (done) => {
     request(app)
       .put('/api/v1/user/admin')
@@ -309,10 +326,10 @@ describe('User Role Test', () => {
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send(userRole.superAdminRole2)
-      .expect(400)
+      .expect(404)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('Email does not exist');
+        expect(res.body.error).toEqual('Email does not exist');
         if (err) return done(err);
         done();
       });
@@ -353,10 +370,10 @@ describe('User Role Test', () => {
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send(userRole.managerRole)
-      .expect(400)
+      .expect(404)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message).toEqual('Role does not exist');
+        expect(res.body.error).toEqual('Role does not exist');
         if (err) return done(err);
         done();
       });

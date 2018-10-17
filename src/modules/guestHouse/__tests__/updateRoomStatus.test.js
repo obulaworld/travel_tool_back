@@ -2,6 +2,7 @@ import request from 'supertest';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import models from '../../../database/models';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 import {
   updateRoomFaultStatus,
   GuestHouseEpic,
@@ -12,7 +13,7 @@ import {
 
 const payload = {
   UserInfo: {
-    id: '-TRUniolpknbnk',
+    id: '-TRUniplpknbbh',
     fullName: 'Collins Muru',
     email: 'collins.muru@andela.com',
   },
@@ -23,7 +24,11 @@ const invalidToken = 'YYTRYIM0nrbuy7tonfenu';
 
 
 describe('Update the room fault status', () => {
-  beforeAll((done) => {
+  beforeAll(async (done) => {
+    await models.Role.destroy({ truncate: true, cascade: true });
+    await models.Role.bulkCreate(role);
+    await models.User.destroy({ truncate: true, cascade: true });
+    await models.UserRole.destroy({ truncate: true, cascade: true });
     process.env.DEFAULT_ADMIN = 'collins.muru@andela.com';
     request(app)
       .post('/api/v1/user')
@@ -31,12 +36,19 @@ describe('Update the room fault status', () => {
       .send({
         fullName: 'Collins Muru',
         email: 'collins.muru@andela.com',
-        userId: '-TRUniolpknbnk',
+        userId: '-TRUniplpknbbh',
       })
       .end((err) => {
         if (err) return done(err);
         done();
       });
+  });
+
+  afterAll(async () => {
+    await models.Role.destroy({ truncate: true, cascade: true });
+    await models.User.destroy({ truncate: true, cascade: true });
+    await models.GuestHouse.destroy({ truncate: true, cascade: true });
+    await models.UserRole.destroy({ truncate: true, cascade: true });
   });
 
   describe('Unauthorized user', () => {
@@ -45,10 +57,11 @@ describe('Update the room fault status', () => {
         .put('/api/v1/room/3vgvmM4qY6')
         .set('authorization', token)
         .send(updateRoomFaultStatus.room1)
-        .expect(401)
+        .expect(403)
         .end((err, res) => {
           expect(res.body.success).toEqual(false);
-          expect(res.body.message).toBe('Only a Travel Admin can edit fault status a Guest House');
+          expect(res.body.error)
+            .toBe('You don\'t have access to perform this action');
           if (err) return done(err);
           done();
         });
@@ -96,21 +109,14 @@ describe('Update the room fault status', () => {
 
       describe('Update room fault status', () => {
         beforeAll(async (done) => {
-          await models.Bed.destroy({ truncate: { cascade: true } });
-          await models.Room.destroy({ truncate: { cascade: true } });
-          await models.GuestHouse.destroy({ truncate: { cascade: true } });
+          await models.Bed.destroy({ truncate: true, cascade: true });
+          await models.Room.destroy({ truncate: true, cascade: true });
+          await models.GuestHouse.destroy({ truncate: true, cascade: true });
           await models.GuestHouse.create(GuestHouseEpic);
           await models.Room.create(GuestHouseEpicRoom);
           await models.Bed.bulkCreate(GuestHouseEpicBed);
           done();
         });
-        afterAll(async (done) => {
-          await models.Bed.destroy({ truncate: { cascade: true } });
-          await models.Room.destroy({ truncate: { cascade: true } });
-          await models.GuestHouse.destroy({ truncate: { cascade: true } });
-          done();
-        });
-
         it('returns appropriate message if room is updated', (done) => {
           request(app)
             .put('/api/v1/room/bEu6thdW')

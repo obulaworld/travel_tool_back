@@ -16,6 +16,7 @@ import {
   GuestHouseEpicRoomData3,
   GuestHouseEpicBedData3
 } from './mocks/guestHouseData';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 
 const payload = {
   UserInfo: {
@@ -27,7 +28,11 @@ const payload = {
 const token = Utils.generateTestToken(payload);
 const invalidToken = 'YYTRYIM0nrbuy7tonfenu';
 describe('Update Guest Houses', () => {
-  beforeAll((done) => {
+  beforeAll(async (done) => {
+    await models.Role.sync({ force: true });
+    await models.Role.bulkCreate(role);
+    await models.User.destroy({ truncate: true, cascade: true });
+    await models.UserRole.destroy({ truncate: true, cascade: true });
     process.env.DEFAULT_ADMIN = 'jones.akili@andela.com';
     request(app)
       .post('/api/v1/user')
@@ -43,22 +48,22 @@ describe('Update Guest Houses', () => {
       });
   });
 
-  afterAll((done) => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-    models.User.truncate();
-    done();
+  afterAll(async () => {
+    await models.Role.destroy({ truncate: true, cascade: true });
+    await models.User.destroy({ truncate: true, cascade: true });
+    await models.UserRole.destroy({ truncate: true, cascade: true });
   });
 
   describe('Unauthenticated user', () => {
-    it('returns 401 error if user is not a travel admin', (done) => {
+    it('returns 403 error if user is not a travel admin', (done) => {
       request(app)
         .put('/api/v1/guesthouses/rtDHgJ4D')
         .set('authorization', token)
-        .expect(401)
+        .expect(403)
         .end((err, res) => {
           expect(res.body.success).toEqual(false);
-          expect(res.body.message)
-            .toEqual('Only a Travel Admin can update a Guest House');
+          expect(res.body.error)
+            .toEqual('You don\'t have access to perform this action');
           if (err) return done(err);
           done();
         });
@@ -102,18 +107,18 @@ describe('Update Guest Houses', () => {
     });
     describe('Authenticated travel admin edits guest houses', () => {
       beforeAll(async () => {
-        await models.Bed.destroy({ truncate: { cascade: true } });
-        await models.Room.destroy({ truncate: { cascade: true } });
-        await models.GuestHouse.destroy({ truncate: { cascade: true } });
+        await models.GuestHouse.destroy({ truncate: true, cascade: true });
+        await models.Bed.destroy({ truncate: true, cascade: true });
+        await models.Room.destroy({ truncate: true, cascade: true });
 
         await models.GuestHouse.create(GuestHouseEpic);
         await models.Room.create(GuestHouseEpicRoom);
         await models.Bed.bulkCreate(GuestHouseEpicBed);
       });
       afterAll(async () => {
-        await models.Bed.destroy({ truncate: { cascade: true } });
-        await models.Room.destroy({ truncate: { cascade: true } });
-        await models.GuestHouse.destroy({ truncate: { cascade: true } });
+        await models.Bed.destroy({ truncate: true, cascade: true });
+        await models.Room.destroy({ truncate: true, cascade: true });
+        await models.GuestHouse.destroy({ truncate: true, cascade: true });
       });
 
       it(`returns 200 and the appropriate
@@ -178,18 +183,18 @@ describe('Update Guest Houses', () => {
     });
     describe('Authenticated travel admin edits booked beds', () => {
       beforeAll(async () => {
-        await models.Bed.destroy({ truncate: { cascade: true } });
-        await models.Room.destroy({ truncate: { cascade: true } });
-        await models.GuestHouse.destroy({ truncate: { cascade: true } });
+        await models.Bed.destroy({ truncate: true, cascade: true });
+        await models.Room.destroy({ truncate: true, cascade: true });
+        await models.GuestHouse.destroy({ truncate: true, cascade: true });
 
         await models.GuestHouse.create(GuestHouseEpicData);
         await models.Room.create(GuestHouseEpicRoomData);
         await models.Bed.bulkCreate(GuestHouseEpicBedData);
       });
       afterAll(async () => {
-        await models.Bed.destroy({ truncate: { cascade: true } });
-        await models.Room.destroy({ truncate: { cascade: true } });
-        await models.GuestHouse.destroy({ truncate: { cascade: true } });
+        await models.Bed.destroy({ truncate: true, cascade: true });
+        await models.Room.destroy({ truncate: true, cascade: true });
+        await models.GuestHouse.destroy({ truncate: true, cascade: true });
       });
 
       it('should not update booked beds', (done) => {
@@ -221,8 +226,8 @@ describe('Update Guest Houses', () => {
     });
     describe('Authenticated travel admin edits same bed numbers', () => {
       beforeAll(async () => {
-        await models.Bed.destroy({ truncate: { cascade: true } });
-        await models.Room.destroy({ truncate: { cascade: true } });
+        await models.Bed.destroy({ truncate: true, cascade: true });
+        await models.Room.destroy({ truncate: true, cascade: true });
         await models.GuestHouse.destroy({ truncate: { cascade: true } });
 
         await models.GuestHouse.create(GuestHouseEpicData3);
@@ -232,7 +237,7 @@ describe('Update Guest Houses', () => {
       afterAll(async () => {
         await models.Bed.destroy({ truncate: { cascade: true } });
         await models.Room.destroy({ truncate: { cascade: true } });
-        await models.GuestHouse.destroy({ truncate: { cascade: true } });
+        await models.GuestHouse.destroy({ truncate: true, cascade: true });
       });
 
       it('should return found beds if number of beds are the same', (done) => {

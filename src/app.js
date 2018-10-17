@@ -8,8 +8,9 @@ import expressValidator from 'express-validator';
 import modules from './modules';
 
 const app = express();
-
-if (process.env.BUGSNAG_API_KEY) {
+/* istanbul ignore next */
+if (!(process.env.NODE_ENV.match('test'))
+  && process.env.BUGSNAG_API_KEY) {
   bugsnag.register(process.env.BUGSNAG_API_KEY);
   app.use(bugsnag.requestHandler);
   app.use(bugsnag.errorHandler);

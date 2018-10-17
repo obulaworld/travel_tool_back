@@ -12,14 +12,19 @@ const mockValidateDirectReport = (req, res, next) => {
   return next();
 };
 
+
+const mockGetUserId = (req, res, next) => {
+  const user = { id: 1 };
+  req.user = user;
+  next();
+};
+
 const middleware = {
   authenticate: jest.fn(mockAuthenticate),
   Validator: {
     validateRequest: jest.fn(invokeNextMiddleware),
     validateCreateRequests: jest.fn(invokeNextMiddleware),
     validateUser: jest.fn(invokeNextMiddleware),
-    validateAddRole: jest.fn(invokeNextMiddleware),
-    validateUserRole: jest.fn(invokeNextMiddleware),
     checkEmail: jest.fn(invokeNextMiddleware),
     checkGender: jest.fn(invokeNextMiddleware),
     validateStatus: jest.fn(invokeNextMiddleware),
@@ -30,11 +35,20 @@ const middleware = {
     validateNotificationStatus: jest.fn(invokeNextMiddleware),
     validateCreateGuestHouse: jest.fn(invokeNextMiddleware),
     checkDate: jest.fn(invokeNextMiddleware),
-    checkUserRole: jest.fn(invokeNextMiddleware),
     checkFaultRoomStatus: jest.fn(invokeNextMiddleware),
-    validateRole: jest.fn(invokeNextMiddleware),
     checkUrl: jest.fn(invokeNextMiddleware),
     validateGuestHouse: jest.fn(invokeNextMiddleware),
+    validateImage: jest.fn(invokeNextMiddleware),
+    getUserId: jest.fn(mockGetUserId),
+    centerExists: jest.fn(invokeNextMiddleware),
+  },
+  RoleValidator: {
+    validateUpdateRole: jest.fn(invokeNextMiddleware),
+    validateRoleAssignment: jest.fn(invokeNextMiddleware),
+    roleExists: jest.fn(invokeNextMiddleware),
+    checkUserRole: jest.fn(() => invokeNextMiddleware),
+    validateAddRole: jest.fn(invokeNextMiddleware),
+    validateUserRole: jest.fn(invokeNextMiddleware),
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),

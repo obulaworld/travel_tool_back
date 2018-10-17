@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-import { Op } from 'sequelize';
 import models from '../../database/models';
+import Error from '../../helpers/Error';
 
 dotenv.config();
 
@@ -14,12 +14,19 @@ class UserRoleController {
   }
 
   static async getAllUser(req, res) {
-    const result = await models.User.all();
+    const result = await models.User.findAll({
+      include: [{
+        model: models.Role,
+        as: 'roles',
+        through: { attributes: [] }
+      }]
+    });
     const message = [200, 'data', true];
     UserRoleController.response(res, message, result);
   }
 
   static async getOneUser(req, res) {
+    const { id } = req.user;
     const result = await models.User.findOne({
       where: {
         userId: req.params.id,
@@ -29,7 +36,23 @@ class UserRoleController {
           model: models.Role,
           as: 'roles',
           attributes: ['roleName', 'description'],
-        },
+          through: {
+            attributes: []
+          },
+          include: [
+            {
+              model: models.Center,
+              as: 'centers',
+              attributes: ['id', 'location'],
+              through: {
+                attributes: [],
+                where: {
+                  userId: id
+                },
+              }
+            }
+          ]
+        }
       ],
     });
     const message = [200, 'data', true];
@@ -59,47 +82,63 @@ class UserRoleController {
 
   static async addUser(req, res) {
     const { fullName, email, userId } = req.body;
-    if (!userId) {
-      const message = [400, 'User Id required', false];
-      return UserRoleController.response(res, message);
+    try {
+      if (!userId) {
+        const message = [400, 'User Id required', false];
+        return UserRoleController.response(res, message);
+      }
+      const [result] = await models.User.findOrCreate({
+        where: {
+          fullName,
+          email,
+          userId,
+        },
+      });
+      const [userRole] = await result.addRole(401938);
+      result.dataValues.roles = userRole;
+      const message = [201, 'User created successfully', true];
+      return UserRoleController.response(res, message, result);
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError(error, 500, res);
     }
-    const result = await models.User.findOrCreate({
-      where: {
-        fullName,
-        email,
-        userId,
-      },
-    });
-    const message = [201, 'User created successfully', true];
-    UserRoleController.response(res, message, result);
   }
 
   static async updateUserRole(req, res) {
     try {
-      const { roleName, email } = req.body;
-      const findRole = await models.Role.findOne({
-        where: {
-          roleName: { [Op.iLike]: roleName },
-        },
+      const { roleId, centerId, body: { email, center } } = req;
+      const findUser = await models.User.findOne({
+        where: { email },
+        attributes: ['email', 'fullName', 'userId', 'id']
       });
-      if (!findRole) {
-        const message = [400, 'Role does not exist', false];
-        UserRoleController.response(res, message);
-      } else {
-        const findUser = await models.User.findOne({
-          where: { email },
-        });
-        const result = await findUser.update({
-          roleId: findRole.id,
-        });
-        const message = [200, 'Role updated successfully', true];
-        UserRoleController.response(res, message, result);
+      if (!findUser) {
+        const message = 'Email does not exist';
+        return Error.handleError(message, 404, res);
       }
-    } catch (error) {
-      const message = [400, 'Email does not exist', false];
-      UserRoleController.response(res, message);
+      if (!centerId && roleId === 339458) {
+        const message = [400, 'Please provide center', false];
+        return UserRoleController.response(res, message);
+      }
+      const hasRole = await models.UserRole.find({
+        where: {
+          roleId,
+          userId: findUser.id
+        }
+      });
+      const error = 'User already has this role';
+      if (hasRole) return Error.handleError(error, 409, res);
+      const [[result]] = await findUser.addRole(roleId, {
+        through: {
+          centerId
+        }
+      });
+      findUser.dataValues.centers = [{ id: result.centerId, location: center }];
+      const message = [200, 'Role updated successfully', true];
+      UserRoleController.response(res, message, findUser);
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError(error, 500, res);
     }
   }
+
 
   static async addRole(req, res) {
     try {
@@ -118,7 +157,10 @@ class UserRoleController {
         {
           model: models.User,
           as: 'users',
-          attributes: ['email'],
+          attributes: ['email', 'userId'],
+          through: {
+            attributes: []
+          }
         },
       ],
     });
@@ -133,7 +175,23 @@ class UserRoleController {
           {
             model: models.User,
             as: 'users',
-            attributes: ['email', 'fullName', 'userId'],
+            attributes: ['email', 'fullName', 'userId', 'id'],
+            through: {
+              attributes: []
+            },
+            include: [
+              {
+                model: models.Center,
+                as: 'centers',
+                attributes: ['id', 'location'],
+                through: {
+                  attributes: [],
+                  where: {
+                    roleId: req.params.id
+                  }
+                }
+              }
+            ],
           },
         ],
       });
@@ -156,7 +214,7 @@ class UserRoleController {
         const message = [409, 'Email does not match', false];
         UserRoleController.response(res, message);
       } else {
-        await findUser.update({ roleId: 10948 });
+        await findUser.addRole(10948);
         const message = [
           200,
           'Your role has been Updated to a Super Admin',
@@ -166,34 +224,6 @@ class UserRoleController {
       }
     } catch (error) {
       const message = [400, 'Email does not exist in Database', false];
-      UserRoleController.response(res, message);
-    }
-  }
-
-  static async isAdmin(req, res, next) {
-    try {
-      const findAdmin = await models.User.findOne({
-        where: { email: req.user.UserInfo.email },
-        include: [
-          {
-            model: models.Role,
-            as: 'roles',
-            attributes: ['roleName'],
-          },
-        ],
-      });
-      if (findAdmin.roles.roleName === 'Super Administrator') {
-        next();
-      } else {
-        const message = [400, 'Only a Super admin can do that', false];
-        UserRoleController.response(res, message, findAdmin.roles.roleName);
-      }
-    } catch (error) {
-      const message = [
-        400,
-        'Logged in user Email does not exist in Database',
-        false,
-      ];
       UserRoleController.response(res, message);
     }
   }

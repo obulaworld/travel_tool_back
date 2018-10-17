@@ -1,6 +1,8 @@
 import { validationResult } from 'express-validator/check';
+import { Op } from 'sequelize';
 import moment from 'moment';
 import models from '../database/models';
+import Error from '../helpers/Error';
 
 export default class Validator {
   static validateRequest(req, res, next) {
@@ -74,10 +76,6 @@ export default class Validator {
     Validator.validateUserRoleCheck(req, res, next, 'fullName', 'email');
   }
 
-  static validateUserRole(req, res, next) {
-    Validator.validateUserRoleCheck(req, res, next, 'email', 'roleName');
-  }
-
   static validatePersonalInformation(req, res, next) {
     Validator.validateUserRoleCheck(
       req,
@@ -89,10 +87,6 @@ export default class Validator {
       'occupation',
       'manager'
     );
-  }
-
-  static validateAddRole(req, res, next) {
-    Validator.validateUserRoleCheck(req, res, next, 'roleName', 'description');
   }
 
   static checkEmail(req, res, next) {
@@ -180,60 +174,49 @@ export default class Validator {
     next();
   }
 
-  static async checkUserRole(req, res, next) {
-    const emailAddress = req.user.UserInfo.email;
-    const methodName = req.method;
-    const action = { POST: 'create', GET: 'view', PUT: 'update' };
+  static async validateImage(req, res, next) {
     const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
     const checkUrl = reg.test(req.body.imageUrl);
-    try {
-      const userRole = await models.User.findOne({
-        where: {
-          email: emailAddress
-        },
-      });
-      if (userRole.roleId !== 29187 && userRole.roleId !== 10948) {
-        return res.status(401).json({
-          success: false,
-          message: `Only a Travel Admin can ${action[methodName]} a Guest House`
-        });
-      }
-      if (action[methodName] === 'create' && !checkUrl) {
-        return res.status(400).json({
-          success: false,
-          message: 'Only Url allowed for Image'
-        });
-      }
-      next();
-    } catch (error) {
-      res.status(400).json({
+    if (!checkUrl) {
+      return res.status(400).json({
         success: false,
-        message: 'User not found in database'
+        message: 'Only Url allowed for Image'
       });
     }
+    next();
   }
 
-
-  static async validateRole(req, res, next) {
-    const emailAddress = req.user.UserInfo.email;
-    try {
-      const userRole = await models.User.findOne({
-        where: {
-          email: emailAddress
-        },
-      });
-      if (userRole.roleId !== 29187 && userRole.roleId !== 10948) {
-        return res.status(401).json({
-          success: false,
-          message: 'Only a Travel Admin can edit fault status a Guest House'
-        });
+  static async getUserId(req, res, next) {
+    const { id } = req.params;
+    const user = await models.User.find({
+      where: {
+        userId: id
       }
-      next();
-    } catch (error) {
-      res.status(400).json({
-        success: false,
-        message: 'User not found in database'
+    });
+    if (!user) {
+      return Error.handleError('User not found', 404, res);
+    }
+    req.user = user;
+    next();
+  }
+
+  static async centerExists(req, res, next) {
+    const { center } = req.body;
+    if (center) {
+      const findCenter = await models.Center.findOne({
+        where: {
+          location: { [Op.iLike]: center },
+        },
+        attributes: ['id']
       });
+      if (!findCenter) {
+        const error = 'Center does not exist';
+        return Error.handleError(error, 404, res);
+      }
+      req.centerId = findCenter.id;
+      next();
+    } else {
+      next();
     }
   }
 }

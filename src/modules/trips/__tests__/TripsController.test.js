@@ -44,15 +44,15 @@ const token = Utils.generateTestToken(travelAdminpayload);
 const requesterToken = Utils.generateTestToken(requesterPayload);
 
 describe('Test Suite for Trips Controller', () => {
-  beforeAll(async (done) => {
-    await models.Role.sync({ force: true });
+  beforeAll(async () => {
+    await models.Role.destroy({ truncate: true, cascade: true });
     await models.Role.bulkCreate(role);
+    await models.User.destroy({ truncate: true, cascade: true });
     process.env.DEFAULT_ADMIN = 'john.snow@andela.com';
-    done();
   });
-  afterAll(async (done) => {
-    await models.Role.sync({ force: true });
-    done();
+  afterAll(async () => {
+    await models.Role.destroy({ truncate: true, cascade: true });
+    await models.User.destroy({ truncate: true, cascade: true });
   });
 
   describe('Setup users', () => {
@@ -68,8 +68,8 @@ describe('Test Suite for Trips Controller', () => {
         })
         .expect(201)
         .end((err, res) => {
-          expect(res.body.result[0]).toHaveProperty('fullName');
-          expect(res.body.result[0]).toHaveProperty('email');
+          expect(res.body.result).toHaveProperty('fullName');
+          expect(res.body.result).toHaveProperty('email');
           expect(res.body.success).toEqual(true);
           if (err) return done(err);
           done();
@@ -87,8 +87,8 @@ describe('Test Suite for Trips Controller', () => {
         })
         .expect(201)
         .end((err, res) => {
-          expect(res.body.result[0]).toHaveProperty('fullName');
-          expect(res.body.result[0]).toHaveProperty('email');
+          expect(res.body.result).toHaveProperty('fullName');
+          expect(res.body.result).toHaveProperty('email');
           expect(res.body.success).toEqual(true);
           if (err) return done(err);
           done();
@@ -112,7 +112,7 @@ describe('Test Suite for Trips Controller', () => {
   describe('Test suite for Trips API', () => {
     beforeAll(async (done) => {
       await models.GuestHouse.destroy({ truncate: true, cascade: true });
-      await models.Request.sync({ force: true });
+      await models.Request.destroy({ truncate: true, cascade: true });
       request(app)
         .post('/api/v1/guesthouses')
         .set('Content-Type', 'application/json')
@@ -126,9 +126,10 @@ describe('Test Suite for Trips Controller', () => {
     });
     afterAll(async (done) => {
       await models.GuestHouse.destroy({ truncate: true, cascade: true });
-      await models.Request.sync({ force: true });
-      await models.Notification.sync({ force: true });
-      await models.User.sync({ force: true });
+      await models.Request.destroy({ truncate: true, cascade: true });
+      await models.Notification.destroy({ truncate: true, cascade: true });
+      await models.User.destroy({ truncate: true, cascade: true });
+      await models.UserRole.destroy({ truncate: true, cascade: true });
       done();
     });
     describe('Test Suite for Trips Check In / Out API: PUT ', () => {

@@ -1,7 +1,9 @@
 import request from 'supertest';
 import app from '../../../app';
 import { postGuestHouse } from './mocks/guestHouseData';
+import models from '../../../database/models';
 import Utils from '../../../helpers/Utils';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 
 const payload = {
   UserInfo: {
@@ -41,8 +43,18 @@ const createTestGuestHouse = data => (
 );
 
 describe('Guest house details test', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
+    await models.Role.sync({ force: true });
+    await models.Role.bulkCreate(role);
+    await models.User.sync({ force: true });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     process.env.DEFAULT_ADMIN = 'john.snow@andela.com';
+  });
+
+  afterAll(async () => {
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   });
 
   it('should validate start and end dates', (done) => {

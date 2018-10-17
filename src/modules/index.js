@@ -5,6 +5,7 @@ import userRoleRouter from './userRole';
 import commentsRouter from './comments';
 import notificationRouter from './notifications';
 import occupationsRouter from './occupations';
+import centerRouter from './centers';
 import guestHouseRouter from './guestHouse';
 import tripsRouter from './trips';
 
@@ -21,6 +22,7 @@ const routes = (app) => {
   app.use(apiPrefix, occupationsRouter);
   app.use(apiPrefix, guestHouseRouter);
   app.use(apiPrefix, tripsRouter);
+  app.use(apiPrefix, centerRouter);
   return app;
 };
 

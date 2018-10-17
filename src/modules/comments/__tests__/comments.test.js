@@ -36,18 +36,26 @@ const token = Utils.generateTestToken(payload);
 const otherUsertoken = Utils.generateTestToken(otherUser);
 const invalidToken = 'eyJhbGciOiJSUzI1NiIsXVCJ9.eyJVc2VySW5mbyI6eyJpZ';
 describe('Comments controller', () => {
-  beforeAll((done) => {
-    models.Role.bulkCreate(role);
-    models.User.create(mockData.userMock);
-    models.Request.bulkCreate(mockData.requestsMock);
-    done();
+  beforeAll(async (done) => {
+    await models.Role.destroy({ truncate: true, cascade: true });
+    await models.Role.bulkCreate(role);
+    await models.User.destroy({ truncate: true, cascade: true });
+    await models.User.create(mockData.userMock);
+    await models.Request.bulkCreate(mockData.requestsMock);
+    request
+      .get('/api/v1/user')
+      .send(mockData.userMock)
+      .end((err) => {
+        if (err) done(err);
+        done();
+      });
   });
-  afterAll((done) => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-    models.User.destroy({ force: true, truncate: { cascade: true } });
-    models.Request.destroy({ force: true, truncate: { cascade: true } });
-    models.Comment.destroy({ force: true, truncate: { cascade: true } });
-    done();
+  afterAll(async () => {
+    await models.Role.destroy({ truncate: true, cascade: true });
+    await models.User.destroy({ truncate: true, cascade: true });
+    await models.Request.destroy({ truncate: true, cascade: true });
+    await models.UserRole.destroy({ truncate: true, cascade: true });
+    await models.Comment.destroy({ truncate: true, cascade: true });
   });
   describe('Unauthenticated user', () => {
     it('should throw 401 error if the user does not provide a token',
@@ -146,10 +154,9 @@ describe('Comments controller', () => {
       });
     });
     describe('PUT api/v1/comments/:id', () => {
-      beforeAll(async (done) => {
-        await models.Comment.truncate();
+      beforeAll(async () => {
+        await models.Comment.destroy({ truncate: true, cascade: true });
         await models.Comment.create(mockData.commentMock);
-        done();
       });
       it('throws 404 if the requestId does not match', (done) => {
         const expectedResponse = {

@@ -2,6 +2,8 @@ import request from 'supertest';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import { postGuestHouse } from './mocks/guestHouseData';
+import models from '../../../database/models';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 
 const payload = {
   UserInfo: {
@@ -15,7 +17,13 @@ const token = Utils.generateTestToken(payload);
 const invalidToken = 'YYTRYIM0nrbuy7tonfenu';
 
 describe('Get Guest Houses', () => {
-  beforeAll((done) => {
+  beforeAll(async (done) => {
+    await models.Role.sync({ force: true });
+    await models.Role.bulkCreate(role);
+    await models.User.sync({ force: true });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.GuestHouse.destroy({ truncate: true, cascade: true });
+
     process.env.DEFAULT_ADMIN = 'jane.doe@andela.com';
     request(app)
       .post('/api/v1/user')
@@ -31,16 +39,24 @@ describe('Get Guest Houses', () => {
       });
   });
 
+  afterAll(async () => {
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.sync({ force: true });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.GuestHouse
+      .destroy({ force: true, truncate: { cascade: true } });
+  });
+
   describe('Unauthenticated user', () => {
     it('returns 401 error if user is not a travel admin', (done) => {
       request(app)
         .get('/api/v1/guesthouses')
         .set('authorization', token)
-        .expect(401)
+        .expect(403)
         .end((err, res) => {
           expect(res.body.success).toEqual(false);
-          expect(res.body.message)
-            .toEqual('Only a Travel Admin can view a Guest House');
+          expect(res.body.error)
+            .toEqual('You don\'t have access to perform this action');
           if (err) return done(err);
           done();
         });
@@ -104,7 +120,7 @@ describe('Get Guest Houses', () => {
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send(postGuestHouse)
-          .end((err) => {
+          .end((err, res) => {
             if (err) return done(err);
             done();
           });

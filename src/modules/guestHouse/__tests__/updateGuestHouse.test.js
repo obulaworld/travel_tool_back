@@ -3,6 +3,7 @@ import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import models from '../../../database/models';
 import { updateRoomFaultStatus } from './mocks/guestHouseData';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 
 const payload = {
   UserInfo: {
@@ -16,8 +17,11 @@ const token = Utils.generateTestToken(payload);
 
 
 describe('Update the room fault status', () => {
-  beforeAll((done) => {
-    models.GuestHouse.sync({ force: true }); 
+  beforeAll(async (done) => {
+    await models.Role.sync({ force: true });
+    await models.Role.bulkCreate(role);
+    await models.User.sync({ force: true });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     process.env.DEFAULT_ADMIN = 'collins.muru@andela.com';
     request(app)
       .post('/api/v1/user')
@@ -32,6 +36,11 @@ describe('Update the room fault status', () => {
         done();
       });
   });
+  afterAll(async () => {
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+  });
 
   describe('Unauthorized user', () => {
     it('returns an error if the user is not a travel admin', (done) => {
@@ -39,10 +48,11 @@ describe('Update the room fault status', () => {
         .put('/api/v1/room/3vgvmM4qY6')
         .set('authorization', token)
         .send(updateRoomFaultStatus.room1)
-        .expect(401)
+        .expect(403)
         .end((err, res) => {
           expect(res.body.success).toEqual(false);
-          expect(res.body.message).toBe('Only a Travel Admin can edit fault status a Guest House');
+          expect(res.body.error)
+            .toBe('You don\'t have access to perform this action');
           if (err) return done(err);
           done();
         });

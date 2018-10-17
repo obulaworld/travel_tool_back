@@ -9,6 +9,7 @@ import {
   postGuestHouse
 } from '../../guestHouse/__tests__/mocks/guestHouseData';
 import Utils from '../../../helpers/Utils';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 
 global.io = {
   sockets: {
@@ -29,8 +30,11 @@ const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
 
 describe('Get an authenticated User Request detail', () => {
   beforeAll(async (done) => {
-    process.env.DEFAULT_ADMIN = 'travel.admin@andela.com';
+    await models.Role.sync({ force: true });
+    await models.Role.bulkCreate(role);
+    await models.User.sync({ force: true });
     await models.User.create(travelAdmin);
+    process.env.DEFAULT_ADMIN = 'travel.admin@andela.com';
     request(app)
       .put('/api/v1/user/admin')
       .set('Content-Type', 'application/json')
@@ -40,6 +44,12 @@ describe('Get an authenticated User Request detail', () => {
         done();
       });
   });
+
+  afterAll(async () => {
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+  });
+
   it('should return accomodation details as part of the trip details',
     async () => {
       const postResp = await request(app)

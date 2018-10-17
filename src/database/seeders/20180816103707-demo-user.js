@@ -8,7 +8,6 @@ module.exports = {
         createdAt: '2018-08-16 012:11:52.181+01',
         updatedAt: '2018-08-16 012:11:52.181+01',
         userId: '-LJV4b1QTCYewOtk5F63',
-        roleId: '10948',
         gender: 'male'
       }
     ], {}),

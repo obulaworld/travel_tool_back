@@ -2,17 +2,22 @@ import express from 'express';
 import GuestHouseController from './GuestHouseController';
 import middlewares from '../../middlewares';
 
-const { authenticate, Validator } = middlewares;
+const { authenticate, Validator, RoleValidator } = middlewares;
 const Router = express.Router();
 
 Router.get('/guesthouses',
   authenticate,
-  Validator.checkUserRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
   GuestHouseController.getGuestHouses);
 
 Router.post('/guesthouses',
   authenticate,
-  Validator.checkUserRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  Validator.validateImage,
   Validator.validateGuestHouse,
   GuestHouseController.postGuestHouse);
 
@@ -20,15 +25,21 @@ Router.post('/guesthouses',
 Router.put(
   '/room/:id',
   authenticate,
-  Validator.validateRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
   Validator.checkFaultRoomStatus,
   GuestHouseController.updateRoomFaultyStatus
 );
 
 
 Router.put('/guesthouses/:id',
+
   authenticate,
-  Validator.checkUserRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  Validator.validateImage,
   Validator.validateGuestHouse,
   GuestHouseController.editGuestHouse);
 
@@ -36,7 +47,9 @@ Router.get(
   '/guesthouses/:guestHouseId',
   authenticate,
   Validator.checkDate,
-  Validator.checkUserRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
   GuestHouseController.getGuestHouseDetails
 );
 

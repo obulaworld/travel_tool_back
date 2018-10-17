@@ -2,13 +2,16 @@ import express from 'express';
 import middlewares from '../../middlewares';
 import UserRoleController from './UserRoleController';
 
-const { authenticate, Validator } = middlewares;
+const { authenticate, Validator, RoleValidator } = middlewares;
 const Router = express.Router();
 
 Router.get('/user', authenticate, UserRoleController.getAllUser);
 Router.get('/user/roles', authenticate, UserRoleController.getRoles);
 Router.put('/user/admin', authenticate, UserRoleController.autoAdmin);
-Router.get('/user/:id', authenticate, UserRoleController.getOneUser);
+Router.get('/user/:id',
+  authenticate,
+  Validator.getUserId,
+  UserRoleController.getOneUser);
 
 Router.put(
   '/user/:id/profile',
@@ -29,16 +32,24 @@ Router.post(
 Router.post(
   '/user/role',
   authenticate,
-  Validator.validateAddRole,
-  UserRoleController.isAdmin,
+  RoleValidator.validateAddRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator']
+  ),
   UserRoleController.addRole
 );
 
 Router.put(
   '/user/role/update',
   authenticate,
-  UserRoleController.isAdmin,
-  Validator.validateUserRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  RoleValidator.validateUpdateRole,
+  Validator.checkEmail,
+  RoleValidator.roleExists,
+  Validator.centerExists,
+  RoleValidator.validateRoleAssignment,
   UserRoleController.updateUserRole
 );
 
