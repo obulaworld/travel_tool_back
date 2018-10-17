@@ -1,4 +1,3 @@
-
 import { Op } from 'sequelize';
 import models from '../database/models';
 import Error from '../helpers/Error';
@@ -76,6 +75,21 @@ export default class RoleValidator {
       !== 'travel team member') {
       const error = 'Only a Super Admin can assign that role';
       return Error.handleError(error, 403, res);
+    }
+    next();
+  }
+
+  static validateUpdateCenterBody(req, res, next) {
+    req.checkBody('center', 'Center name is required').notEmpty();
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
+
+  static validateUpdateCenter(req, res, next) {
+    if (Number.isNaN(parseInt(req.params.id, 10))) {
+      return res.status(400).json({
+        message: 'Only Number allowed for id'
+      });
     }
     next();
   }

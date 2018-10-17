@@ -9,7 +9,7 @@ class UserRoleController {
     return res.status(message[0]).json({
       success: message[2],
       message: message[1],
-      result,
+      result
     });
   }
 
@@ -29,7 +29,7 @@ class UserRoleController {
     const { id } = req.user;
     const result = await models.User.findOne({
       where: {
-        userId: req.params.id,
+        userId: req.params.id
       },
       include: [
         {
@@ -62,7 +62,7 @@ class UserRoleController {
   static async updateUserProfile(req, res) {
     const user = await models.User.findOne({
       where: {
-        userId: req.params.id,
+        userId: req.params.id
       }
     });
     if (!user) {
@@ -74,7 +74,7 @@ class UserRoleController {
       department: req.body.department || user.department,
       occupation: req.body.occupation || user.occupation,
       manager: req.body.manager || user.manager,
-      gender: req.body.gender || user.gender,
+      gender: req.body.gender || user.gender
     });
     const message = [201, 'Profile updated successfully', true];
     UserRoleController.response(res, message, result);
@@ -207,8 +207,8 @@ class UserRoleController {
     try {
       const findUser = await models.User.findOne({
         where: {
-          email: req.user.UserInfo.email,
-        },
+          email: req.user.UserInfo.email
+        }
       });
       if (findUser.email !== process.env.DEFAULT_ADMIN) {
         const message = [409, 'Email does not match', false];
@@ -237,7 +237,7 @@ class UserRoleController {
           },
           {
             userId: recipientId
-          },
+          }
         ]
       }
     });

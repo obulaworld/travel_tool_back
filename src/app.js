@@ -8,11 +8,17 @@ import expressValidator from 'express-validator';
 import modules from './modules';
 
 const app = express();
-/* istanbul ignore next */
-if (!(process.env.NODE_ENV.match('test'))
-  && process.env.BUGSNAG_API_KEY) {
+
+if (
+  !process.env.NODE_ENV.match('test')
+  /* istanbul ignore next */
+  && process.env.BUGSNAG_API_KEY
+) {
+  /* istanbul ignore next */
   bugsnag.register(process.env.BUGSNAG_API_KEY);
+  /* istanbul ignore next */
   app.use(bugsnag.requestHandler);
+  /* istanbul ignore next */
   app.use(bugsnag.errorHandler);
 }
 
@@ -21,10 +27,12 @@ app.use(morgan('dev'));
 app.use(passport.initialize());
 
 // body parser for url params and json
-app.use(bodyParser.urlencoded({
-  limit: '50mb',
-  extended: true,
-}));
+app.use(
+  bodyParser.urlencoded({
+    limit: '50mb',
+    extended: true
+  })
+);
 app.use(bodyParser.json());
 
 app.use(expressValidator());
@@ -33,9 +41,8 @@ app.use(expressValidator());
 modules(app);
 
 // catch all routers
-app.use('*', (req, res) => res.status(404)
-  .json({
-    message: 'Not Found. Use /api/v1 to access the Api',
-  }));
+app.use('*', (req, res) => res.status(404).json({
+  message: 'Not Found. Use /api/v1 to access the Api'
+}));
 
 export default app;

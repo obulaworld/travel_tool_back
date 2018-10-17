@@ -12,7 +12,6 @@ const mockValidateDirectReport = (req, res, next) => {
   return next();
 };
 
-
 const mockGetUserId = (req, res, next) => {
   const user = { id: 1 };
   req.user = user;
@@ -40,7 +39,7 @@ const middleware = {
     validateGuestHouse: jest.fn(invokeNextMiddleware),
     validateImage: jest.fn(invokeNextMiddleware),
     getUserId: jest.fn(mockGetUserId),
-    centerExists: jest.fn(invokeNextMiddleware),
+    centerExists: jest.fn(invokeNextMiddleware)
   },
   RoleValidator: {
     validateUpdateRole: jest.fn(invokeNextMiddleware),
@@ -49,12 +48,14 @@ const middleware = {
     checkUserRole: jest.fn(() => invokeNextMiddleware),
     validateAddRole: jest.fn(invokeNextMiddleware),
     validateUserRole: jest.fn(invokeNextMiddleware),
+    validateUpdateCenterBody: jest.fn(invokeNextMiddleware),
+    validateUpdateCenter: jest.fn(invokeNextMiddleware)
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),
     checkTripExists: jest.fn(invokeNextMiddleware),
     checkTripOwner: jest.fn(invokeNextMiddleware),
-    checkTripApproved: jest.fn(invokeNextMiddleware),
+    checkTripApproved: jest.fn(invokeNextMiddleware)
   },
   validateDirectReport: jest.fn(mockValidateDirectReport)
 };
