@@ -1,6 +1,6 @@
 
-const getRequests = (requestId, userId, models) => models.Request.find({
-  where: { id: requestId, userId },
+const getRequests = (requestId, models) => models.Request.find({
+  where: { id: requestId },
   include: [
     'comments', {
       model: models.Trip,

@@ -188,9 +188,8 @@ class RequestsController {
 
   static async getUserRequestDetails(req, res) {
     const { requestId } = req.params;
-    const userId = req.user.UserInfo.id;
     try {
-      const requestData = await getRequests(requestId, userId, models);
+      const requestData = await getRequests(requestId, models);
       if (!requestData) {
         const error = `Request with id ${requestId} does not exist`;
         return Error.handleError(error, 404, res);
