@@ -4,6 +4,18 @@ import Error from '../../helpers/Error';
 
 const { Op } = models.Sequelize;
 let checkTypeErrorMessage = '';
+const getReturnedTrip = (where, userId) => models.Trip.findOne({
+  where,
+  include: [{
+    required: true,
+    model: models.Request,
+    as: 'request',
+    where: {
+      status: 'Approved',
+      userId,
+    },
+  }]
+});
 class TripsController {
   static createWhereClause(tripId, checkType) {
     let where = {};
@@ -55,24 +67,41 @@ class TripsController {
     return NotificationEngine.notify(notificationData);
   }
 
+  static async sendSurveyEmail(requestId) {
+    try {
+      const request = await models.Request.findById(requestId);
+      const user = await models.User.findOne({
+        where: { userId: request.userId }
+      });
+      const recipient = { name: user.fullName, email: user.email };
+      const sender = 'travelaApp';
+      const topic = 'Travel Survey Email';
+      const type = 'Trip Survey';
+      const mailData = TripsController.getSurveyMailData(
+        recipient, sender, topic, type
+      );
+      NotificationEngine.sendMail(mailData);
+    } catch (error) { /* istanbul ignore next */ }
+  }
+
+  static getSurveyMailData(recipient, sender, topic, type) {
+    const mailBody = {
+      recipient,
+      sender,
+      topic,
+      type,
+      redirectLink: process.env.SURVEY_URL,
+    };
+    return mailBody;
+  }
+
   static async updateCheckStatus(req, res) {
     const { tripId } = req.params;
     const { checkType } = req.body;
     const userId = req.user.UserInfo.id;
     const where = TripsController.createWhereClause(tripId, checkType);
     try {
-      const returnedTrip = await models.Trip.findOne({
-        where,
-        include: [{
-          required: true,
-          model: models.Request,
-          as: 'request',
-          where: {
-            status: 'Approved',
-            userId,
-          },
-        }]
-      });
+      const returnedTrip = await getReturnedTrip(where, userId);
       if (!returnedTrip) {
         return res.status(400).json({
           success: false,
@@ -82,6 +111,9 @@ class TripsController {
       const updatedTrip = await TripsController
         .updateTrip(returnedTrip, checkType);
       TripsController.sendNotification(req, updatedTrip.request, checkType);
+      if (checkType === 'checkOut') {
+        TripsController.sendSurveyEmail(returnedTrip.requestId);
+      }
       return res.status(200).json({
         success: true,
         trip: updatedTrip,

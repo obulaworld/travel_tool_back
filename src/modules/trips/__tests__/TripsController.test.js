@@ -14,6 +14,7 @@ import {
 } from '../../userRole/__tests__/mocks/mockData';
 import Utils from '../../../helpers/Utils';
 import NotificationEngine from '../../notifications/NotificationEngine';
+import TripsController from '../TripsController';
 
 global.io = {
   sockets: {
@@ -290,6 +291,7 @@ describe('Test Suite for Trips Controller', () => {
       });
 
       it('should update trip record to check out successfully', (done) => {
+        const sendSurveyEmail = jest.spyOn(TripsController, 'sendSurveyEmail');
         request(app)
           .put('/api/v1/trips/2')
           .set('authorization', token)
@@ -299,6 +301,7 @@ describe('Test Suite for Trips Controller', () => {
             expect(res.body.success).toEqual(true);
             expect(res.body.trip.id).toEqual('2');
             expect(res.body.trip.checkStatus).toEqual('Checked Out');
+            expect(sendSurveyEmail).toHaveBeenCalled();
             if (err) return done(err);
             done();
           });

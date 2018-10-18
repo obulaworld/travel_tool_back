@@ -63,4 +63,19 @@ describe('switchMessage helper', () => {
     expect(receivedMessage.split(' ')).toContain('');
     done();
   });
+
+  it('should return changed room message', (done) => {
+    const receivedMessage = switchMessage({
+      type: 'Changed Room', senderName: 'Tester', requestId: '36Ydgha42e'
+    });
+    expect(receivedMessage.split(' ')).toContain('updated', 'Login');
+    done();
+  });
+  it('should return fill survey message', (done) => {
+    const surveyMessage = switchMessage({
+      type: 'Trip Survey', senderName: 'Tester'
+    });
+    expect(surveyMessage.split(' ')).toContain('fill', 'survey');
+    done();
+  });
 });

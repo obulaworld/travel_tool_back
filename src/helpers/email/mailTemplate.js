@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import switchMessage from './switchMessage';
+import switchButtonText from './switchButtonText';
 
 dotenv.config();
 
@@ -54,7 +55,9 @@ const mailTemplate = (recipientName,
         color: #4F4F4F;
         margin: 0 auto 50px auto;"
     >
-      ${switchMessage({ type, senderName, requestId })}
+      ${switchMessage({
+    type, senderName, recipientName, requestId
+  })}
     </p>
     <a
       href="${redirectLink}"
@@ -70,7 +73,7 @@ const mailTemplate = (recipientName,
         margin: 0 auto 73px auto;
         margin-bottom: 73px;"
     >
-      View Request
+      ${switchButtonText(type)}
     </a>
   </div>
   <div
