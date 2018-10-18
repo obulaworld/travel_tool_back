@@ -54,6 +54,18 @@ export const requestsData = [
     role: 'Software Developer',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
   },
+  {
+    id: 'xDh20cuGs',
+    name: 'Anita Baker',
+    manager: 'Samuel Kubai',
+    tripType: 'multi',
+    gender: 'Male',
+    department: 'TDD',
+    status: 'Approved',
+    picture: 'https://sgeeegege',
+    role: 'Software Developer',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+  },
 ];
 
 export const tripsData = [
@@ -81,6 +93,15 @@ export const tripsData = [
     origin: 'New York',
     destination: 'Nairobi',
     bedId: 1,
+    departureDate: '2018-09-27',
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 4,
+    requestId: 'xDh20cuGs',
+    origin: 'New York',
+    destination: 'Nairobi',
+    bedId: 4,
     departureDate: '2018-09-27',
     returnDate: dates.returnDate,
   }
@@ -147,4 +168,34 @@ export const tripsResponse = {
     }
   ],
   message: 'Retrieved Successfully'
+};
+
+export const travelAdmin = {
+  id: 1983,
+  fullName: 'Chris Brown',
+  email: 'chris.brown@andela.com',
+  createdAt: '2018-08-16 012:11:52.181+01',
+  updatedAt: '2018-08-16 012:11:52.181+01',
+  userId: '-LJV4b1QTDYewOtk5F65',
+  roleId: '29187',
+  gender: 'male'
+};
+
+export const postGuestHouse = {
+  houseName: 'Mini flat',
+  location: 'Lagos Nigeria',
+  bathRooms: '1',
+  imageUrl: 'https://www.lol.com',
+  rooms: [
+    {
+      roomName: 'big cutter',
+      roomType: 'ensuited',
+      bedCount: '3'
+    },
+    {
+      roomName: 'small cutter',
+      roomType: 'non-ensuited',
+      bedCount: '3'
+    }
+  ]
 };

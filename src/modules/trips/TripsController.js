@@ -128,6 +128,71 @@ class TripsController {
       message,
     });
   }
+
+  static async updateTripRoom(req, res) {
+    const { tripId } = req.params;
+    const { bedId, reason } = req.body;
+    const userId = req.user.UserInfo.id;
+    try {
+      const trip = await models.Trip.findById(tripId);
+      const request = await models.Request.findById(trip.requestId);
+      const user = await models.User.findOne({
+        where: { userId: request.userId }
+      });
+      const changedRoom = {
+        requestId: trip.requestId,
+        tripId: trip.id,
+        bedId,
+        reason,
+        userId
+      };
+      trip.bedId = bedId;
+      await trip.save();
+      await models.ChangedRoom.create(changedRoom);
+      const message = 'updated your travel residence record.';
+      TripsController.sendNotificationToRequester(
+        user, request, message, req.user.UserInfo
+      );
+      return res.status(200).json({
+        success: true,
+        trip,
+        message: 'Updated Successfully'
+      });
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError(error.toString(), 500, res);
+    }
+  }
+
+  static async sendNotificationToRequester(
+    user, request, message, travelAdmin
+  ) {
+    const notificationData = {
+      senderId: travelAdmin.id,
+      recipientId: user.userId,
+      notificationType: 'general',
+      message,
+      notificationLink: `/requests/${request.id}`,
+      senderName: travelAdmin.name,
+      senderImage: travelAdmin.picture,
+    };
+    NotificationEngine.notify(notificationData);
+    const mailData = TripsController.getMailData(request, user,
+      'Travel Request Residence', 'Changed Room', travelAdmin);
+    NotificationEngine.sendMail(mailData);
+  }
+
+  static getMailData(request, user, topic, type, travelAdmin) {
+    const mailBody = {
+      recipient: { name: user.fullName, email: user.email },
+      sender: travelAdmin.name,
+      topic,
+      type,
+      requestId: request.id,
+      redirectLink:
+        `${process.env.REDIRECT_URL}/requests/${request.id}`
+    };
+    return mailBody;
+  }
 }
 
 export default TripsController;

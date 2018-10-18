@@ -21,6 +21,10 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'bedId',
       as: 'trips',
     });
+    Bed.hasMany(models.ChangedRoom, {
+      foreignKey: 'bedId',
+      as: 'changedRooms',
+    });
   };
   return Bed;
 };

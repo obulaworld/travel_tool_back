@@ -55,7 +55,14 @@ const middleware = {
     validateCheckType: jest.fn(invokeNextMiddleware),
     checkTripExists: jest.fn(invokeNextMiddleware),
     checkTripOwner: jest.fn(invokeNextMiddleware),
-    checkTripApproved: jest.fn(invokeNextMiddleware)
+    checkTripApproved: jest.fn(invokeNextMiddleware),
+    checkTravelAdmin: jest.fn(invokeNextMiddleware),
+    validateBed: jest.fn(invokeNextMiddleware),
+    checkBedExists: jest.fn(invokeNextMiddleware),
+    isBedAvailable: jest.fn(invokeNextMiddleware),
+    validateReason: jest.fn(invokeNextMiddleware),
+    isRoomFaulty: jest.fn(invokeNextMiddleware),
+    isGenderAllowed: jest.fn(invokeNextMiddleware)
   },
   validateDirectReport: jest.fn(mockValidateDirectReport)
 };

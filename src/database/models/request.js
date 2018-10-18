@@ -99,6 +99,10 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'requestId',
       as: 'trips',
     });
+    Request.hasMany(models.ChangedRoom, {
+      foreignKey: 'requestId',
+      as: 'changedRooms',
+    });
   };
   return Request;
 };

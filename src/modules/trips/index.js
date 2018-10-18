@@ -22,4 +22,18 @@ TripsRouter.get(
   TripsController.getTrips,
 );
 
+TripsRouter.put(
+  '/trips/:tripId/room',
+  authenticate,
+  tripValidator.checkTravelAdmin,
+  tripValidator.validateBed,
+  tripValidator.validateReason,
+  tripValidator.checkBedExists,
+  tripValidator.checkTripExists,
+  tripValidator.isBedAvailable,
+  tripValidator.isRoomFaulty,
+  tripValidator.isGenderAllowed,
+  TripsController.updateTripRoom
+);
+
 export default TripsRouter;

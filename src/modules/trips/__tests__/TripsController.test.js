@@ -2,18 +2,18 @@ import request from 'supertest';
 import app from '../../../app';
 import models from '../../../database/models';
 import {
-  postGuestHouse
-} from '../../guestHouse/__tests__/mocks/guestHouseData';
-import {
   requestsData,
   tripsData,
   checkInData,
   checkOutData,
+  travelAdmin,
+  postGuestHouse
 } from './mocks/tripData';
 import {
   role,
 } from '../../userRole/__tests__/mocks/mockData';
 import Utils from '../../../helpers/Utils';
+import NotificationEngine from '../../notifications/NotificationEngine';
 
 global.io = {
   sockets: {
@@ -40,8 +40,19 @@ const requesterPayload = {
   },
 };
 
+const travelAdminPayload = {
+  UserInfo: {
+    id: '-LJV4b1QTDYewOtk5F65',
+    fullName: 'Chris Brown',
+    email: 'chris.brown@andela.com',
+    name: 'Chris',
+    picture: ''
+  }
+};
+
 const token = Utils.generateTestToken(travelAdminpayload);
 const requesterToken = Utils.generateTestToken(requesterPayload);
+const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
 
 describe('Test Suite for Trips Controller', () => {
   beforeAll(async () => {
@@ -113,6 +124,7 @@ describe('Test Suite for Trips Controller', () => {
     beforeAll(async (done) => {
       await models.GuestHouse.destroy({ truncate: true, cascade: true });
       await models.Request.destroy({ truncate: true, cascade: true });
+      await models.ChangedRoom.destroy({ truncate: true, cascade: true });
       request(app)
         .post('/api/v1/guesthouses')
         .set('Content-Type', 'application/json')
@@ -127,6 +139,7 @@ describe('Test Suite for Trips Controller', () => {
     afterAll(async (done) => {
       await models.GuestHouse.destroy({ truncate: true, cascade: true });
       await models.Request.destroy({ truncate: true, cascade: true });
+      await models.ChangedRoom.destroy({ truncate: true, cascade: true });
       await models.Notification.destroy({ truncate: true, cascade: true });
       await models.User.destroy({ truncate: true, cascade: true });
       await models.UserRole.destroy({ truncate: true, cascade: true });
@@ -334,11 +347,247 @@ describe('Test Suite for Trips Controller', () => {
           .end((err, res) => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
-            expect(res.body.trips.length).toEqual(2);
+            expect(res.body.trips.length).toEqual(3);
             expect(res.body.message).toEqual('Retrieved Successfully');
             if (err) return done(err);
             done();
           });
+      });
+    });
+
+    describe('Test Suite for Trips Bed/Room: PUT', () => {
+      beforeAll(async (done) => {
+        try {
+          const newUser = await models.User.create(travelAdmin);
+          const userAdminRole = {
+            userId: newUser.id,
+            roleId: '29187'
+          };
+          await models.UserRole.create(userAdminRole);
+          done();
+        } catch (error) {
+          done();
+        }
+      });
+
+      it('should require a user token', (done) => {
+        request(app)
+          .put('/api/v1/trips/1/room')
+          .send({})
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(401);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.error).toEqual('Please provide a token');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should not update if user is not a travel admin', (done) => {
+        request(app)
+          .put('/api/v1/trips/1/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', requesterToken)
+          .send({
+            bedId: 1
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(403);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('Only a Travel Admin can change rooms');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should require bed id', (done) => {
+        request(app)
+          .put('/api/v1/trips/99/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({})
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors[0].message)
+              .toEqual('Bed id is required');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should require bed id to be a number', (done) => {
+        request(app)
+          .put('/api/v1/trips/99/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 'abc'
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors[0].message)
+              .toEqual('Bed id is required and must be a Number');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should require reason', (done) => {
+        request(app)
+          .put('/api/v1/trips/99/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 1
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(422);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.errors[0].message)
+              .toEqual('Reason for change is required');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should not update if trip id does not exist', (done) => {
+        request(app)
+          .put('/api/v1/trips/99/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 1,
+            reason: 'reason'
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('Trip does not exist');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should not update if bed id does not exist', (done) => {
+        request(app)
+          .put('/api/v1/trips/1/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 24,
+            reason: 'reason'
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('Bed does not exist');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should not update if bed is not available', (done) => {
+        request(app)
+          .put('/api/v1/trips/1/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 1,
+            reason: 'reason'
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('Bed is currently unavailable');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should not update if room is faulty', async (done) => {
+        const bed = await models.Bed.findById(2);
+        const room = await models.Room.findById(bed.roomId);
+        room.faulty = true;
+        await room.save();
+        request(app)
+          .put('/api/v1/trips/1/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 2,
+            reason: 'reason'
+          })
+          .end(async (err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('Room is currently faulty');
+            room.faulty = false;
+            await room.save();
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should not update room if occupied by opposite sex', (done) => {
+        request(app)
+          .put('/api/v1/trips/1/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 5,
+            reason: 'reason'
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('Room is currently occupied by the opposite sex');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should update room/bed record for a trip', (done) => {
+        const notifySpy = jest.spyOn(NotificationEngine, 'notify');
+        const sendMailSpy = jest.spyOn(NotificationEngine, 'sendMail');
+        request(app)
+          .put('/api/v1/trips/1/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 2,
+            reason: 'reason'
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(200);
+            expect(res.body.success).toEqual(true);
+            expect(res.body.message)
+              .toEqual('Updated Successfully');
+            expect(res.body.trip.id).toBe('1');
+            expect(res.body.trip.bedId).toBe(2);
+            expect(notifySpy).toHaveBeenCalled();
+            expect(sendMailSpy).toHaveBeenCalled();
+            if (err) return done(err);
+            done();
+          });
+      });
+
+      it('should save the reason in the changed room table', async (done) => {
+        const changedRoom = await models.ChangedRoom.findOne({
+          where: {
+            tripId: '1',
+            bedId: 2
+          }
+        });
+        expect(changedRoom.reason).toBe('reason');
+        done();
       });
     });
   });
