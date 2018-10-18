@@ -53,6 +53,12 @@ class RequestsController {
         )));
         const approval = await ApprovalsController.createApproval(request);
         request.dataValues.trips = requestTrips;
+        const message = 'created a new travel request';
+
+        RequestsController.sendNotificationToManager(
+          req, res, request, message, 'New Travel Request', 'New Request'
+        );
+
         return res.status(201).json({
           success: true,
           message: 'Request created successfully',
@@ -60,10 +66,6 @@ class RequestsController {
           approval
         });
       });
-      const message = 'created a new travel request';
-      RequestsController.sendNotificationToManager(
-        req, res, request, message, 'New Travel Request', 'New Request'
-      );
     } catch (error) { /* istanbul ignore next */
       return Error.handleError(error.toString(), 500, res);
     }
@@ -72,25 +74,21 @@ class RequestsController {
   static async sendNotificationToManager(
     req, res, request, message, mailTopic, mailType
   ) {
-    try {
-      const { userId, id, manager } = request;
-      const recipient = await UserRoleController.getRecipient(manager);
-      const notificationData = {
-        senderId: userId,
-        recipientId: recipient.userId,
-        notificationType: 'pending',
-        message,
-        notificationLink: `/requests/my-approvals/${id}`,
-        senderName: req.user.UserInfo.name,
-        senderImage: req.user.UserInfo.picture,
-      };
-      NotificationEngine.notify(notificationData);
-      const mailData = RequestsController
-        .getMailData(request, recipient, mailTopic, mailType);
-      return NotificationEngine.sendMail(mailData);
-    } catch (error) { /* istanbul ignore next */
-      Error.handleError(error, 500, res);
-    }
+    const { userId, id, manager } = request;
+    const recipient = await UserRoleController.getRecipient(manager);
+    const notificationData = {
+      senderId: userId,
+      recipientId: recipient.userId,
+      notificationType: 'pending',
+      message,
+      notificationLink: `/requests/my-approvals/${id}`,
+      senderName: req.user.UserInfo.name,
+      senderImage: req.user.UserInfo.picture,
+    };
+    NotificationEngine.notify(notificationData);
+    const mailData = RequestsController
+      .getMailData(request, recipient, mailTopic, mailType);
+    return NotificationEngine.sendMail(mailData);
   }
 
   static getMailData(request, recipient, topic, type) {
@@ -100,7 +98,7 @@ class RequestsController {
       topic,
       type,
       redirectLink:
-        `${process.env.REDIRECT_URL}/requests/my-approvals/${request.id}`
+        `${process.env.REDIRECT_URL}/redirect/requests/my-approvals/${request.id}`
     };
     return mailBody;
   }

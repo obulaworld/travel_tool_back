@@ -2,21 +2,25 @@ export const user = {
   user1: {
     fullName: 'captain america',
     email: 'captain.america@andela.com',
-    userId: 'JFENDVNDK'
+    userId: 'JFENDVNDK',
+    picture: 'captain.png'
   },
   user2: {
     fullName: 'black window ',
     email: 'black.window@andela.com',
-    userId: 'JNDVNFSFDK'
+    userId: 'JNDVNFSFDK',
+    picture: 'black.png'
   },
   user3: {
     fullName: 'spider girl',
     email: 'spider@girl.com',
-    userId: 'JVNDK'
+    userId: 'JVNDK',
+    picture: 'spider.png'
   },
   user4: {
     fullName: 'spider girl',
-    email: 'spider@andela.com'
+    email: 'spider@andela.com',
+    picture: 'spidergirl.png'
   }
 };
 

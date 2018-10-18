@@ -11,7 +11,8 @@ const payload = {
   UserInfo: {
     id: 'wer45660+++',
     fullName: 'test user',
-    email: 'test.user@andela.com'
+    email: 'test.user@andela.com',
+    picture: 'fakePicture.png'
   },
 };
 
@@ -19,7 +20,8 @@ const payload2 = {
   UserInfo: {
     id: 'wer45660treui',
     fullName: 'second test user',
-    email: 'secondTestuser@andela.com'
+    email: 'secondTestuser@andela.com',
+    picture: 'fakePicture.png'
   },
 };
 
@@ -42,7 +44,8 @@ describe('Travel team role test', () => {
       .send({
         fullName: 'test user',
         email: 'test.user@andela.com',
-        userId: 'wer45660+++'
+        userId: 'wer45660+++',
+        picture: 'fakePicture.png'
       })
       .expect(201)
       .end((err) => {
@@ -200,7 +203,8 @@ describe('Travel team role test', () => {
         .send({
           userId: 'wer45660treui',
           fullName: 'second test user',
-          email: 'secondTestuser@andela.com'
+          email: 'secondTestuser@andela.com',
+          picture: 'fakePicture.png'
         })
         .expect(201)
         .end((err) => {

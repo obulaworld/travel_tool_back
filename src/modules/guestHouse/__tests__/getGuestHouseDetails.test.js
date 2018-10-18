@@ -10,6 +10,7 @@ const payload = {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'John Snow',
     email: 'john.snow@andela.com',
+    picture: 'fake.png'
   },
 };
 
@@ -24,6 +25,7 @@ const createTestUser = () => (
       userId: '-MUyHJmKrxA90lPNQ1FOLNm',
       fullName: 'John Snow',
       email: 'john.snow@andela.com',
+      picture: 'fake.png'
     })
 );
 

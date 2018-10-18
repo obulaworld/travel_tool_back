@@ -166,41 +166,36 @@ class ApprovalsController {
   }
 
   static async sendNotificationAfterApproval(user, updatedRequest, res) {
-    try {
-      const { status, id, userId } = updatedRequest;
-      const { name, picture } = user.UserInfo;
-      const recipientEmail = await UserRoleController
-        .getRecipient(null, userId);
-      const notificationData = {
-        senderId: user.UserInfo.id,
-        senderName: name,
-        senderImage: picture,
-        recipientId: userId,
-        notificationType: 'general',
-        requestId: id,
-        message: (status === 'Approved')
-          ? 'approved your request'
-          : 'rejected your request',
-        notificationLink: `/requests/${id}`
-      };
+    const { status, id, userId } = updatedRequest;
+    const { name, picture } = user.UserInfo;
+    const recipientEmail = await UserRoleController
+      .getRecipient(null, userId);
+    const notificationData = {
+      senderId: user.UserInfo.id,
+      senderName: name,
+      senderImage: picture,
+      recipientId: userId,
+      notificationType: 'general',
+      requestId: id,
+      message: (status === 'Approved')
+        ? 'approved your request'
+        : 'rejected your request',
+      notificationLink: `/requests/${id}`
+    };
 
-      const inAppNotification = NotificationEngine
-        .notify(notificationData);
+    const inAppNotification = NotificationEngine
+      .notify(notificationData);
 
-      const emailData = ApprovalsController
-        .emailData(updatedRequest, recipientEmail, name);
+    const emailData = ApprovalsController
+      .emailData(updatedRequest, recipientEmail, name);
 
 
-      const emailNotification = await NotificationEngine
-        .sendMail(emailData);
+    const emailNotification = NotificationEngine.sendMail(emailData);
 
-      return (
-        ['Approved', 'Rejected'].includes(status)
+    return (
+      ['Approved', 'Rejected'].includes(status)
         && inAppNotification && emailNotification
-      );
-    } catch (error) { /* istanbul ignore next */
-      return Error.handleError(error, 500, res);
-    }
+    );
   }
 
   static emailData(request, recipient, name) {
@@ -213,7 +208,7 @@ class ApprovalsController {
       topic: `Travela ${request.status} Request`,
       type: request.status,
       redirectLink:
-      `${process.env.REDIRECT_URL}/requests/${request.id}`,
+      `${process.env.REDIRECT_URL}/redirect/requests/${request.id}`,
       requestId: request.id
     };
   }

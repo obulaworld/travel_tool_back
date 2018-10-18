@@ -23,6 +23,7 @@ const payload = {
     id: '-TRUniplpknbbh',
     fullName: 'Jones Akili',
     email: 'jones.akili@andela.com',
+    picture: 'fake.png'
   },
 };
 const token = Utils.generateTestToken(payload);
@@ -41,6 +42,7 @@ describe('Update Guest Houses', () => {
         fullName: 'Jones Akili',
         email: 'jones.akili@andela.com',
         userId: '-TRUniplpknbbh',
+        picture: 'fake.png'
       })
       .end((err) => {
         if (err) return done(err);

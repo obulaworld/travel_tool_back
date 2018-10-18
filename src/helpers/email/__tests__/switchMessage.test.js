@@ -32,7 +32,7 @@ describe('switchMessage helper', () => {
 
   it('should return posted comment message', (done) => {
     const receivedMessage = switchMessage(
-      { type: 'Comments', senderName: 'Tester' }
+      { type: 'Comments', senderName: 'Tester', comment: { dataValues: { picture: 'fake' } } }
     );
     expect(receivedMessage.split(' ')).toContain('Login');
     done();

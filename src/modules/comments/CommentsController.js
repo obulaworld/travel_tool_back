@@ -19,7 +19,8 @@ class CommentsController {
       const request = await models.Request.findById(requestId);
       if (request) {
         const newComment = await models.Comment.create(commentData);
-        await CommentsController.createNotificationByManager(req, res, request);
+        const commentDetails = { ...newComment };
+        await CommentsController.createNotificationByManager(req, res, request, commentDetails);
         return res.status(201).json({
           success: true,
           message: 'Comment created successfully',
@@ -32,56 +33,54 @@ class CommentsController {
     }
   }
 
-  static async createNotificationByManager(req, res, request) {
-    try {
-      const {
-        name, picture, email
-      } = req.user.UserInfo;
-      const { manager, id, userId } = request;
-      const managerDetail = await UserRoleController.getRecipient(manager);
-      const newNotificationDetail = {
-        senderId: managerDetail.userId,
-        recipientId: request.userId,
-        notificationType: 'general',
-        message: 'posted a comment',
-        notificationLink: `/requests/${id}`,
-        senderName: name,
-        senderImage: picture
-      };
-      
-      let redirectLink = `${process.env.REDIRECT_URL}
-      /requests/${id}`;
-      let recipientEmail = email;
-      let recipientName = name;
+  static async createNotificationByManager(req, res, request, comment) {
+    const {
+      name, picture, email
+    } = req.user.UserInfo;
+    const { manager, id, userId } = request;
+    const managerDetail = await UserRoleController.getRecipient(manager);
+    const newNotificationDetail = {
+      senderId: managerDetail.userId,
+      recipientId: request.userId,
+      notificationType: 'general',
+      message: 'posted a comment',
+      notificationLink: `/requests/${id}`,
+      senderName: name,
+      senderImage: picture
+    };
 
-      /* istanbul ignore next */
-      if (userId === req.user.UserInfo.id) {
-        redirectLink = `${process.env.REDIRECT_URL}
-        /requests/my-approvals/${id}`;
-        recipientEmail = managerDetail.email;
-        recipientName = manager;
-      }
+    let redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/${id}`;
+    let recipientEmail = email;
+    let recipientName = name;
+    let recipientId = userId;
 
-      CommentsController.sendEmail(recipientEmail, recipientName, name, redirectLink);
-      /* istanbul ignore next */
-      if (managerDetail.userId === req.user.UserInfo.id) {
-        return NotificationEngine.notify(newNotificationDetail);
-      }
-    } catch (error) { /* istanbul ignore next */
-      return Error.handleError('Server Error', 500, res);
+    /* istanbul ignore next */
+    if (userId === req.user.UserInfo.id) {
+      redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/my-approvals/${id}`;
+      recipientEmail = managerDetail.email;
+      recipientName = manager;
+      recipientId = managerDetail.userId;
+    }
+
+    CommentsController.sendEmail(req.user.UserInfo.id, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment);
+    /* istanbul ignore next */
+    if (managerDetail.userId === req.user.UserInfo.id) {
+      return NotificationEngine.notify(newNotificationDetail);
     }
   }
 
-  static sendEmail(recipientEmail, recipientName, name, redirectLink) {
+  static sendEmail(senderId, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment) {
     return NotificationEngine.sendMail({
       recipient: {
         email: recipientEmail,
         name: recipientName
       },
       sender: name,
-      topic: 'Travela Notification',
+      topic: `Travel Notification (#${id}#${senderId}#${recipientId}#)`,
       type: 'Comments',
-      redirectLink
+      redirectLink,
+      requestId: id,
+      comment
     });
   }
 

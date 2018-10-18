@@ -5,7 +5,7 @@ const switchButtonText = (type) => {
     case 'Trip Survey':
       return 'Fill Survey';
     default:
-      return '';
+      return 'View Request';
   }
 };
 

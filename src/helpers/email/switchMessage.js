@@ -1,3 +1,34 @@
+
+
+const attachCommentToMail = msgDetail => (
+  `
+  <b>${msgDetail.senderName}</b> posted a comment.
+        Login to your travela account for details.
+  <table
+          style ="width: 80%;
+                  background-color: #F8F8F8;
+                  margin: auto;
+                  margin-bottom: 10px;
+                  text-align: left;
+                  ">
+          <tbody >
+            <tr >
+            <td width="20%" ><img src=${msgDetail.comment.dataValues.picture} 
+            style="
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+              "
+            /></td>
+            <td width="80%"> 
+              <i>${msgDetail.comment.dataValues.comment}</i></td>
+            </tr>
+            </tbody>
+            </table>
+  `
+);
+
+
 const switchMessage = (msgDetail) => {
   switch (msgDetail.type) {
     case 'New Request':
@@ -13,8 +44,9 @@ const switchMessage = (msgDetail) => {
       return (`Your travel request <b>#${msgDetail.requestId}</b> was rejected by
         ${msgDetail.senderName}. Login to your travela account for details.`);
     case 'Comments':
-      return (`<b>${msgDetail.senderName}</b> posted a comment.
-        Login to your travela account for details.`);
+      return (
+          attachCommentToMail(msgDetail)
+        );
     case 'Updated Request':
       return (
         `<b style="text-transform: capitalize;">${msgDetail.senderName}</b>

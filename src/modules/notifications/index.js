@@ -26,4 +26,9 @@ NotificationsRouter.put(
   NotificationController.markNotificationAsRead
 );
 
+NotificationsRouter.post(
+  '/email',
+  NotificationController.receivedComment
+);
+
 export default NotificationsRouter;

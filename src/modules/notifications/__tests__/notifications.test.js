@@ -7,25 +7,33 @@ import {
   userOgo,
   userOgoNotifications
 } from './__mocks__/notificationsData';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 import { dates } from '../../requests/__tests__/mocks/mockData';
 
 const request = supertest;
 const invalidToken =  'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4'; // eslint-disable-line
 
+global.io = {
+  sockets: {
+    emit: (event, dataToBeEmitted) => dataToBeEmitted
+  }
+};
+ 
 describe('Notifications Controller', () => {
-  // jest.mock('@sendgrid/mail');
   describe('GET /api/v1/notifications', () => {
     const payload = {
       UserInfo: {
         id: '-MUyHJmKrxA90lPNQ1FOLNm',
-        name: 'Samuel Kubai'
+        name: 'Samuel Kubai',
+        picture: 'fakePicture.png'
       },
     };
 
     const payload1 = {
       UserInfo: {
         id: '-MUyHJmKrxA90lPNOLNm',
-        name: 'Optimum Price'
+        name: 'Optimum Price',
+        picture: 'fakePicture.png'
       },
     };
 
@@ -179,7 +187,8 @@ describe('Notifications Controller', () => {
     const payload = {
       UserInfo: {
         id: userOgo.userId,
-        name: userOgo.fullName
+        name: userOgo.fullName,
+        picture: 'fakePicture.png'
       },
     };
 
@@ -661,4 +670,57 @@ describe('Notifications Controller', () => {
       expect(res.body).toMatchObject(expectedResponse.body);
     });
   });
+  
+  describe('Comment replied by email', () => {
+    const payload2 = {
+      UserInfo: {
+        id: '-MUyHJmKrdgd90lPNOLNm',
+        fullName: 'Optimum Zeal',
+        picture: 'fake.png',
+        email: 'fakeemail@andela.com'
+      },
+    };
+
+    const repliedComment = {
+      Subject: 'Re #-Bhjghdbfw#-MUyHJmKrdgd90lPNOLNm#-MUyHJmKrdgd90lPNOLNm',
+      'stripped-text': 'I am replying from email from test environment'
+    };
+
+    const token2 = Utils.generateTestToken(payload2);
+
+    beforeAll(async () => {
+    models.Role.destroy({ force: true, truncate: { cascade: true } });
+      models.Role.bulkCreate(role);
+        const res = await request(app)
+          .post('/api/v1/user')
+          .set('authorization', token2)
+          .send({
+          userId: '-MUyHJmKrdgd90lPNOLNm',
+          fullName: 'Optimum Zeal',
+          picture: 'fake.png',
+          email: 'fakeemail@andela.com',
+          });
+    });
+
+    afterAll(() => {
+    models.Role.destroy({ force: true, truncate: { cascade: true } });
+      models.Comment.destroy({ force: true, truncate: { cascade: true } });
+
+    })
+
+    it('should post a replied comment from email', async (done) => {
+        request(app)
+        .post('/api/v1/email')
+        .set('authorization', token2)
+        .send(repliedComment)
+        .end((err, res) => {
+          const{ success, message, comment: {requestId} } = res.body;
+          expect(success).toEqual(true);
+          expect(message).toEqual('Comment created');
+          expect(requestId).toEqual('-Bhjghdbfw');
+          done();
+        })
+    })
+
+  })
 });

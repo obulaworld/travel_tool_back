@@ -1,5 +1,9 @@
 import models from '../../database/models';
+import Utils from '../../helpers/Utils';
 import CustomError from '../../helpers/Error';
+import NotificationEngine from './NotificationEngine';
+import UserRoleController from '../userRole/UserRoleController';
+import CommentsController from '../comments/CommentsController';
 
 class NotificationController {
   static async retrieveNotifications(req, res) {
@@ -83,6 +87,60 @@ class NotificationController {
         success: true,
         message: 'Notification updated successfully',
         notification: updatedNotification,
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static getCommentData(sender, requestId, comment) {
+    const commentData = {
+      id: Utils.generateUniqueId(),
+      requestId,
+      userName: sender.fullName,
+      picture: sender.picture,
+      userEmail: sender.email,
+      comment: `<p>${comment}</p>`,
+      isEdited: false
+    };
+    return commentData;
+  }
+
+  static async receivedComment(req, res) {
+    try {
+      const comment = req.body['stripped-text'];
+      const subject = req.body.Subject;
+      const separateMessage = subject.split('#');
+      const [, requestId, recipientId, senderId] = separateMessage;
+      const recipient = await UserRoleController.getRecipient(null, recipientId);
+      const sender = await UserRoleController.getRecipient(null, senderId);
+      const commentData = NotificationController.getCommentData(sender, requestId, comment);
+      const newComment = await models.Comment.create(commentData);
+      let redirectLink = `/requests/my-approvals/${requestId}`;
+      const userRole = await models.UserRole.findOne({
+        where: { userId: sender.id }
+      });
+      if (userRole.roleId === 53019) {
+        redirectLink = `/requests/${requestId}`;
+      }
+      
+      const newNotificationDetail = {
+        senderId,
+        recipientId,
+        notificationType: 'general',
+        message: 'posted a comment',
+        notificationLink: redirectLink,
+        senderName: sender.fullName,
+        senderImage: sender.picture
+      };
+      
+      NotificationEngine.notify(newNotificationDetail);
+      
+      CommentsController.sendEmail(senderId, recipient.email, recipient.fullName, sender.fullName, redirectLink, requestId, recipientId, newComment);
+      return res.status(201).json({
+        success: true,
+        message: 'Comment created',
+        comment: newComment,
       });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);

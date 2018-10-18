@@ -35,7 +35,10 @@ export default (sequelize, DataTypes) => {
       gender: {
         allowNull: true,
         type: DataTypes.STRING
-      }
+      },
+      picture: {
+        type: DataTypes.STRING,
+      },
     },
     {}
   );

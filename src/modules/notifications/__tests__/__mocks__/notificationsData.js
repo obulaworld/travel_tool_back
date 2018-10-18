@@ -3,6 +3,7 @@ export const userOgo = {
   email: 'ogooluwa.akinola@andela.com',
   userId: 'LMZXCmY9_kexpk-4l',
   gender: 'male',
+  picture: 'fake.png',
   roleId: 53019,
   createdAt: new Date(),
   updatedAt: new Date()

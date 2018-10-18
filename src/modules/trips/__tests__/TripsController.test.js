@@ -77,6 +77,7 @@ describe('Test Suite for Trips Controller', () => {
           fullName: 'John Show',
           email: 'john.snow@andela.com',
           userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+          picture: 'fakePicture.png'
         })
         .expect(201)
         .end((err, res) => {
@@ -96,6 +97,7 @@ describe('Test Suite for Trips Controller', () => {
           fullName: 'Jack Sparrow',
           email: 'jack.sparrow@andela.com',
           userId: '-AVwHJmKrxA90lPNQ1FOLNn',
+          picture: 'fakePicture.png'
         })
         .expect(201)
         .end((err, res) => {

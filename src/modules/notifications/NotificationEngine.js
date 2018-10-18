@@ -1,11 +1,10 @@
-import sgMail from '@sendgrid/mail';
+import mail from 'mailgun-js';
 import dotenv from 'dotenv';
 import models from '../../database/models';
 import mailTemplate from '../../helpers/email/mailTemplate';
 
 dotenv.config();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 export default class NotificationEngine {
   static async notify(data) {
     const dataKeys = Object.keys(data);
@@ -34,21 +33,30 @@ export default class NotificationEngine {
     global.io.sockets.emit('notification', newNotification);
   }
 
-  static async sendMail({
-    recipient, sender, topic, type, redirectLink, requestId
-  }) {
-    const mail = {
-      to: recipient.email,
-      from: process.env.APP_EMAIL,
+  static sendMail({
+    recipient, sender, topic, type, redirectLink, requestId, comment }) {
+
+    const mailgun = mail({
+      apiKey: process.env.MAILGUN_API_KEY,
+      domain: process.env.MAILGUN_DOMAIN_NAME
+    });
+
+    const data = {
+      from: `Travela <${process.env.MAIL_SENDER}>`,
+      to: `${recipient.email}`,
       subject: topic,
       html: mailTemplate(
         recipient.name,
         sender,
         type,
         redirectLink,
-        requestId
+        requestId,
+        comment
       )
     };
-    await sgMail.send(mail);
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'test') {
+      mailgun.messages().send(data);
+    }
   }
 }

@@ -1,18 +1,16 @@
 import supertest from 'supertest';
-import sgMail from '@sendgrid/mail';
 import app from '../../../app';
 import models from '../../../database/models';
 import Utils from '../../../helpers/Utils';
 import mockData from './mocks/mocksData';
 import { role } from '../../userRole/__tests__/mocks/mockData';
 
-sgMail.send = jest.fn();
-
 global.io = {
   sockets: {
     emit: (event, dataToEmit) => dataToEmit
   }
 };
+
 const request = supertest(app);
 const payload = {
   UserInfo: {

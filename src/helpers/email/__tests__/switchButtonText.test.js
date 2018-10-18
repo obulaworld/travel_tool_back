@@ -6,7 +6,7 @@ describe('Switch Button helper', () => {
     done();
   });
   it('should return nothing if type is not available', (done) => {
-    expect(switchButtonText('')).toEqual('');
+    expect(switchButtonText('')).toEqual('View Request');
     done();
   });
   it('should show View Request in case of new request ', (done) => {

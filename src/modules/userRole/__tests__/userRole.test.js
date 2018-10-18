@@ -15,6 +15,7 @@ const payload = {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'captain america',
     email: 'captain.america@andela.com',
+    picture: 'fake.png'
   },
 };
 
@@ -23,6 +24,7 @@ const payload2 = {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'captain america',
     email: 'captain.@andela.com',
+    picture: 'fake.png'
   },
 };
 
@@ -31,6 +33,7 @@ const payload3 = {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'black window ',
     email: 'black.window@andela.com',
+    picture: 'fake.png'
   },
 };
 
@@ -409,7 +412,6 @@ describe('User Role Test', () => {
           done();
         });
     });
-
 
     it('should get all roles in the database', (done) => {
       request(app)

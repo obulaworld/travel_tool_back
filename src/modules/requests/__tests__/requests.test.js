@@ -1,5 +1,4 @@
 import supertest from 'supertest';
-import sgMail from '@sendgrid/mail';
 import models from '../../../database/models';
 import app from '../../../app';
 import { role } from '../../userRole/__tests__/mocks/mockData';
@@ -14,7 +13,6 @@ import {
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 
-sgMail.send = jest.fn();
 
 const request = supertest;
 
@@ -24,7 +22,6 @@ global.io = {
     emit: (event, dataToBeEmitted) => dataToBeEmitted
   }
 };
-
 
 const newRequest = {
   name: 'Test',
@@ -54,14 +51,16 @@ const payload = {
 const fakeManager = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
-    name: 'Oratorio Platimus'
+    name: 'Oratorio Platimus',
+    picture: 'fakePicture.png'
   },
 };
 
 const someManager = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
-    name: 'Some manager'
+    name: 'Some manager',
+    picture: 'fakePicture.png'
   },
 };
 
@@ -69,6 +68,7 @@ const userMock = {
   fullName: 'Samuel Kubai',
   email: 'captan.ameria@andela.com',
   userId: '--MUyHJmKrxA90lPNQ1FOLNm',
+  picture: 'fakePicture.png',
   roleId: 53019
 };
 
@@ -1076,7 +1076,7 @@ describe('Requests Controller', () => {
           expect(res.status).toEqual(401);
           expect(res.body.success).toEqual(false);
           expect(res.body.error).toEqual('Token is not valid');
-          done();      
+          done();
         });
     });
 

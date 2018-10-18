@@ -10,6 +10,7 @@ const payload = {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'John Snow',
     email: 'john.snow@andela.com',
+    picture: 'fakePicture.png'
   },
 };
 
@@ -53,6 +54,7 @@ describe('Guest Role Test', () => {
         fullName: 'John Show',
         email: 'john.snow@andela.com',
         userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+        picture: 'fakePicture.png'
       })
       .expect(201)
       .end((err, res) => {

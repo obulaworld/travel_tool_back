@@ -73,7 +73,7 @@ export default class Validator {
   }
 
   static validateUser(req, res, next) {
-    Validator.validateUserRoleCheck(req, res, next, 'fullName', 'email');
+    Validator.validateUserRoleCheck(req, res, next, 'fullName', 'email', 'picture');
   }
 
   static validatePersonalInformation(req, res, next) {

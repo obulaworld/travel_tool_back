@@ -10,6 +10,7 @@ const payload = {
     id: '-TRUniolpknbnk',
     fullName: 'Collins Muru',
     email: 'collins.muru@andela.com',
+    picture: 'fakePicture.png'
   },
 };
 
@@ -30,6 +31,7 @@ describe('Update the room fault status', () => {
         fullName: 'Collins Muru',
         email: 'collins.muru@andela.com',
         userId: '-TRUniolpknbnk',
+        picture: 'fakePicture.png'
       })
       .end((err) => {
         if (err) return done(err);

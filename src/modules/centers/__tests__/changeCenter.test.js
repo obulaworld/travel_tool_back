@@ -9,7 +9,8 @@ const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90ldPNQ1FOLNm',
     fullName: 'black windows ',
-    email: 'black.windows@andela.com'
+    email: 'black.windows@andela.com',
+    picture: 'fake.png'
   }
 };
 
@@ -17,7 +18,8 @@ const payload2 = {
   UserInfo: {
     id: '-MUyHJmKrxA90ldPNQ1FOLNm',
     fullName: 'white windows ',
-    email: 'white.windows@andela.com'
+    email: 'white.windows@andela.com',
+    picture: 'fake.png'
   }
 };
 
@@ -51,7 +53,8 @@ describe('Update center test', () => {
       .send({
         userId: '-MUyHJmKrxA90ldPNQ1FOLNm',
         fullName: 'black windows ',
-        email: 'black.windows@andela.com'
+        email: 'black.windows@andela.com',
+        picture: 'fake.png'
       })
       .expect(201)
       .end((err, res) => {
@@ -72,7 +75,8 @@ describe('Update center test', () => {
       .send({
         userId: '-HJmKrxA90ldPN1FOLNm',
         fullName: 'white windows ',
-        email: 'white.windows@andela.com'
+        email: 'white.windows@andela.com',
+        picture: 'fakePicture.png'
       })
       .expect(201)
       .end((err, res) => {
@@ -121,7 +125,7 @@ describe('Update center test', () => {
 
   it('should update travel team member center', (done) => {
     request(app)
-      .patch('/api/v1/center/user/11')
+      .patch('/api/v1/center/user/12')
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send({

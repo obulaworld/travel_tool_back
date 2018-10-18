@@ -4,11 +4,15 @@ import switchButtonText from './switchButtonText';
 
 dotenv.config();
 
-const mailTemplate = (recipientName,
+const mailTemplate = (
+  recipientName,
   senderName,
   type,
   redirectLink,
-  requestId) => (
+  requestId,
+  comment
+) => (
+
   `
   <div
     style="background-color: #ececec;
@@ -40,7 +44,7 @@ const mailTemplate = (recipientName,
     </div>
     <h2
       style="font-weight: 500;
-      margin-top: 81.5px;
+      margin-top: 40px;
       margin-bottom: 30px;
       color: #333E44;"
     >
@@ -56,7 +60,7 @@ const mailTemplate = (recipientName,
         margin: 0 auto 50px auto;"
     >
       ${switchMessage({
-    type, senderName, recipientName, requestId
+    type, senderName, recipientName, requestId, comment
   })}
     </p>
     <a

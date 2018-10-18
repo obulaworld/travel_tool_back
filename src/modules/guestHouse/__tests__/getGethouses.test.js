@@ -10,6 +10,7 @@ const payload = {
     id: '-TRUniolpknbbh',
     fullName: 'Jane Doe',
     email: 'jane.doe@andela.com',
+    picture: 'fake.png'
   },
 };
 
@@ -32,6 +33,7 @@ describe('Get Guest Houses', () => {
         fullName: 'Jand Doe',
         email: 'jane.doe@andela.com',
         userId: '-TRUniolpknbbh',
+        picture: 'fakePicture.png'
       })
       .end((err) => {
         if (err) return done(err);
