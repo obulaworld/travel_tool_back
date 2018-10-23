@@ -237,4 +237,35 @@ export const travelAdmin = {
   passportName: 'Travel Admin',
 };
 
+/*
+* a function for generating mock data for testing the
+* RequestController.sendNotificationToManager method
+*/
+export const generateMockData = (mailType) => {
+  const req = {
+    user: {
+      UserInfo: { name: 'Dave Mathews', picture: 'https://url-to-image' }
+    }
+  };
+  const res = {};
+  const travelRequest = {
+    userId: '00023',
+    id: '-2s34jkw-m0y',
+    manager: 'My manager'
+  };
+  let message;
+  let mailTopic;
+  if (mailType === 'New Request') {
+    message = 'created a new travel request';
+    mailTopic = 'New Travel Request';
+  } else if (mailType === 'Updated Request') {
+    message = 'edited a travel request';
+    mailTopic = 'Updated Travel Request';
+  }
+
+  return {
+    req, res, travelRequest, message, mailType, mailTopic
+  };
+};
+
 export default testRequests;

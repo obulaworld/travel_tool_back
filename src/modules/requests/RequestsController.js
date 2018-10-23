@@ -76,23 +76,29 @@ class RequestsController {
   ) {
     const { userId, id, manager } = request;
     const recipient = await UserRoleController.getRecipient(manager);
+    // map the mailType to a notificationType.
+    const notificationTypeMap = {
+      'New Request': 'pending',
+      'Updated Request': 'general'
+    };
     const notificationData = {
       senderId: userId,
       recipientId: recipient.userId,
-      notificationType: 'pending',
+      // if notificationType at this point is undefined then default to
+      // general
+      notificationType: notificationTypeMap[mailType] || 'general',
       message,
       notificationLink: `/requests/my-approvals/${id}`,
       senderName: req.user.UserInfo.name,
       senderImage: req.user.UserInfo.picture,
     };
     NotificationEngine.notify(notificationData);
-    const mailData = RequestsController
-      .getMailData(request, recipient, mailTopic, mailType);
-    return NotificationEngine.sendMail(mailData);
+    return NotificationEngine.sendMail(RequestsController
+      .getMailData(request, recipient, mailTopic, mailType));
   }
 
   static getMailData(request, recipient, topic, type) {
-    const mailBody = {
+    return {
       recipient: { name: request.manager, email: recipient.email },
       sender: request.name,
       topic,
@@ -100,7 +106,6 @@ class RequestsController {
       redirectLink:
         `${process.env.REDIRECT_URL}/redirect/requests/my-approvals/${request.id}`
     };
-    return mailBody;
   }
 
   static removeTripWhere(subquery) {

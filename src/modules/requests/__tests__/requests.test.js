@@ -9,9 +9,13 @@ import {
   createRequestSuccessResponse,
   dates,
   manager,
-  mockRequest,
+  mockRequest, generateMockData,
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
+import RequestsController from '../RequestsController';
+
+import UserRoleController from '../../userRole/UserRoleController';
+import NotificationEngine from '../../notifications/NotificationEngine';
 
 
 const request = supertest;
@@ -1119,4 +1123,74 @@ describe('Requests Controller', () => {
         });
     });
   });// end of REQUEST STATUS UPDATE
+
+  // Tests to capture the sendNotificationToManager method
+  describe('RequestController.sendNotificationToManager', () => {
+    beforeAll(() => {
+      // mock the modules and functions that will cause side-effects
+      jest.mock('../../userRole/UserRoleController');
+      jest.mock('../../notifications/NotificationEngine');
+
+      UserRoleController.getRecipient = jest.fn()
+        .mockReturnValue({ userId: '00023' });
+      NotificationEngine.notify = jest.fn();
+      NotificationEngine.sendMail = jest.fn();
+    });
+
+    // unmock these modules as they may be used in other tests
+    afterAll(() => {
+      jest.unmock('../../userRole/UserRoleController');
+      jest.unmock('../../notifications/NotificationEngine');
+    });
+
+
+    it('should send "pending" notification if mailType is "New Request"',
+      async (done) => {
+        const {
+          req, res, travelRequest, message, mailTopic, mailType
+        } = generateMockData('New Request');
+        await RequestsController.sendNotificationToManager(
+          req, res, travelRequest, message, mailTopic, mailType
+        );
+        const [args] = NotificationEngine
+          .notify.mock.calls[NotificationEngine.notify.mock.calls.length - 1];
+        expect(args.notificationType).toEqual('pending');
+        done();
+      });
+
+    it('should send "general" notification if mailType is "Updated Request"',
+      async (done) => {
+        // generate the mock data and call the function
+        const {
+          req, res, travelRequest, message, mailTopic, mailType
+        } = generateMockData('Updated Request');
+        await RequestsController.sendNotificationToManager(
+          req, res, travelRequest, message, mailTopic, mailType
+        );
+
+        // get the arguments that NotificationEngine.notify was called with last
+        const [args] = NotificationEngine
+          .notify.mock.calls[NotificationEngine.notify.mock.calls.length - 1];
+        expect(args.notificationType).toEqual('general');
+        done();
+      });
+
+    it('should default to sending "general" notification if '
+      + 'mailType is not given',
+    async (done) => {
+      // generate the mock data and call the function
+      const {
+        req, res, travelRequest, message, mailTopic, mailType
+      } = generateMockData(undefined);
+      await RequestsController.sendNotificationToManager(
+        req, res, travelRequest, message, mailTopic, mailType
+      );
+
+      // get the arguments that NotificationEngine.notify was called with last
+      const [args] = NotificationEngine
+        .notify.mock.calls[NotificationEngine.notify.mock.calls.length - 1];
+      expect(args.notificationType).toEqual('general');
+      done();
+    });
+  });
 });
