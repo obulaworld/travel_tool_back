@@ -1,1 +1,150 @@
+# CircleCI 2.0 configuration file
+
+# Check https://circleci.com/docs/1.0/language-nodejs/ for more details
 version: 2
+defaults: &defaults
+  docker:
+    - image: circleci/node:carbon
+      environment:
+        NODE_ENV: test
+        DATABASE_URL: postgres://root@localhost/travela_dev_test
+    - image: postgres:9.6
+      environment:
+        POSTGRES_USER: root
+        POSTGRES_DB: travela_dev_test
+  working_directory: ~/travela-backend
+
+install_npm_packages: &install_npm_packages
+  run:
+    name: Install Npm Dependencies
+    command: yarn install
+
+attach_workspace: &attach_workspace
+  attach_workspace:
+    at: ~/travela-backend
+
+send_failure_notification: &send_failure_notification
+  run:
+    name: Notify Slack of failed job
+    command: .circleci/build_deploy.sh sendSlackDeployNotification fail
+    when: on_fail
+
+persist_to_workspace: &persist_to_workspace
+  persist_to_workspace:
+    root: .
+    paths: .
+
+filters: &filters
+  filters:
+    branches:
+      only:
+        - develop
+        - master
+
+jobs:
+  checkout_code:
+    <<: *defaults
+    steps: # a collection of executable commands
+      - checkout # special step to check out source code to working directory
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - *install_npm_packages
+
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+            - node_modules
+      - *persist_to_workspace
+      - *send_failure_notification
+
+  run_vulnerability_check:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - *install_npm_packages
+      - run:
+          name: Run npm packages security vulnerabilty check
+          command: |
+            yarn check --integrity
+            npx nsp check
+      - *send_failure_notification
+
+  test_and_report:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - *install_npm_packages
+      - run:
+          name: Install code climate test reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: Wait for postgres to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Run travela backend lint test
+          command: yarn lint
+      - run:
+          name: Run travela test suites
+          command: |
+            ./cc-test-reporter before-build
+            yarn test --coverage
+            ./cc-test-reporter after-build --exit-code $?
+      - *persist_to_workspace
+      - *send_failure_notification
+
+  build_application_artifacts:
+    <<: *defaults
+    steps:
+      - *attach_workspace
+      - *install_npm_packages
+      - run: yarn run build
+      - *persist_to_workspace
+      - *send_failure_notification
+
+  deploy:
+    <<: *defaults
+    steps:
+      - setup_remote_docker
+      - *attach_workspace
+      - run:
+          name: Install K8s Deployment Scripts
+          command: sudo npm install -g rok8s-scripts
+      - run:
+          name: Install and setup K8s deployment requirements
+          command: |
+            chmod +x .circleci/setup_k8s.sh
+            .circleci/setup_k8s.sh main
+      - run:
+          name: Build and deploy travela Backend Application
+          command: |
+            chmod +x .circleci/build_deploy.sh
+            .circleci/build_deploy.sh main
+      - *send_failure_notification
+
+workflows:
+  version: 2
+  test_build_deploy:
+    jobs:
+      - checkout_code
+      - run_vulnerability_check:
+          requires:
+            - checkout_code
+      - test_and_report:
+          requires:
+            - checkout_code
+      - build_application_artifacts:
+          requires:
+            - run_vulnerability_check
+            - test_and_report
+            - checkout_code
+          <<: *filters
+      - deploy:
+          requires:
+            - build_application_artifacts
+          <<: *filters

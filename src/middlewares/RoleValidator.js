@@ -1,0 +1,176 @@
+import { Op } from 'sequelize';
+import models from '../database/models';
+import Error from '../helpers/Error';
+import Validator from './Validator';
+
+export default class RoleValidator {
+  static validateUpdateRole(req, res, next) {
+    req.checkBody('email').isEmail()
+      .withMessage('Please provide a valid email');
+    req.checkBody('roleName', 'roleName is required').notEmpty();
+    req.checkBody('center', 'center cannot be empty').optional().notEmpty();
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
+
+  static validateAddRole(req, res, next) {
+    Validator.validateUserRoleCheck(req, res, next, 'roleName', 'description');
+  }
+
+  static checkUserRole(allowedRoles) {
+    return async (req, res, next) => {
+      const emailAddress = req.user.UserInfo.email;
+      try {
+        const query = {
+          where: {
+            email: emailAddress
+          },
+          include: [
+            {
+              model: models.Role,
+              as: 'roles',
+              attributes: ['roleName'],
+              through: { attributes: [] }
+            },
+          ]
+        };
+
+        const user = await Validator.getUserFromDb(query);
+        // Check whether user has any of the allowedRoles
+        const hasPermission = user.roles.some(role => allowedRoles
+          .includes(role.roleName));
+        if (!hasPermission) {
+          const error = 'You don\'t have access to perform this action';
+          return Error.handleError(error, 403, res);
+        }
+        req.user.roles = user.dataValues.roles;
+        req.user.location = user.dataValues.location;
+        next();
+      } catch (error) {
+        res.status(400).json({
+          success: false,
+          message: 'You are not signed in to the application'
+        });
+      }
+    };
+  }
+
+  static async roleExists(req, res, next) {
+    const { roleName } = req.body;
+    const findRole = await models.Role.findOne({
+      where: {
+        roleName: { [Op.iLike]: roleName },
+      },
+    });
+    if (!findRole) {
+      const error = 'Role does not exist';
+      return Error.handleError(error, 404, res);
+    }
+    req.roleId = findRole.id;
+    next();
+  }
+
+
+  static validateRoleAssignment(req, res, next) {
+    const isSuperAdmin = req.user.roles
+      .some(role => role.roleName === 'Super Administrator');
+    if (!isSuperAdmin && req.body.roleName.toLowerCase()
+      !== 'travel team member') {
+      const error = 'Only a Super Admin can assign that role';
+      return Error.handleError(error, 403, res);
+    }
+    next();
+  }
+
+  static validateUpdateCenterBody(req, res, next) {
+    req.checkBody('center', 'Center name is required').notEmpty();
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
+
+  static validateUpdateCenter(req, res, next) {
+    if (Number.isNaN(parseInt(req.params.id, 10))) {
+      return res.status(400).json({
+        message: 'Only Number allowed for id'
+      });
+    }
+    next();
+  }
+
+  static async checkUserRoleById(userEmail, roleIdsArray, res) {
+    try {
+      const query = {
+        where: { email: userEmail },
+        include: [
+          {
+            model: models.Role,
+            as: 'roles',
+            attributes: ['id'],
+            through: { attributes: [] }
+          },
+        ]
+      };
+      const user = await Validator.getUserFromDb(query);
+      const hasPermission = user.roles
+        .some(role => roleIdsArray.includes(role.id));
+
+      return hasPermission;
+    } catch (error) {
+      const msg = 'User not found in database';
+      return Error.handleError(msg, 404, res);
+    }
+  }
+
+  static async validateChecklistQuery(req, res, next) {
+    const { requestId, destinationName } = req.query;
+
+    if (requestId && destinationName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        error: 'You can only have either "requestId" or "destinationName" not both'
+      });
+    }
+
+    next();
+  }
+
+  static async validateRequestIdQuery(req, res, next) {
+    const { requestId } = req.query;
+    const { id } = req.user.UserInfo;
+
+    try {
+      if (requestId) {
+        const request = await models.Request
+          .findOne({ where: { id: requestId, userId: id } });
+        if (!request) {
+          return res.status(404).json({
+            success: false,
+            message: 'Validation failed',
+            error: `Request with id '${requestId}' does not exist for this user`
+          });
+        }
+      }
+
+      next();
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError('Server Error', 404, res);
+    }
+  }
+
+  static async validateDestinationNameQuery(req, res, next) {
+    const { destinationName } = req.query;
+    const { email } = req.user.UserInfo;
+    if (destinationName) {
+      const allowedPermissions = [29187, 10948];
+      const hasPermission = await RoleValidator
+        .checkUserRoleById(email, allowedPermissions, res, next);
+      /* istanbul ignore next */
+      if (!hasPermission) {
+        const error = 'You don\'t have access to perform this action';
+        return Error.handleError(error, 403, res);
+      }
+    }
+    next();
+  }
+}

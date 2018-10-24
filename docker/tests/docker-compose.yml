@@ -1,0 +1,29 @@
+version: '2.1'
+
+services:
+  test:
+    build:
+      context: ../../
+      dockerfile: docker/tests/Dockerfile
+    links:
+      - database
+    env_file:
+      - ../../.env
+    environment:
+      PORT: 5000
+      DATABASE_URL: postgres://postgres:postgres@database/travela
+    command: tail -F anything
+    depends_on:
+      database:
+        condition: service_healthy
+  database:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: travela
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
