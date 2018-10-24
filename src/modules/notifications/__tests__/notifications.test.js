@@ -687,24 +687,26 @@ describe('Notifications Controller', () => {
     };
 
     const token2 = Utils.generateTestToken(payload2);
-
     beforeAll(async () => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-      models.Role.bulkCreate(role);
-        const res = await request(app)
-          .post('/api/v1/user')
-          .set('authorization', token2)
-          .send({
-          userId: '-MUyHJmKrdgd90lPNOLNm',
-          fullName: 'Optimum Zeal',
-          picture: 'fake.png',
-          email: 'fakeemail@andela.com',
-          });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await  models.Role.bulkCreate(role);
+    const res = await request(app)
+      .post('/api/v1/user')
+      .set('authorization', token2)
+      .send({
+      userId: '-MUyHJmKrdgd90lPNOLNm',
+      fullName: 'Optimum Zeal',
+      picture: 'fake.png',
+      email: 'fakeemail@andela.com',
+      location: 'Lagos'
+      });
     });
 
-    afterAll(() => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-      models.Comment.destroy({ force: true, truncate: { cascade: true } });
+    afterAll(async () => {
+      await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+      await models.User.destroy({ force: true, truncate: { cascade: true } });
+      await models.Role.destroy({ force: true, truncate: { cascade: true } });
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
 
     })
 

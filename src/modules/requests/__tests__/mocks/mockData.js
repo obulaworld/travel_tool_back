@@ -155,6 +155,7 @@ export const manager = {
   email: 'some.manager@andela.com',
   userId: 'bjhdfkjdhfkd',
   passportName: 'Some Manager',
+  location: 'Lagos',
 };
 
 
@@ -235,6 +236,7 @@ export const travelAdmin = {
   email: 'travel.admin@andela.com',
   userId: '-HyfghjTUGfghjkIJM',
   passportName: 'Travel Admin',
+  location: 'Lagos',
 };
 
 /*

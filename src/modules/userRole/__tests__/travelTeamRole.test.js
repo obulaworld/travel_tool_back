@@ -45,7 +45,8 @@ describe('Travel team role test', () => {
         fullName: 'test user',
         email: 'test.user@andela.com',
         userId: 'wer45660+++',
-        picture: 'fakePicture.png'
+        picture: 'fakePicture.png',
+        location: 'Lagos',
       })
       .expect(201)
       .end((err) => {
@@ -204,7 +205,8 @@ describe('Travel team role test', () => {
           userId: 'wer45660treui',
           fullName: 'second test user',
           email: 'secondTestuser@andela.com',
-          picture: 'fakePicture.png'
+          picture: 'fakePicture.png',
+          location: 'Lagos',
         })
         .expect(201)
         .end((err) => {

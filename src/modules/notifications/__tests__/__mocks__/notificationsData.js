@@ -5,6 +5,7 @@ export const userOgo = {
   gender: 'male',
   picture: 'fake.png',
   roleId: 53019,
+  location: 'Lagos',
   createdAt: new Date(),
   updatedAt: new Date()
 };

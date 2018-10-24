@@ -225,6 +225,15 @@ class TripsController {
     };
     return mailBody;
   }
+
+  static async getTripsByRequestId(requestId, res) {
+    try {
+      const trips = await models.Trip.findAll({ where: { requestId } });
+      return trips;
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError(error.toString(), 500, res);
+    }
+  }
 }
 
 export default TripsController;

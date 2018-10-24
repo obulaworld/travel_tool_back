@@ -39,7 +39,8 @@ const middleware = {
     validateGuestHouse: jest.fn(invokeNextMiddleware),
     validateImage: jest.fn(invokeNextMiddleware),
     getUserId: jest.fn(mockGetUserId),
-    centerExists: jest.fn(invokeNextMiddleware)
+    centerExists: jest.fn(invokeNextMiddleware),
+    getUserFromDb: jest.fn(invokeNextMiddleware)
   },
   RoleValidator: {
     validateUpdateRole: jest.fn(invokeNextMiddleware),
@@ -49,7 +50,12 @@ const middleware = {
     validateAddRole: jest.fn(invokeNextMiddleware),
     validateUserRole: jest.fn(invokeNextMiddleware),
     validateUpdateCenterBody: jest.fn(invokeNextMiddleware),
-    validateUpdateCenter: jest.fn(invokeNextMiddleware)
+    validateUpdateCenter: jest.fn(invokeNextMiddleware),
+    checkUserRoleById: jest.fn(invokeNextMiddleware),
+    validateChecklistQuery: jest.fn(invokeNextMiddleware),
+    validateRequestIdQuery: jest.fn(invokeNextMiddleware),
+    validateDestinationNameQuery: jest.fn(invokeNextMiddleware)
+
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),

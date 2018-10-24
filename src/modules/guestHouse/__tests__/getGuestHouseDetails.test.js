@@ -25,7 +25,8 @@ const createTestUser = () => (
       userId: '-MUyHJmKrxA90lPNQ1FOLNm',
       fullName: 'John Snow',
       email: 'john.snow@andela.com',
-      picture: 'fake.png'
+      picture: 'fake.png',
+      location: 'Lagos',
     })
 );
 

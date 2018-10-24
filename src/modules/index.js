@@ -8,6 +8,7 @@ import occupationsRouter from './occupations';
 import centerRouter from './centers';
 import guestHouseRouter from './guestHouse';
 import tripsRouter from './trips';
+import travelChecklistRouter from './travelChecklist';
 
 const apiPrefix = '/api/v1';
 
@@ -23,6 +24,7 @@ const routes = (app) => {
   app.use(apiPrefix, guestHouseRouter);
   app.use(apiPrefix, tripsRouter);
   app.use(apiPrefix, centerRouter);
+  app.use(apiPrefix, travelChecklistRouter);
   return app;
 };
 

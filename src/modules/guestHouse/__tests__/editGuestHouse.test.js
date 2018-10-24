@@ -42,7 +42,8 @@ describe('Update Guest Houses', () => {
         fullName: 'Jones Akili',
         email: 'jones.akili@andela.com',
         userId: '-TRUniplpknbbh',
-        picture: 'fake.png'
+        picture: 'fake.png',
+        location: 'Lagos',
       })
       .end((err) => {
         if (err) return done(err);

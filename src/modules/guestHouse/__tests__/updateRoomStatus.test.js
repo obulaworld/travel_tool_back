@@ -38,7 +38,8 @@ describe('Update the room fault status', () => {
         fullName: 'Collins Muru',
         email: 'collins.muru@andela.com',
         userId: '-TRUniplpknbbh',
-        picture: 'fakePicture.png'
+        picture: 'fakePicture.png',
+        location: 'Lagos',
       })
       .end((err) => {
         if (err) return done(err);

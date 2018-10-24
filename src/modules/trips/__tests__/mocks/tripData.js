@@ -178,7 +178,8 @@ export const travelAdmin = {
   updatedAt: '2018-08-16 012:11:52.181+01',
   userId: '-LJV4b1QTDYewOtk5F65',
   roleId: '29187',
-  gender: 'male'
+  gender: 'male',
+  location: 'Lagos',
 };
 
 export const postGuestHouse = {

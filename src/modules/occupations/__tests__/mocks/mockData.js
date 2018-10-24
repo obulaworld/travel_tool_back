@@ -2,7 +2,8 @@ export const user = {
   user1: {
     fullName: 'captain america',
     email: 'captain.america@andela.com',
-    userId: 'JFENDVNDK'
+    userId: 'JFENDVNDK',
+    location: 'Lagos',
   }
 };
 

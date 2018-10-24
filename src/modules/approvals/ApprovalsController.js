@@ -13,6 +13,7 @@ import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
 import UserRoleController from '../userRole/UserRoleController';
+import TravelChecklistController from '../travelChecklist/TravelChecklistController';
 
 const noResult = 'No records found';
 let params = {};
@@ -55,11 +56,18 @@ class ApprovalsController {
       ? noResult
       : Utils.getResponseMessage(pagination, params.status, 'Approval');
     const approvals = result.rows.map(fillWithRequestData);
+    const newRequest = await Promise.all(approvals.map(async (request) => {
+      const travelCompletion = await TravelChecklistController
+        .checkListPercentage(req, res, request.id);
+      request.dataValues.travelCompletion = travelCompletion;
+      return request;
+    }));
+
     return res.status(200)
       .json({
         success: true,
         message,
-        approvals,
+        approvals: newRequest,
         meta: {
           count,
           pagination

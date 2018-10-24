@@ -76,6 +76,10 @@ export default class Validator {
     Validator.validateUserRoleCheck(req, res, next, 'fullName', 'email', 'picture');
   }
 
+  static validateUserRole(req, res, next) {
+    Validator.validateUserRoleCheck(req, res, next, 'email', 'roleName');
+  }
+
   static validatePersonalInformation(req, res, next) {
     Validator.validateUserRoleCheck(
       req,
@@ -87,6 +91,10 @@ export default class Validator {
       'occupation',
       'manager'
     );
+  }
+
+  static validateAddRole(req, res, next) {
+    Validator.validateUserRoleCheck(req, res, next, 'roleName', 'description');
   }
 
   static checkEmail(req, res, next) {
@@ -174,13 +182,46 @@ export default class Validator {
     next();
   }
 
+  static async getUserFromDb(query) {
+    const user = await models.User.findOne(query);
+    return user;
+  }
+
+  /* istanbul ignore next */
+  static async checkUserRole(req, res, next) {
+    const emailAddress = req.user.UserInfo.email;
+    const methodName = req.method;
+    const action = { POST: 'create', GET: 'view', PUT: 'update' };
+    const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
+    const checkUrl = reg.test(req.body.imageUrl);
+    try {
+      const query = { where: { email: emailAddress } };
+      const user = await Validator.getUserFromDb(query, res);
+      if (user.roleId !== 29187 && user.roleId !== 10948) {
+        return res.status(401).json({
+          success: false,
+          message: `Only a Travel Admin can ${action[methodName]} a Guest House`
+        });
+      }
+      if (action[methodName] === 'create' && !checkUrl) {
+        return res.status(400).json({
+          success: false, message: 'Only Url allowed for Image'
+        });
+      }
+      next();
+    } catch (error) {
+      res.status(404).json({
+        success: false, message: 'User not found in database'
+      });
+    }
+  }
+
   static async validateImage(req, res, next) {
     const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
     const checkUrl = reg.test(req.body.imageUrl);
     if (!checkUrl) {
       return res.status(400).json({
-        success: false,
-        message: 'Only Url allowed for Image'
+        success: false, message: 'Only Url allowed for Image'
       });
     }
     next();
@@ -188,11 +229,7 @@ export default class Validator {
 
   static async getUserId(req, res, next) {
     const { id } = req.params;
-    const user = await models.User.find({
-      where: {
-        userId: id
-      }
-    });
+    const user = await models.User.find({ where: { userId: id } });
     if (!user) {
       return Error.handleError('User not found', 404, res);
     }
@@ -204,10 +241,7 @@ export default class Validator {
     const { center } = req.body;
     if (center) {
       const findCenter = await models.Center.findOne({
-        where: {
-          location: { [Op.iLike]: center },
-        },
-        attributes: ['id']
+        where: { location: { [Op.iLike]: center } }, attributes: ['id']
       });
       if (!findCenter) {
         const error = 'Center does not exist';

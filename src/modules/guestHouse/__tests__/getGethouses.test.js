@@ -33,7 +33,8 @@ describe('Get Guest Houses', () => {
         fullName: 'Jand Doe',
         email: 'jane.doe@andela.com',
         userId: '-TRUniolpknbbh',
-        picture: 'fakePicture.png'
+        picture: 'fakePicture.png',
+        location: 'Lagos'
       })
       .end((err) => {
         if (err) return done(err);

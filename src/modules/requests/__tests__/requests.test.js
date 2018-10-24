@@ -73,7 +73,7 @@ const userMock = {
   email: 'captan.ameria@andela.com',
   userId: '--MUyHJmKrxA90lPNQ1FOLNm',
   picture: 'fakePicture.png',
-  roleId: 53019
+  location: 'Lagos',
 };
 
 const requestId = 'xDh20cuGz';

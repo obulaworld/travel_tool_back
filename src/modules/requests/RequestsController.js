@@ -16,6 +16,7 @@ import ApprovalsController from '../approvals/ApprovalsController';
 import UserRoleController from '../userRole/UserRoleController';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
+import TravelChecklistController from '../travelChecklist/TravelChecklistController';
 
 dotenv.config();
 
@@ -163,11 +164,16 @@ class RequestsController {
     const message = (params.search && !requests.count)
       ? noResult
       : Utils.getResponseMessage(pagination, params.status, 'Request');
+    const newRequest = Promise.all(requests.rows.map(async (request) => {
+      const travelCompletion = await TravelChecklistController
+        .checkListPercentage(req, res, request.id);
+      request.dataValues.travelCompletion = travelCompletion;
+      return request;
+    }));
+
+    const allRequests = await newRequest;
     return res.status(200).json({
-      success: true,
-      message,
-      requests: requests.rows,
-      meta: { count, pagination }
+      success: true, message, requests: allRequests, meta: { count, pagination }
     });
   }
 

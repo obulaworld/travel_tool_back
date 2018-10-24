@@ -81,7 +81,9 @@ class UserRoleController {
   }
 
   static async addUser(req, res) {
-    const { fullName, email, userId, picture } = req.body;
+    const {
+      fullName, email, userId, location, picture
+    } = req.body;
     try {
       if (!userId) {
         const message = [400, 'User Id required', false];
@@ -92,7 +94,8 @@ class UserRoleController {
           fullName,
           email,
           userId,
-          picture
+          picture,
+          location
         },
       });
       const [userRole] = await result.addRole(401938);

@@ -3,24 +3,28 @@ export const user = {
     fullName: 'captain america',
     email: 'captain.america@andela.com',
     userId: 'JFENDVNDK',
-    picture: 'captain.png'
+    picture: 'captain.png',
+    location: 'Lagos',
   },
   user2: {
     fullName: 'black window ',
     email: 'black.window@andela.com',
     userId: 'JNDVNFSFDK',
-    picture: 'black.png'
+    picture: 'black.png',
+    location: 'Lagos',
   },
   user3: {
     fullName: 'spider girl',
     email: 'spider@girl.com',
     userId: 'JVNDK',
-    picture: 'spider.png'
+    picture: 'spider.png',
+    location: 'Lagos',
   },
   user4: {
     fullName: 'spider girl',
     email: 'spider@andela.com',
-    picture: 'spidergirl.png'
+    picture: 'spidergirl.png',
+    location: 'Lagos',
   }
 };
 

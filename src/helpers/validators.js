@@ -74,3 +74,27 @@ export const editAndCreateRequestValidators = [
     return true;
   }),
 ];
+
+export const validateChecklistItem = [
+  body('name').trim().not().isEmpty()
+    .withMessage('Name is required'),
+  body('requiresFiles').trim().not().isEmpty()
+    .withMessage('Requires Files is required')
+    .isBoolean()
+    .withMessage('Requires Files should be true or false'),
+  body('resources')
+    .isArray()
+    .withMessage('Resources must be an array'),
+  body('resources.*.label')
+    .trim().not().isEmpty()
+    .withMessage('Label is required'),
+  body('resources.*.link')
+    .trim().not().isEmpty()
+    .withMessage('Link is required')
+];
+
+export const deleteChecklistItem = [
+  body('deleteReason',
+    'Reason for deletion is required')
+    .trim().isLength({ min: 3, }),
+];

@@ -54,7 +54,8 @@ describe('Guest Role Test', () => {
         fullName: 'John Show',
         email: 'john.snow@andela.com',
         userId: '-MUyHJmKrxA90lPNQ1FOLNm',
-        picture: 'fakePicture.png'
+        picture: 'fakePicture.png',
+        location: 'Lagos',
       })
       .expect(201)
       .end((err, res) => {

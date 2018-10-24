@@ -21,7 +21,7 @@ export default class RoleValidator {
     return async (req, res, next) => {
       const emailAddress = req.user.UserInfo.email;
       try {
-        const userRole = await models.User.findOne({
+        const query = {
           where: {
             email: emailAddress
           },
@@ -32,16 +32,19 @@ export default class RoleValidator {
               attributes: ['roleName'],
               through: { attributes: [] }
             },
-          ],
-        });
+          ]
+        };
+
+        const user = await Validator.getUserFromDb(query);
         // Check whether user has any of the allowedRoles
-        const hasPermission = userRole.roles.some(role => allowedRoles
+        const hasPermission = user.roles.some(role => allowedRoles
           .includes(role.roleName));
         if (!hasPermission) {
           const error = 'You don\'t have access to perform this action';
           return Error.handleError(error, 403, res);
         }
-        req.user.roles = userRole.dataValues.roles;
+        req.user.roles = user.dataValues.roles;
+        req.user.location = user.dataValues.location;
         next();
       } catch (error) {
         res.status(400).json({
@@ -90,6 +93,83 @@ export default class RoleValidator {
       return res.status(400).json({
         message: 'Only Number allowed for id'
       });
+    }
+    next();
+  }
+
+  static async checkUserRoleById(userEmail, roleIdsArray, res) {
+    try {
+      const query = {
+        where: { email: userEmail },
+        include: [
+          {
+            model: models.Role,
+            as: 'roles',
+            attributes: ['id'],
+            through: { attributes: [] }
+          },
+        ]
+      };
+      const user = await Validator.getUserFromDb(query);
+      const hasPermission = user.roles
+        .some(role => roleIdsArray.includes(role.id));
+
+      return hasPermission;
+    } catch (error) {
+      const msg = 'User not found in database';
+      return Error.handleError(msg, 404, res);
+    }
+  }
+
+  static async validateChecklistQuery(req, res, next) {
+    const { requestId, destinationName } = req.query;
+
+    if (requestId && destinationName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        error: 'You can only have either "requestId" or "destinationName" not both'
+      });
+    }
+
+    next();
+  }
+
+  static async validateRequestIdQuery(req, res, next) {
+    const { requestId } = req.query;
+    const { id } = req.user.UserInfo;
+
+    try {
+      if (requestId) {
+        const request = await models.Request
+          .findOne({ where: { id: requestId, userId: id } });
+        if (!request) {
+          return res.status(404).json({
+            success: false,
+            message: 'Validation failed',
+            error: `Request with id '${requestId}' does not exist for this user`
+          });
+        }
+      }
+
+      next();
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError('Server Error', 404, res);
+    }
+  }
+
+  static async validateDestinationNameQuery(req, res, next) {
+    const { destinationName } = req.query;
+    const { email } = req.user.UserInfo;
+    if (destinationName) {
+      const allowedPermissions = [29187, 10948];
+      const hasPermission = await RoleValidator
+        .checkUserRoleById(email, allowedPermissions, res, next);
+      /* istanbul ignore next */
+      if (!hasPermission) {
+        const error = 'You don\'t have access to perform this action';
+        return Error.handleError(error, 403, res);
+      }
     }
     next();
   }

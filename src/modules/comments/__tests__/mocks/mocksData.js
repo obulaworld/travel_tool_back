@@ -3,6 +3,7 @@ const mockData = {
     fullName: 'Samuel Kubai',
     email: 'captan.ameria@andela.com',
     userId: '--MUyHJmKrxA90lPNQ1FOLNm',
+    location: 'Lagos',
   },
   requestsMock: [
     {

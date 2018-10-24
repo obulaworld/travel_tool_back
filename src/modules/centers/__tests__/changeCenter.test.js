@@ -28,19 +28,19 @@ const token2 = Utils.generateTestToken(payload2);
 
 describe('Update center test', () => {
   beforeAll(async () => {
-    await models.Role.destroy({ where: {}, force: true });
-    await models.User.destroy({ where: {}, force: true });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ truncate: { cascade: true }, force: true });
+    await models.User.destroy({ truncate: { cascade: true }, force: true });
     await models.Role.bulkCreate(role);
     await models.Center.bulkCreate(centers);
     process.env.DEFAULT_ADMIN = 'black.windows@andela.com';
   });
 
   afterAll((done) => {
-    models.Role.destroy({ where: {}, force: true });
-    models.Center.destroy({ where: {}, force: true });
-    models.User.destroy({ where: {}, force: true });
     models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    models.Role.destroy({ where: {}, force: true });
+    models.User.destroy({ where: {}, force: true });
+    models.Center.destroy({ where: {}, force: true });
     models.Center.destroy({ force: true, truncate: { cascade: true } });
     done();
   });
@@ -54,7 +54,8 @@ describe('Update center test', () => {
         userId: '-MUyHJmKrxA90ldPNQ1FOLNm',
         fullName: 'black windows ',
         email: 'black.windows@andela.com',
-        picture: 'fake.png'
+        picture: 'fake.png',
+        location: 'Lagos',
       })
       .expect(201)
       .end((err, res) => {
@@ -76,7 +77,8 @@ describe('Update center test', () => {
         userId: '-HJmKrxA90ldPN1FOLNm',
         fullName: 'white windows ',
         email: 'white.windows@andela.com',
-        picture: 'fakePicture.png'
+        picture: 'fakePicture.png',
+        location: 'Lagos',
       })
       .expect(201)
       .end((err, res) => {
