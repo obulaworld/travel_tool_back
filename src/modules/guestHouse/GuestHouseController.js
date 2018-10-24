@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import Utils from '../../helpers/Utils';
 import models from '../../database/models';
 import Error from '../../helpers/Error';
+import RoomsManager from './RoomsManager';
 import BedName, {
   GuestHouseIncludeHelper
 } from '../../helpers/guestHouse/index';
@@ -253,6 +254,22 @@ class GuestHouseController {
       /* istanbul ignore next */
       return Error.handleError('Server Error', 500, res);
     }
+  }
+
+  static async getAvailableRooms(req, res) {
+    const {
+      arrivalDate, departureDate, location, gender
+    } = req.query;
+
+    const beds = await RoomsManager.fetchAvailableRooms({
+      arrivalDate, departureDate, location, gender
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Available rooms fetched',
+      beds,
+    });
   }
 }
 

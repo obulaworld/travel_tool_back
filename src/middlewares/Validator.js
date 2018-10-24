@@ -216,6 +216,32 @@ export default class Validator {
     }
   }
 
+  static validateAvailableRooms(req, res, next) {
+    const {
+      gender,
+      departureDate,
+      location,
+      arrivalDate
+    } = req.query;
+
+    if (!departureDate || !gender || !location) {
+      return res.status(422).json({
+        success: false,
+        message: 'Please fill the details for departure date, gender and location'
+      });
+    }
+    const isValidDeparturedate = moment(departureDate, 'YYYY-MM-DD', true).isValid();
+    const isValidArrivalDate = moment(arrivalDate, 'YYYY-MM-YY', true).isValid();
+
+    if (!isValidDeparturedate || (arrivalDate && !isValidArrivalDate)) {
+      return res.status(422).json({
+        success: false,
+        message: 'Invalid departure or arrival dates'
+      });
+    }
+    next();
+  }
+
   static async validateImage(req, res, next) {
     const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
     const checkUrl = reg.test(req.body.imageUrl);

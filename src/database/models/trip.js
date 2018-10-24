@@ -40,32 +40,33 @@ export default (sequelize, DataTypes) => {
     },
     checkInDate: {
       allowNull: true,
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
     },
     checkOutDate: {
       allowNull: true,
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
     },
     lastNotifyDate: {
       allowNull: true,
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
     },
     notificationCount: {
       allowNull: false,
       defaultValue: 0,
-      type: DataTypes.INTEGER
-    }
+      type: DataTypes.INTEGER,
+    },
   });
-  Trip.associate = (models) => {
+  Trip.associate = models => {
     Trip.belongsTo(models.Bed, {
+      allowNull: true,
       foreignKey: 'bedId',
-      as: 'beds'
+      as: 'beds',
     });
     Trip.belongsTo(models.Request, {
       foreignKey: 'requestId',
       as: 'request',
       onDelete: 'CASCADE',
-      onUpdate: 'CASCADE'
+      onUpdate: 'CASCADE',
     });
     Trip.hasMany(models.ChangedRoom, {
       foreignKey: 'tripId',

@@ -5,22 +5,32 @@ import middlewares from '../../middlewares';
 const { authenticate, Validator, RoleValidator } = middlewares;
 const Router = express.Router();
 
-Router.get('/guesthouses',
+Router.get(
+  '/guesthouses',
   authenticate,
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
-  GuestHouseController.getGuestHouses);
+  GuestHouseController.getGuestHouses
+);
 
-Router.post('/guesthouses',
+Router.post(
+  '/guesthouses',
   authenticate,
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
   Validator.validateImage,
   Validator.validateGuestHouse,
-  GuestHouseController.postGuestHouse);
+  GuestHouseController.postGuestHouse
+);
 
+Router.get(
+  '/availablerooms',
+  authenticate,
+  Validator.validateAvailableRooms,
+  GuestHouseController.getAvailableRooms
+);
 
 Router.put(
   '/room/:id',
@@ -34,7 +44,6 @@ Router.put(
 
 
 Router.put('/guesthouses/:id',
-
   authenticate,
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
@@ -52,6 +61,5 @@ Router.get(
   ),
   GuestHouseController.getGuestHouseDetails
 );
-
 
 export default Router;

@@ -64,6 +64,7 @@ export const editAndCreateRequestValidators = [
       }
       return true;
     }),
+  body('trips.*.bedId', 'bed id is an integer and optional').optional(),
   body('trips.*').custom((value, { req }) => {
     if (req.body.tripType !== 'oneWay'
         && moment(value.returnDate, moment.ISO_8601, true).isValid()

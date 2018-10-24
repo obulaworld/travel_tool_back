@@ -122,7 +122,6 @@ class ApprovalsController {
         ApprovalsController.sendNotificationAfterApproval(
           user,
           updatedRequest,
-          res
         );
 
         await ApprovalsController.generateCountAndMessage(res, updatedRequest);
@@ -135,31 +134,25 @@ class ApprovalsController {
 
   // updates approval table with new request status
   static async updateApprovals(res, request) {
-    try {
-      const requestToApprove = await models.Approval.find({
-        where: {
-          requestId: request[0].id
-        }
-      });
-
-      if (!requestToApprove) {
-        const error = 'Request not found';
-        return Error.handleError(error, 404, res);
+    const requestToApprove = await models.Approval.find({
+      where: {
+        requestId: request[0].id
       }
+    });
 
-      const { status } = requestToApprove;
-      if (['Approved', 'Rejected'].includes(status)) {
-        const error = `Request has been ${status.toLowerCase()} already`;
-        return Error.handleError(error, 400, res);
-      }
-
-      return await requestToApprove.update({
-        status: request[1]
-      });
-    } catch (error) {
-      /* istanbul ignore next */
-      return Error.handleError(error, 500, res);
+    if (!requestToApprove) {
+      const error = 'Request not found';
+      return Error.handleError(error, 404, res);
     }
+
+    const { status } = requestToApprove;
+    if (['Approved', 'Rejected'].includes(status)) {
+      const error = `Request has been ${status.toLowerCase()} already`;
+      return Error.handleError(error, 400, res);
+    }
+    return requestToApprove.update({
+      status: request[1]
+    });
   }
 
   static async generateCountAndMessage(res, updatedRequest) {
@@ -196,7 +189,6 @@ class ApprovalsController {
 
     const emailData = ApprovalsController
       .emailData(updatedRequest, recipientEmail, name);
-
 
     const emailNotification = NotificationEngine.sendMail(emailData);
 

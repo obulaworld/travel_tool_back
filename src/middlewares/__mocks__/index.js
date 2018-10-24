@@ -40,7 +40,8 @@ const middleware = {
     validateImage: jest.fn(invokeNextMiddleware),
     getUserId: jest.fn(mockGetUserId),
     centerExists: jest.fn(invokeNextMiddleware),
-    getUserFromDb: jest.fn(invokeNextMiddleware)
+    getUserFromDb: jest.fn(invokeNextMiddleware),
+    validateAvailableRooms: jest.fn(invokeNextMiddleware)
   },
   RoleValidator: {
     validateUpdateRole: jest.fn(invokeNextMiddleware),

@@ -127,7 +127,7 @@ describe('Update center test', () => {
 
   it('should update travel team member center', (done) => {
     request(app)
-      .patch('/api/v1/center/user/12')
+      .patch('/api/v1/center/user/2')
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send({

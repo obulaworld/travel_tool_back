@@ -1,12 +1,14 @@
 const date = new Date();
 const departureDate = new Date(date.setDate(date.getDate() + 1))
-  .toISOString().split('T')[0];
+  .toISOString()
+  .split('T')[0];
 const returnDate = new Date(date.setDate(date.getDate() + 3))
-  .toISOString().split('T')[0];
+  .toISOString()
+  .split('T')[0];
 
 export const dates = {
   departureDate,
-  returnDate,
+  returnDate
 };
 
 export const testRequests = [
@@ -21,7 +23,7 @@ export const testRequests = [
     status: 'Open',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     picture: 'https://sgeeegege',
-    trips: [],
+    trips: []
   },
   {
     id: 'xDh20cuGy',
@@ -34,7 +36,7 @@ export const testRequests = [
     role: 'Software Developer',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     picture: 'https://sgeeegege',
-    trips: [],
+    trips: []
   },
   {
     id: 'xDh20cuGx',
@@ -47,8 +49,8 @@ export const testRequests = [
     role: 'Software Developer',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     picture: 'https://sgeeegege',
-    trips: [],
-  },
+    trips: []
+  }
 ];
 
 export const emptyRequestResponse = {
@@ -119,12 +121,13 @@ export const createRequestSuccessResponse = {
         destination: 'Nairobi',
         departureDate,
         returnDate,
+        bedId: 18
       }
-    ],
+    ]
   },
   approval: {
     approverId: 'Some manager',
-    status: 'Open',
+    status: 'Open'
   }
 };
 
@@ -137,7 +140,7 @@ export const editRequestSuccessResponse = {
     gender: 'Female',
     department: 'TDD',
     role: 'Software Developer',
-    picture: 'https://sgeeegege',
+    picture: 'https://sgeeegege'
   },
   trips: [
     {
@@ -145,9 +148,10 @@ export const editRequestSuccessResponse = {
       destination: 'New York',
       departureDate,
       returnDate: null,
+      bedId: 18
     }
   ],
-  success: true,
+  success: true
 };
 
 export const manager = {
@@ -157,7 +161,6 @@ export const manager = {
   passportName: 'Some Manager',
   location: 'Lagos',
 };
-
 
 export const mockRequest = {
   name: 'Tester Demola',
@@ -175,14 +178,16 @@ export const mockRequest = {
       destination: 'New York',
       departureDate,
       returnDate,
+      bedId: 18
     },
     {
       origin: 'New York',
       destination: 'Nairobi',
       departureDate,
       returnDate,
+      bedId: 18
     }
-  ],
+  ]
 };
 
 export const anotherMockRequest = {
@@ -200,15 +205,16 @@ export const anotherMockRequest = {
       destination: 'New York',
       departureDate,
       returnDate,
-
+      bedId: 18
     },
     {
       origin: 'New York',
       destination: 'Nairobi',
       departureDate,
-      returnDate
+      returnDate,
+      bedId: 18
     }
-  ],
+  ]
 };
 
 export const newRequest = {

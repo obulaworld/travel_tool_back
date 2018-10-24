@@ -125,3 +125,103 @@ describe('Guest Role Test', () => {
       });
   });
 });
+
+describe('Guest Rooms - GET', () => {
+  it('should not get bed if gender is not provided', (done) => {
+    request(app)
+      .get('/api/v1/availablerooms?location=Lagos&departureDate=2018-12-12')
+      .set('authorization', token)
+      .expect(422)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message)
+          .toEqual('Please fill the details for departure date, gender and location');
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should not get bed if location is not provided', (done) => {
+    request(app)
+    .get('/api/v1/availablerooms?gender=Male&departureDate=2018-12-12')
+    .set('authorization', token)
+    .expect(422)
+    .end((err, res) => {
+      expect(res.body.success).toEqual(false);
+      expect(res.body.message)
+        .toEqual('Please fill the details for departure date, gender and location');
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('should not get bed if departureDate is not provided', (done) => {
+    request(app)
+    .get('/api/v1/availablerooms?location=Lagos&gender?Male')
+    .set('authorization', token)
+    .expect(422)
+    .end((err, res) => {
+      expect(res.body.success).toEqual(false);
+      expect(res.body.message)
+        .toEqual('Please fill the details for departure date, gender and location');
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('should not get bed if departureDate is invalid', (done) => {
+    request(app)
+    .get('/api/v1/availablerooms?location=Lagos&gender=Male&departureDate=67-23-12')
+    .set('authorization', token)
+    .expect(422)
+    .end((err, res) => {
+      expect(res.body.success).toEqual(false);
+      expect(res.body.message)
+        .toEqual('Invalid departure or arrival dates');
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('should not get bed if arrivalDate is invalid', (done) => {
+    request(app)
+    .get('/api/v1/availablerooms?location=Lagos&gender=Male&departureDate=2018-12-12&arrivalDate=98-22-22')
+    .set('authorization', token)
+    .expect(422)
+    .end((err, res) => {
+      expect(res.body.success).toEqual(false);
+      expect(res.body.message)
+        .toEqual('Invalid departure or arrival dates');
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('should get beds if all fields are valid', (done) => {
+    request(app)
+    .get('/api/v1/availablerooms?location=Lagos&gender=Male&departureDate=2018-12-12&arrivalDate=2018-12-22')
+    .set('authorization', token)
+    .expect(200)
+    .end((err, res) => {
+      expect(res.body.success).toEqual(true);
+      expect(res.body.message)
+        .toEqual('Available rooms fetched');
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('should get beds if all fields are valid', (done) => {
+    request(app)
+    .get('/api/v1/availablerooms?location=Lagos&gender=Male&departureDate=2018-12-12')
+    .set('authorization', token)
+    .expect(200)
+    .end((err, res) => {
+      expect(res.body.success).toEqual(true);
+      expect(res.body.message)
+        .toEqual('Available rooms fetched');
+      if (err) return done(err);
+      done();
+    });
+  });
+})
