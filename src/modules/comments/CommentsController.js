@@ -34,38 +34,42 @@ class CommentsController {
   }
 
   static async createNotificationByManager(req, res, request, comment) {
-    const {
-      name, picture, email
-    } = req.user.UserInfo;
-    const { manager, id, userId } = request;
-    const managerDetail = await UserRoleController.getRecipient(manager);
-    const newNotificationDetail = {
-      senderId: managerDetail.userId,
-      recipientId: request.userId,
-      notificationType: 'general',
-      message: 'posted a comment',
-      notificationLink: `/requests/${id}`,
-      senderName: name,
-      senderImage: picture
-    };
+    try {
+      const {
+        name, picture
+      } = req.user.UserInfo;
+      const { manager, id, userId } = request;
+      const requesterDetails = await UserRoleController.getRecipient(null, userId);
+      const managerDetail = await UserRoleController.getRecipient(manager);
+      const newNotificationDetail = {
+        senderId: managerDetail.userId,
+        recipientId: request.userId,
+        notificationType: 'general',
+        message: 'posted a comment',
+        notificationLink: `/requests/${id}`,
+        senderName: name,
+        senderImage: picture
+      };
 
-    let redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/${id}`;
-    let recipientEmail = email;
-    let recipientName = name;
-    let recipientId = userId;
+      let redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/${id}`;
+      let recipientEmail = requesterDetails.email;
+      let recipientName = requesterDetails.fullName;
+      let recipientId = userId;
 
-    /* istanbul ignore next */
-    if (userId === req.user.UserInfo.id) {
-      redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/my-approvals/${id}`;
-      recipientEmail = managerDetail.email;
-      recipientName = manager;
-      recipientId = managerDetail.userId;
-    }
+      /* istanbul ignore next */
+      if (userId === req.user.UserInfo.id) {
+        redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/my-approvals/${id}`;
+        recipientEmail = managerDetail.email;
+        recipientName = manager;
+        recipientId = managerDetail.userId;
+      }
 
-    CommentsController.sendEmail(req.user.UserInfo.id, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment);
-    /* istanbul ignore next */
-    if (managerDetail.userId === req.user.UserInfo.id) {
-      return NotificationEngine.notify(newNotificationDetail);
+      CommentsController.sendEmail(req.user.UserInfo.id, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment);
+      /* istanbul ignore next */
+      if (managerDetail.userId === req.user.UserInfo.id) {
+        return NotificationEngine.notify(newNotificationDetail);
+      }
+    } catch (error) { /* istanbul ignore next */
     }
   }
 
