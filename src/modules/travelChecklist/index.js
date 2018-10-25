@@ -41,6 +41,12 @@ TravelChecklistRouter.post(
   TravelChecklistController.createChecklistItem,
 );
 
+TravelChecklistRouter.get(
+  '/checklists/deleted',
+  authenticate,
+  TravelChecklistController.getDeletedChecklistItems
+);
+
 TravelChecklistRouter.put(
   '/checklists/:checklistId',
   authenticate,

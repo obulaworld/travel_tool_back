@@ -68,6 +68,34 @@ export default class TravelChecklistController {
     }
   }
 
+  static async getDeletedChecklistItems(req, res) {
+    try {
+      const { destinationName } = req.query;
+      const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+      const ChecklistItems = await models.ChecklistItem
+        .findAll({
+          paranoid: false,
+          where: {
+            deletedAt: {
+              [Op.ne]: null
+            },
+            destinationName: andelaCenters[`${destinationName}`]
+          }
+        });
+      if (ChecklistItems.length) {
+        return res.status(200).json({
+          success: true,
+          message: 'deleted travel checklist items retrieved successfully',
+          deletedTravelChecklists: ChecklistItems
+        });
+      }
+      const errorMsg = 'There are currently no deleted travel checklist items for your location'; // eslint-disable-line
+      CustomError.handleError(errorMsg, 404, res);
+    } catch (error) {
+      CustomError.handleError(error, 500, res);
+    }
+  }
+
   static async getApprovedRequest(type, requestId, res) {
     try {
       const requestType = await models.Request.findOne({
