@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import models from '../database/models';
-import Error from '../helpers/Error';
+import CustomError from '../helpers/Error';
 import Validator from './Validator';
 
 export default class RoleValidator {
@@ -29,7 +29,7 @@ export default class RoleValidator {
             {
               model: models.Role,
               as: 'roles',
-              attributes: ['roleName'],
+              attributes: ['id', 'roleName'],
               through: { attributes: [] }
             },
           ]
@@ -41,7 +41,7 @@ export default class RoleValidator {
           .includes(role.roleName));
         if (!hasPermission) {
           const error = 'You don\'t have access to perform this action';
-          return Error.handleError(error, 403, res);
+          return CustomError.handleError(error, 403, res);
         }
         req.user.roles = user.dataValues.roles;
         req.user.location = user.dataValues.location;
@@ -57,19 +57,19 @@ export default class RoleValidator {
 
   static async roleExists(req, res, next) {
     const { roleName } = req.body;
-    const findRole = await models.Role.findOne({
-      where: {
-        roleName: { [Op.iLike]: roleName },
-      },
-    });
-    if (!findRole) {
+    const { roleId } = req.params;
+    const query = (roleName)
+      ? { where: { roleName: { [Op.iLike]: roleName } } }
+      : { where: { id: roleId } };
+    const foundRole = await models.Role.findOne(query);
+    if (!foundRole) {
       const error = 'Role does not exist';
-      return Error.handleError(error, 404, res);
+      return CustomError.handleError(error, 404, res);
     }
-    req.roleId = findRole.id;
+    req.roleId = foundRole.id;
+    req.roleName = foundRole.roleName;
     next();
   }
-
 
   static validateRoleAssignment(req, res, next) {
     const isSuperAdmin = req.user.roles
@@ -77,7 +77,7 @@ export default class RoleValidator {
     if (!isSuperAdmin && req.body.roleName.toLowerCase()
       !== 'travel team member') {
       const error = 'Only a Super Admin can assign that role';
-      return Error.handleError(error, 403, res);
+      return CustomError.handleError(error, 403, res);
     }
     next();
   }
@@ -117,7 +117,7 @@ export default class RoleValidator {
       return hasPermission;
     } catch (error) {
       const msg = 'User not found in database';
-      return Error.handleError(msg, 404, res);
+      return CustomError.handleError(msg, 404, res);
     }
   }
 
@@ -154,7 +154,7 @@ export default class RoleValidator {
 
       next();
     } catch (error) { /* istanbul ignore next */
-      return Error.handleError('Server Error', 404, res);
+      return CustomError.handleError('Server Error', 404, res);
     }
   }
 
@@ -168,7 +168,7 @@ export default class RoleValidator {
       /* istanbul ignore next */
       if (!hasPermission) {
         const error = 'You don\'t have access to perform this action';
-        return Error.handleError(error, 403, res);
+        return CustomError.handleError(error, 403, res);
       }
     }
     next();

@@ -25,6 +25,33 @@ export const user = {
     email: 'spider@andela.com',
     picture: 'spidergirl.png',
     location: 'Lagos',
+  },
+  user5: {
+    id: 11001,
+    fullName: 'monkey',
+    email: 'monkey@andela.com',
+    userId: '1234',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+    location: 'Lagos'
+  },
+  user6: {
+    id: 11002,
+    fullName: 'leopard',
+    email: 'leopard@andela.com',
+    userId: '5678',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+    location: 'Lagos'
+  },
+  user7: {
+    id: 11003,
+    fullName: 'chicken',
+    email: 'chicken@andela.com',
+    userId: '91011',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+    location: 'Lagos'
   }
 };
 

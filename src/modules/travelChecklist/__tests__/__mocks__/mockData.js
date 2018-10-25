@@ -493,7 +493,6 @@ export const user = {
   fullName: 'black window ',
   email: 'black.window@andela.com',
   userId: '1',
-  roleId: '10948',
   createdAt: '2018-08-16 012:11:52.181+01',
   updatedAt: '2018-08-16 012:11:52.181+01',
   location: 'Lagos',

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import models from '../../database/models';
-import Error from '../../helpers/Error';
+import CustomError from '../../helpers/Error';
 
 dotenv.config();
 
@@ -16,9 +16,7 @@ class UserRoleController {
   static async getAllUser(req, res) {
     const result = await models.User.findAll({
       include: [{
-        model: models.Role,
-        as: 'roles',
-        through: { attributes: [] }
+        model: models.Role, as: 'roles', through: { attributes: [] }
       }]
     });
     const message = [200, 'data', true];
@@ -103,7 +101,7 @@ class UserRoleController {
       const message = [201, 'User created successfully', true];
       return UserRoleController.response(res, message, result);
     } catch (error) { /* istanbul ignore next */
-      return Error.handleError(error, 500, res);
+      return CustomError.handleError(error, 500, res);
     }
   }
 
@@ -116,20 +114,17 @@ class UserRoleController {
       });
       if (!findUser) {
         const message = 'Email does not exist';
-        return Error.handleError(message, 404, res);
+        return CustomError.handleError(message, 404, res);
       }
       if (!centerId && roleId === 339458) {
         const message = [400, 'Please provide center', false];
         return UserRoleController.response(res, message);
       }
       const hasRole = await models.UserRole.find({
-        where: {
-          roleId,
-          userId: findUser.id
-        }
+        where: { roleId, userId: findUser.id }
       });
       const error = 'User already has this role';
-      if (hasRole) return Error.handleError(error, 409, res);
+      if (hasRole) return CustomError.handleError(error, 409, res);
       const [[result]] = await findUser.addRole(roleId, {
         through: {
           centerId
@@ -139,7 +134,7 @@ class UserRoleController {
       const message = [200, 'Role updated successfully', true];
       UserRoleController.response(res, message, findUser);
     } catch (error) { /* istanbul ignore next */
-      return Error.handleError(error, 500, res);
+      return CustomError.handleError(error, 500, res);
     }
   }
 
@@ -162,9 +157,7 @@ class UserRoleController {
           model: models.User,
           as: 'users',
           attributes: ['email', 'userId'],
-          through: {
-            attributes: []
-          }
+          through: { attributes: [] }
         },
       ],
     });
@@ -235,17 +228,37 @@ class UserRoleController {
   static async getRecipient(recipientName, recipientId) {
     const recipient = await models.User.findOne({
       where: {
-        $or: [
-          {
-            fullName: recipientName
-          },
-          {
-            userId: recipientId
-          }
-        ]
+        $or: [{ fullName: recipientName }, { userId: recipientId }]
       }
     });
     return recipient;
+  }
+
+  static async deleteUserRole(req, res) {
+    try {
+      const { roles } = req.user;
+      const { userId, roleId } = req.params;
+
+      // checks if role to delete is super admin
+      const RequestUserRoleIds = roles.map(role => role.dataValues.id);
+      const superAdminId = 10948;
+      const isRequestUserSuperAdmin = RequestUserRoleIds.includes(superAdminId);
+      if (parseInt(roleId, 10) === superAdminId && !isRequestUserSuperAdmin) {
+        const error = `Only a 'Super Administrator' can change the role of another 'Super Administrator'`; // eslint-disable-line
+        return CustomError.handleError(error, 403, res);
+      }
+
+      const query = { where: { userId, roleId } };
+      const deletedRole = await models.UserRole.destroy(query);
+      const msg = `User can no longer perform operations associated with the role: '${req.roleName}'`; // eslint-disable-line
+      const message = [200, msg, true];
+      if (deletedRole) return UserRoleController.response(res, message);
+
+      const error = `User with the role: '${req.roleName}' does not exist`;
+      if (!deletedRole) return CustomError.handleError(error, 404, res);
+    } catch (error) { /* istanbul ignore next */
+      return CustomError.handleError(error, 500, res);
+    }
   }
 }
 

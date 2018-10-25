@@ -55,4 +55,14 @@ Router.put(
 
 Router.get('/user/roles/:id', authenticate, UserRoleController.getOneRole);
 
+Router.delete(
+  '/user/roles/:userId/:roleId',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  RoleValidator.roleExists,
+  UserRoleController.deleteUserRole
+);
+
 export default Router;

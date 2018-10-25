@@ -23,7 +23,7 @@ import { role } from '../../userRole/__tests__/mocks/mockData';
 
 const request = supertest;
 const invalidToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySW5mbyI6eyJpZCI6Ii1MSEptS3J4'; // eslint-disable-line
-describe('Notifications Controller', () => {
+describe('Travel Checklists Controller', () => {
   const payload = {
     UserInfo: {
       id: '-MUyHJmKrxA90lPNQ1FOLNm',
