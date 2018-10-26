@@ -76,7 +76,7 @@ export default class Validator {
     Validator.validateUserRoleCheck(req, res, next, 'fullName', 'email', 'picture');
   }
 
-  static validateUserRole(req, res, next) {
+  static validateUserRole(req, res, next) { /* istanbul ignore next */
     Validator.validateUserRoleCheck(req, res, next, 'email', 'roleName');
   }
 
@@ -93,7 +93,7 @@ export default class Validator {
     );
   }
 
-  static validateAddRole(req, res, next) {
+  static validateAddRole(req, res, next) { /* istanbul ignore next */
     Validator.validateUserRoleCheck(req, res, next, 'roleName', 'description');
   }
 

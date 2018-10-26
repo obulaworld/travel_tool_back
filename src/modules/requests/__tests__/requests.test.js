@@ -1,12 +1,11 @@
 import supertest from 'supertest';
 import models from '../../../database/models';
 import app from '../../../app';
-import {role} from '../../userRole/__tests__/mocks/mockData';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 import {
   testRequests,
   emptyRequestResponse,
   editRequestSuccessResponse,
-  createRequestSuccessResponse,
   dates,
   manager,
   mockRequest, generateMockData,
@@ -92,9 +91,9 @@ const invalidToken = 'eyJhbGciOiJSUzI1Ni6IkpXVCJ9.eyJVc2CI6Ii1MSEptS3J4';
 let updatedTripId;
 
 describe('Requests Controller', () => {
-  beforeAll(done => {
-    models.Role.destroy({force: true, truncate: {cascade: true}});
-    models.Request.destroy({force: true, truncate: {cascade: true}});
+  beforeAll((done) => {
+    models.Role.destroy({ force: true, truncate: { cascade: true } });
+    models.Request.destroy({ force: true, truncate: { cascade: true } });
     models.Trip.truncate();
     models.Notification.truncate();
     models.Role.bulkCreate(role);
@@ -103,20 +102,19 @@ describe('Requests Controller', () => {
     done();
   });
 
-  afterAll(async done => {
-    await models.Role.destroy({force: true, truncate: {cascade: true}});
-    await models.Request.destroy({force: true, truncate: {cascade: true}});
+  afterAll(async () => {
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.truncate();
     await models.Notification.truncate();
     await models.User.truncate();
-    done();
   });
 
   describe('GET /api/v1/requests', () => {
     let requests;
     describe('Authenticated user with no requests', () => {
       it(`should return 200 status and the appropriate
-      message for a user without requests`, done => {
+      message for a user without requests`, (done) => {
         const expectedResponse = {
           status: 200,
           message: 'You have no requests at the moment',
@@ -149,7 +147,7 @@ describe('Requests Controller', () => {
     });
 
     describe('Authenticated user With requests', () => {
-      beforeAll(async done => {
+      beforeAll(async (done) => {
         try {
           const response = await models.Request.bulkCreate(testRequests);
           await models.User.create(manager);
@@ -160,7 +158,7 @@ describe('Requests Controller', () => {
         }
       });
 
-      it('should return 200 status, the requests and pagination data', done => {
+      it('should return 200 status, the requests and pagination data', (done) => {
         const expectedResponse = {
           status: 200,
         };
@@ -176,7 +174,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status and the requested number of
-        requests when a limit query is provided`, done => {
+        requests when a limit query is provided`, (done) => {
         const expectedResponse = {
           status: 200,
         };
@@ -192,7 +190,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status and only open
-        requests when the status query is set to 'open'`, done => {
+        requests when the status query is set to 'open'`, (done) => {
         const expectedResponse = {
           status: 200,
         };
@@ -209,7 +207,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status, and appropriate feedback
-        if the user requests for a page that does not exist`, done => {
+        if the user requests for a page that does not exist`, (done) => {
         const expectedResponse = {
           status: 200,
           body: {
@@ -241,7 +239,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status and only approved and rejected
-    requests when the status query is set to 'past'`, done => {
+    requests when the status query is set to 'past'`, (done) => {
         request(app)
           .get('/api/v1/requests?status=past')
           .set('Authorization', token)
@@ -253,7 +251,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status code and matching response data if search
-        match is found `, done => {
+        match is found `, (done) => {
         const expectedResponse = {
           status: 200,
           body: {
@@ -284,7 +282,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status code and matching response data if search
-        match is found and parameter is a status `, done => {
+        match is found and parameter is a status `, (done) => {
         const expectedResponse = {
           status: 200,
           body: {
@@ -315,7 +313,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status code and paginated response
-        if search parameter is capitalized`, done => {
+        if search parameter is capitalized`, (done) => {
         const expectedResponse = {
           status: 200,
           body: {
@@ -346,7 +344,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 200 status code and response data
-      if search parameter is empty`, done => {
+      if search parameter is empty`, (done) => {
         const expectedResponse = {
           status: 200,
           body: {
@@ -378,7 +376,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return proper status code and proper error
-        message if no search result is found`, done => {
+        message if no search result is found`, (done) => {
         request(app)
           .get('/api/v1/requests?limit=2&status=open&search=xshdje')
           .set('authorization', token)
@@ -390,7 +388,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should throw 422 error if the
-        status query is not open, approved, rejected or past`, done => {
+        status query is not open, approved, rejected or past`, (done) => {
         const expectedResponse = {
           status: 422,
           body: {
@@ -415,7 +413,7 @@ describe('Requests Controller', () => {
           });
       });
 
-      it('should throw 422 error if the page query is not a positive integer', done => {
+      it('should throw 422 error if the page query is not a positive integer', (done) => {
         const expectedResponse = {
           status: 422,
           body: {
@@ -440,7 +438,7 @@ describe('Requests Controller', () => {
           });
       });
 
-      it('should throw 422 error if the limit query is not a positive integer', done => {
+      it('should throw 422 error if the limit query is not a positive integer', (done) => {
         const expectedResponse = {
           status: 422,
           body: {
@@ -467,7 +465,7 @@ describe('Requests Controller', () => {
     });
 
     describe('Unauthenticated user', () => {
-      it('should throw 401 error if the user does not provide a token', done => {
+      it('should throw 401 error if the user does not provide a token', (done) => {
         const expectedResponse = {
           status: 401,
           body: {
@@ -483,7 +481,7 @@ describe('Requests Controller', () => {
           });
       });
 
-      it("should throw 401 error if the user's provides an invalid token", done => {
+      it("should throw 401 error if the user's provides an invalid token", (done) => {
         const expectedResponse = {
           status: 401,
           body: {
@@ -504,7 +502,7 @@ describe('Requests Controller', () => {
 
   describe('POST / requests - Create New Request', () => {
     describe('Unauthenticated User', () => {
-      it('should check if the token exists and return 401 if it does not', async done => {
+      it('should check if the token exists and return 401 if it does not', async (done) => {
         const res = await request(app)
           .post('/api/v1/requests')
           .send({
@@ -516,7 +514,7 @@ describe('Requests Controller', () => {
         done();
       });
 
-      it('should check if the token is valid and return 401 if it is not', async done => {
+      it('should check if the token is valid and return 401 if it is not', async (done) => {
         const res = await request(app)
           .post('/api/v1/requests')
           .set('Authorization', invalidToken)
@@ -531,16 +529,16 @@ describe('Requests Controller', () => {
     });
 
     describe('Authenticated User', () => {
-      beforeAll( done => {
+      beforeAll((done) => {
         models.Bed.create(bedMock);
         done();
-      })
-      afterAll(done => {
-         models.Bed.create(bedMock);
-         done()
-      })
+      });
+      afterAll((done) => {
+        models.Bed.create(bedMock);
+        done();
+      });
       // check that all the fields are filled - fail if any field is missing
-      it('should return 422 if validation fails', async done => {
+      it('should return 422 if validation fails', async (done) => {
         const res = await request(app)
           .post('/api/v1/requests')
           .set('authorization', token)
@@ -551,17 +549,17 @@ describe('Requests Controller', () => {
       });
 
       //  create request if everything is fine
-      it('should add a new request to the db', async done => {
+      it('should add a new request to the db', async (done) => {
         const res = await request(app)
           .post('/api/v1/requests')
           .set('authorization', token)
-          .send({...newRequest});
+          .send({ ...newRequest });
         expect(res.status).toBe(201);
         done();
       });
 
       it(`should throw 422 error while creating a request that is not
-        multi-trip with more than one trip`, async done => {
+        multi-trip with more than one trip`, async (done) => {
         const expectedResponse = {
           body: {
             success: false,
@@ -602,7 +600,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should not throw 422 error while
-      creating a request with invalid date`, async done => {
+      creating a request with invalid date`, async (done) => {
         const expectedResponse = {
           body: {
             success: false,
@@ -636,7 +634,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should throw 422 error while creating a request if the returnDate
-        is less than the returnDate`, async done => {
+        is less than the returnDate`, async (done) => {
         const expectedResponse = {
           body: {
             success: false,
@@ -673,7 +671,7 @@ describe('Requests Controller', () => {
 
   describe('Test suite for approval endpoints GET: api/v1/approvals', () => {
     it(`should return 404 status code and message if search
-    match is not found`, done => {
+    match is not found`, (done) => {
       supertest(app)
         .get('/api/v1/approvals?status=open&search=qwert')
         .set('authorization', someManagerToken)
@@ -685,7 +683,7 @@ describe('Requests Controller', () => {
     });
 
     it(`should return 200 status code and matching response data if search
-    match is found`, done => {
+    match is found`, (done) => {
       supertest(app)
         .get('/api/v1/approvals?page=1&status=open&search=test')
         .set('authorization', someManagerToken)
@@ -698,7 +696,7 @@ describe('Requests Controller', () => {
     });
 
     it(`should return 200 status code and response data
-        if search parameter is empty`, done => {
+        if search parameter is empty`, (done) => {
       supertest(app)
         .get('/api/v1/approvals?page=1&status=open&search=')
         .set('authorization', someManagerToken)
@@ -712,8 +710,22 @@ describe('Requests Controller', () => {
   });
 
   describe('Get an authenticated User Request detail', () => {
+    beforeAll(async (done) => {
+      try {
+        await models.Approval.create(
+          {
+            requestId: 'xDh20cuGx',
+            approverId: 'Samuel Kubai',
+            status: 'Open',
+          },
+        );
+        done();
+      } catch (error) {
+        throw error;
+      }
+    });
     // it should get request details for a user
-    it('should return request details of a user', async done => {
+    it('should return request details of a user', async (done) => {
       const response = await request(app)
         .get(`/api/v1/requests/${requestId}`)
         .set('authorization', token);
@@ -739,7 +751,7 @@ describe('Requests Controller', () => {
       done();
     });
 
-    xit('should return the expected number of trips', async done => {
+    xit('should return the expected number of trips', async (done) => {
       const postResp = await request(app)
         .post('/api/v1/requests')
         .set('authorization', token)
@@ -753,7 +765,7 @@ describe('Requests Controller', () => {
       done();
     });
 
-    it('should return the correct type of the request', async done => {
+    it('should return the correct type of the request', async (done) => {
       const postResp = await request(app)
         .post('/api/v1/requests')
         .set('authorization', token)
@@ -763,7 +775,7 @@ describe('Requests Controller', () => {
       done();
     });
 
-    it('should return a 404 ststus code for unexisting requestId', async done => {
+    it('should return a 404 ststus code for unexisting requestId', async (done) => {
       const response = await request(app)
         .get(`/api/v1/requests/${invalidId}`)
         .set('authorization', token);
@@ -778,7 +790,7 @@ describe('Requests Controller', () => {
 
   describe('PUT /api/v1/requests/:requestId', () => {
     describe('Authenticated user', () => {
-      it('should edit the request and return 200 and updated request', done => {
+      it('should edit the request and return 200 and updated request', (done) => {
         const expectedResponse = {
           body: {
             ...editRequestSuccessResponse,
@@ -806,7 +818,7 @@ describe('Requests Controller', () => {
           });
       });
 
-      it('should return 422 error if the user supplies empty fields', done => {
+      it('should return 422 error if the user supplies empty fields', (done) => {
         const expectedResponse = {
           body: {
             ...emptyRequestResponse,
@@ -824,7 +836,7 @@ describe('Requests Controller', () => {
       });
 
       it(`should return 422 error if a user tries to update
-        a oneWay request with a returnDate`, done => {
+        a oneWay request with a returnDate`, (done) => {
         const expectedResponse = {
           body: {
             success: false,
@@ -851,7 +863,7 @@ describe('Requests Controller', () => {
           });
       });
       it(`should return 422 error if a user tries to update
-        a multi-trip request with only one trip`, done => {
+        a multi-trip request with only one trip`, (done) => {
         const expectedResponse = {
           body: {
             success: false,
@@ -878,7 +890,7 @@ describe('Requests Controller', () => {
           });
       });
       it(`should return 409 error if the
-        request has been approved or rejected`, done => {
+        request has been approved or rejected`, (done) => {
         const expectedResponse = {
           body: {
             success: false,
@@ -897,7 +909,7 @@ describe('Requests Controller', () => {
             done();
           });
       });
-      it('should return 404 error if the request does not exist', done => {
+      it('should return 404 error if the request does not exist', (done) => {
         const expectedResponse = {
           body: {
             success: false,
@@ -917,7 +929,7 @@ describe('Requests Controller', () => {
           });
       });
       xit(`should update or create a new trip if it does not exist
-        in the database`, done => {
+        in the database`, (done) => {
         const trips = [
           {
             id: updatedTripId,
@@ -961,7 +973,7 @@ describe('Requests Controller', () => {
       });
     });
     describe('Unauthenticated user', () => {
-      it('should throw 401 error if token is not valid', done => {
+      it('should throw 401 error if token is not valid', (done) => {
         request(app)
           .put('/api/v1/requests/xDh20cuGz')
           .set('authorization', invalidToken)
@@ -979,7 +991,7 @@ describe('Requests Controller', () => {
             done();
           });
       });
-      it('should throw 401 error if token is not provided', done => {
+      it('should throw 401 error if token is not provided', (done) => {
         request(app)
           .put('/api/v1/requests/xDh20cuGz')
           .send({
@@ -999,7 +1011,7 @@ describe('Requests Controller', () => {
     });
   });
   describe('PUT / approvals/:requestId - Update Request Status', () => {
-    beforeAll(async done => {
+    beforeAll(async (done) => {
       try {
         await models.Approval.create({
           requestId: 'xDh20cuGy',
@@ -1013,11 +1025,11 @@ describe('Requests Controller', () => {
     });
 
     describe('Requesters Manager', () => {
-      it('should successfully update a requests status', async done => {
+      it('should successfully update a requests status', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuGy')
           .set('authorization', token)
-          .send({newStatus: 'Approved'});
+          .send({ newStatus: 'Approved' });
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
         expect(res.body.message).toEqual('Request approved successfully');
@@ -1025,22 +1037,22 @@ describe('Requests Controller', () => {
       });
 
       it(`should throw validation error when
-        newStatus does not match expected input`, async done => {
+        newStatus does not match expected input`, async (done) => {
         const newStatus = 'ApprovedRejected';
 
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuGy')
           .set('authorization', token)
-          .send({newStatus});
+          .send({ newStatus });
         expect(res.statusCode).toEqual(422);
         done();
       });
 
-      it('should return an error if request is not found', async done => {
+      it('should return an error if request is not found', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cu8T0')
           .set('authorization', token)
-          .send({newStatus: 'Approved'});
+          .send({ newStatus: 'Approved' });
         expect(res.statusCode).toEqual(404);
         expect(res.body.success).toEqual(false);
         done();
@@ -1048,11 +1060,11 @@ describe('Requests Controller', () => {
     });
 
     describe('Not Requesters Manager', () => {
-      it('should return an error message', async done => {
+      it('should return an error message', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuGy')
           .set('authorization', nonRequestManagerToken)
-          .send({newStatus: 'Rejected'});
+          .send({ newStatus: 'Rejected' });
         expect(res.status).toBe(403);
         expect(res.body).toMatchObject({
           success: false,
@@ -1063,21 +1075,21 @@ describe('Requests Controller', () => {
     });
 
     describe('Unauthenticated User', () => {
-      it('should check if the token exists and return 401 if it does not', async done => {
+      it('should check if the token exists and return 401 if it does not', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuT0')
-          .send({newStatus: 'Rejected'});
+          .send({ newStatus: 'Rejected' });
         expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Please provide a token');
         done();
       });
 
-      it('should check if the token is valid and return 401 if it is not', async done => {
+      it('should check if the token is valid and return 401 if it is not', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuT0')
           .set('Authorization', invalidToken)
-          .send({newStatus: 'Approved'});
+          .send({ newStatus: 'Approved' });
         expect(res.status).toEqual(401);
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Token is not valid');
@@ -1086,11 +1098,11 @@ describe('Requests Controller', () => {
     });
 
     describe('Requesters Manager', () => {
-      it('should not update a requests status twice', async done => {
+      it('should not update a requests status twice', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuGy')
           .set('authorization', token)
-          .send({newStatus: 'Approved'});
+          .send({ newStatus: 'Approved' });
         expect(res.statusCode).toEqual(400);
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Request has been approved already');
@@ -1099,7 +1111,7 @@ describe('Requests Controller', () => {
     });
 
     describe('Requesters Manager', () => {
-      beforeAll(async done => {
+      beforeAll(async (done) => {
         await models.Approval.destroy({
           where: {
             requestId: 'xDh20cuGy',
@@ -1108,11 +1120,11 @@ describe('Requests Controller', () => {
         done();
       });
 
-      it('should return an error message if approval does not exist', async done => {
+      it('should return an error message if approval does not exist', async (done) => {
         const res = await request(app)
           .put('/api/v1/approvals/xDh20cuGy')
           .set('authorization', token)
-          .send({newStatus: 'Rejected'});
+          .send({ newStatus: 'Rejected' });
         expect(res.status).toBe(404);
         expect(res.body).toMatchObject({
           success: false,

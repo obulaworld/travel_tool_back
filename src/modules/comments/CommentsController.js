@@ -64,7 +64,12 @@ class CommentsController {
         recipientId = managerDetail.userId;
       }
 
-      CommentsController.sendEmail(req.user.UserInfo.id, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment);
+      /* istanbul ignore next */
+      CommentsController.sendEmail(
+        req.user.UserInfo.id,
+        recipientEmail, recipientName,
+        name, redirectLink, id, recipientId, comment
+      );
       /* istanbul ignore next */
       if (managerDetail.userId === req.user.UserInfo.id) {
         return NotificationEngine.notify(newNotificationDetail);
@@ -73,7 +78,9 @@ class CommentsController {
     }
   }
 
-  static sendEmail(senderId, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment) {
+  static sendEmail(
+    senderId, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment
+  ) {
     return NotificationEngine.sendMail({
       recipient: {
         email: recipientEmail,

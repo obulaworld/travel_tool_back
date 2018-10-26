@@ -4,12 +4,15 @@ import models from '../../../database/models';
 import Utils from '../../../helpers/Utils';
 import mockData from './mocks/mocksData';
 import { role } from '../../userRole/__tests__/mocks/mockData';
+import CommentsController from '../CommentsController';
 
 global.io = {
   sockets: {
     emit: (event, dataToEmit) => dataToEmit
   }
 };
+
+CommentsController.sendEmail = jest.fn();
 
 const request = supertest(app);
 const payload = {

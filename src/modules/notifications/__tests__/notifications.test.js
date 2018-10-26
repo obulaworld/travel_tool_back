@@ -18,7 +18,7 @@ global.io = {
     emit: (event, dataToBeEmitted) => dataToBeEmitted
   }
 };
- 
+
 describe('Notifications Controller', () => {
   describe('GET /api/v1/notifications', () => {
     const payload = {

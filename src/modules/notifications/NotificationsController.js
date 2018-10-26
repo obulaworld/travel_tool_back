@@ -58,6 +58,7 @@ class NotificationController {
       if (error.message === msg) {
         return CustomError.handleError(error.message, 404, res);
       }
+      /* istanbul ignore next */
       return CustomError.handleError('Server Error', 505, res);
     }
   }
@@ -120,10 +121,10 @@ class NotificationController {
       const userRole = await models.UserRole.findOne({
         where: { userId: sender.id }
       });
-      if (userRole.roleId === 53019) {
+      if (userRole.roleId === 53019) { /* istanbul ignore next */
         redirectLink = `/requests/${requestId}`;
       }
-      
+
       const newNotificationDetail = {
         senderId,
         recipientId,
@@ -133,10 +134,11 @@ class NotificationController {
         senderName: sender.fullName,
         senderImage: sender.picture
       };
-      
+
       NotificationEngine.notify(newNotificationDetail);
-      
-      CommentsController.sendEmail(senderId, recipient.email, recipient.fullName, sender.fullName, redirectLink, requestId, recipientId, newComment);
+
+      CommentsController.sendEmail(senderId, recipient.email,
+        recipient.fullName, sender.fullName, redirectLink, requestId, recipientId, newComment);
       return res.status(201).json({
         success: true,
         message: 'Comment created',

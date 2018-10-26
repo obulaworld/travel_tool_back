@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import {runInNewContext} from 'vm';
 import getRequests from './getRequests.data';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
@@ -21,7 +20,7 @@ import TravelChecklistController from '../travelChecklist/TravelChecklistControl
 
 dotenv.config();
 
-const {Op} = models.Sequelize;
+const { Op } = models.Sequelize;
 const noResult = 'No records found';
 let params = {};
 class RequestsController {
@@ -38,7 +37,7 @@ class RequestsController {
   }
 
   static async createRequest(req, res) {
-    let {trips, ...requestDetails} = req.body;
+    let { trips, ...requestDetails } = req.body;
     let request;
     delete requestDetails.status; // requester cannot post status
     try {
@@ -60,11 +59,11 @@ class RequestsController {
       );
       const availableBedSpaces = allAvailableRooms.map(bedId => bedId.id);
 
-      trips = trips.map(trip => {
+      trips = trips.map((trip) => {
         if (
-          availableBedSpaces.length < 1 ||
-          !availableBedSpaces.includes(trip.bedId) ||
-          !trip.bedId
+          availableBedSpaces.length < 1
+          || !availableBedSpaces.includes(trip.bedId)
+          || !trip.bedId
         ) {
           trip.bedId = null;
         }
@@ -116,7 +115,7 @@ class RequestsController {
     mailTopic,
     mailType,
   ) {
-    const {userId, id, manager} = request;
+    const { userId, id, manager } = request;
     const recipient = await UserRoleController.getRecipient(manager);
     // map the mailType to a notificationType.
     const notificationTypeMap = {
@@ -153,7 +152,7 @@ class RequestsController {
 
   static removeTripWhere(subquery) {
     const newSubquery = subquery;
-    newSubquery.include.map(includeModel => {
+    newSubquery.include.map((includeModel) => {
       const newIncludeModel = includeModel;
       if (newIncludeModel.where) {
         newIncludeModel.where = undefined;
@@ -165,7 +164,7 @@ class RequestsController {
 
   static removeRequestWhere(subquery) {
     let newSubQuery = subquery;
-    newSubQuery.where = {userId: params.userId};
+    newSubQuery.where = { userId: params.userId };
     if (params.status) {
       newSubQuery = includeStatusSubquery(
         newSubQuery,
@@ -222,7 +221,7 @@ class RequestsController {
 
   static async processResult(req, res, searchTrips = false) {
     const subquery = RequestsController.generateSubquery(searchTrips);
-    let requests = {count: 0};
+    let requests = { count: 0 };
     requests = await asyncWrapper(
       res,
       RequestsController.getRequestsFromDb,
@@ -252,6 +251,17 @@ class RequestsController {
         const error = `Request with id ${requestId} does not exist`;
         return Error.handleError(error, 404, res);
       }
+      if (requestData.status !== 'Open') {
+        const approver = await models.Approval.findOne({
+          where: {
+            requestId
+          }
+        });
+        const approverImage = await UserRoleController.getRecipient(approver.approverId, null);
+        requestData.dataValues.approver = approver.approverId;
+        requestData.dataValues.timeApproved = approver.updatedAt;
+        requestData.dataValues.approverImage = approverImage.picture;
+      }
       return res.status(200).json({
         success: true,
         requestData,
@@ -270,7 +280,7 @@ class RequestsController {
     await models.Trip.destroy({
       where: {
         requestId,
-        id: {[Op.notIn]: tripIds},
+        id: { [Op.notIn]: tripIds },
       },
     });
     const trip = await models.Trip.findById(tripData.id);
@@ -288,12 +298,12 @@ class RequestsController {
   }
 
   static async updateRequest(req, res) {
-    const {requestId} = req.params;
-    const {trips, ...requestDetails} = req.body;
+    const { requestId } = req.params;
+    const { trips, ...requestDetails } = req.body;
     try {
       await models.sequelize.transaction(async () => {
         const request = await models.Request.find({
-          where: {userId: req.user.UserInfo.id, id: requestId},
+          where: { userId: req.user.UserInfo.id, id: requestId },
         });
         if (!request) {
           return Error.handleError('Request was not found', 404, res);
@@ -303,9 +313,7 @@ class RequestsController {
           return Error.handleError(error, 409, res);
         }
         const requestTrips = await Promise.all(
-          trips.map(trip =>
-            RequestsController.updateRequestTrips(trips, trip, request.id),
-          ),
+          trips.map(trip => RequestsController.updateRequestTrips(trips, trip, request.id)),
         );
         delete requestDetails.status; // status cannot be updated by requester
         const updatedRequest = await request.updateAttributes(requestDetails);

@@ -216,7 +216,7 @@ export default class TravelChecklistController {
         });
       }
       await checklistItem.update({ deleteReason });
-      await checklistItem.destroy();
+      await checklistItem.destroy(); /* istanbul ignore next */
       if (checklistItemResources) checklistItemResources.destroy(); /* istanbul ignore next */
       if (checklistSubmissions) checklistSubmissions.destroy(); /* istanbul ignore next */
       return res.status(200).json({
