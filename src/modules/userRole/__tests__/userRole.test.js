@@ -7,6 +7,8 @@ import {
   userRole,
   newRole,
   profile,
+  userMock,
+  userRoles,
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 
@@ -37,23 +39,35 @@ const payload3 = {
   },
 };
 
+const payload4 = {
+  UserInfo: {
+    id: '-jdif34444',
+    fullName: 'Nice Guy ',
+    email: 'nice.guy@andela.com',
+    picture: 'fake.png'
+  },
+};
+
 const token = Utils.generateTestToken(payload);
 const token2 = Utils.generateTestToken(payload2);
 const token3 = Utils.generateTestToken(payload3);
+const unSeededUserToken = Utils.generateTestToken(payload4);
 
 describe('User Role Test', () => {
-  beforeAll((done) => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-    models.Role.bulkCreate(role);
-    models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+  beforeAll(async () => {
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     process.env.DEFAULT_ADMIN = 'captain.america@andela.com';
-    done();
+    await models.Role.bulkCreate(role);
+    await models.User.bulkCreate(userMock);
+    await models.UserRole.bulkCreate(userRoles);
   });
 
-  afterAll((done) => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-    models.UserRole.destroy({ force: true, truncate: { cascade: true } });
-    done();
+  afterAll(async () => {
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   });
 
   it('should return 401 Unauthorized users', (done) => {
@@ -279,20 +293,35 @@ describe('User Role Test', () => {
       });
   });
 
-  it('should add user profile to the database', (done) => {
+  it('should update user profile', (done) => {
     request(app)
-      .put('/api/v1/user/JNDVNFSFDK/profile')
+      .put('/api/v1/user/-MUyHJmKrxA90lPNQ1FOLNm/profile')
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send(profile.profile1)
       .expect(201)
       .end((err, res) => {
         expect(res.body.success).toEqual(true);
+        expect(res.body.message).toEqual('Profile updated successfully');
         if (err) return done(err);
         done();
       });
   });
 
+  it('should not update user profile of another user', (done) => {
+    request(app)
+      .put('/api/v1/user/-MUyHJmKrxA/profile')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .send(profile.profile1)
+      .expect(403)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('You cannot perform this operation');
+        if (err) return done(err);
+        done();
+      });
+  });
 
   it('should throw an error if the gender is wrong', (done) => {
     request(app)
@@ -340,13 +369,14 @@ describe('User Role Test', () => {
 
   it('should throw an error if the user does not exist', (done) => {
     request(app)
-      .put('/api/v1/user/JN/profile')
+      .put('/api/v1/user/-jdif34444/profile')
       .set('Content-Type', 'application/json')
-      .set('authorization', token)
+      .set('authorization', unSeededUserToken)
       .send(profile.profile1)
       .expect(400)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('User does not exist');
         if (err) return done(err);
         done();
       });

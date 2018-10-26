@@ -135,3 +135,33 @@ export const newRole = {
     description: 'Can view all request made on travela'
   }
 };
+
+
+export const userMock = [
+  {
+    id: 20200,
+    fullName: 'Samuel Kubai',
+    email: 'captan.ameria@andela.com',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    location: 'Lagos',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01'
+  },
+  {
+    id: 20201,
+    fullName: 'Sweetness',
+    email: 'captan.egypt@andela.com',
+    userId: '-MUnaemKrxA90lPNQs1FOLNm',
+    location: 'Lagos',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01'
+  }
+];
+
+export const userRoles = [{
+  userId: 20200,
+  roleId: 29187
+}, {
+  userId: 20201,
+  roleId: 401938
+}];

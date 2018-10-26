@@ -18,6 +18,7 @@ Router.put(
   authenticate,
   Validator.validatePersonalInformation,
   Validator.checkGender,
+  Validator.checkSignedInUser,
   UserRoleController.updateUserProfile
 );
 

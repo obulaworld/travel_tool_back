@@ -279,4 +279,14 @@ export default class Validator {
       next();
     }
   }
+
+  static checkSignedInUser(req, res, next) {
+    if (req.user.UserInfo.id !== req.params.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You cannot perform this operation'
+      });
+    }
+    next();
+  }
 }
