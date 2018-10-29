@@ -43,6 +43,7 @@ const middleware = {
     getUserFromDb: jest.fn(invokeNextMiddleware),
     validateAvailableRooms: jest.fn(invokeNextMiddleware),
     checkSignedInUser: jest.fn(invokeNextMiddleware),
+    validateNewCentre: jest.fn(invokeNextMiddleware)
   },
   RoleValidator: {
     validateUpdateRole: jest.fn(invokeNextMiddleware),

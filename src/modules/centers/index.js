@@ -21,4 +21,10 @@ Router.get('/centers',
   authenticate,
   CentersController.getCenters);
 
+Router.post('/centers',
+  authenticate,
+  Validator.validateNewCentre,
+  RoleValidator.checkUserRole(['Super Administrator']),
+  CentersController.createCenter);
+
 export default Router;

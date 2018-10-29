@@ -289,4 +289,20 @@ export default class Validator {
     }
     next();
   }
+
+  static async validateNewCentre(req, res, next) {
+    const { newLocation: location } = req.body;
+    if (!location) return Error.handleError('Please provide a new location', 400, res);
+    const message = 'Please provide a valid location';
+    if (typeof location !== 'string') return Error.handleError(message, 400, res);
+    const foundLocation = await models.Center
+      .findOne({ where: { location: { [Op.iLike]: location } } });
+    if (foundLocation) {
+      return res.status(409).json({
+        success: false,
+        message: 'This centre already exists'
+      });
+    }
+    return next();
+  }
 }
