@@ -2,6 +2,7 @@ import express from 'express';
 import middlewares from '../../middlewares';
 import UserRoleController from './UserRoleController';
 
+
 const { authenticate, Validator, RoleValidator } = middlewares;
 const Router = express.Router();
 

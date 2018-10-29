@@ -166,38 +166,44 @@ class UserRoleController {
   }
 
   static async getOneRole(req, res) {
+    const { id } = req.params;
     try {
-      const result = await models.Role.findById(req.params.id, {
-        include: [
-          {
-            model: models.User,
-            as: 'users',
-            attributes: ['email', 'fullName', 'userId', 'id'],
-            through: {
-              attributes: []
-            },
-            include: [
-              {
-                model: models.Center,
-                as: 'centers',
-                attributes: ['id', 'location'],
-                through: {
-                  attributes: [],
-                  where: {
-                    roleId: req.params.id
-                  }
-                }
-              }
-            ],
-          },
-        ],
-      });
+      const result = await UserRoleController.calculateUserRole(id);
       const message = [200, 'data', true];
       UserRoleController.response(res, message, result);
     } catch (error) {
       const message = [400, 'Params must be an integer', false];
       UserRoleController.response(res, message);
     }
+  }
+
+  static async calculateUserRole(roleId) {
+    const result = await models.Role.findById(roleId, {
+      include: [
+        {
+          model: models.User,
+          as: 'users',
+          attributes: ['email', 'fullName', 'userId', 'id'],
+          through: {
+            attributes: []
+          },
+          include: [
+            {
+              model: models.Center,
+              as: 'centers',
+              attributes: ['id', 'location'],
+              through: {
+                attributes: [],
+                where: {
+                  roleId
+                }
+              }
+            }
+          ],
+        },
+      ],
+    });
+    return result;
   }
 
   static async autoAdmin(req, res) {
@@ -238,7 +244,6 @@ class UserRoleController {
     try {
       const { roles } = req.user;
       const { userId, roleId } = req.params;
-
       // checks if role to delete is super admin
       const RequestUserRoleIds = roles.map(role => role.dataValues.id);
       const superAdminId = 10948;
@@ -247,7 +252,6 @@ class UserRoleController {
         const error = `Only a 'Super Administrator' can change the role of another 'Super Administrator'`; // eslint-disable-line
         return CustomError.handleError(error, 403, res);
       }
-
       const query = { where: { userId, roleId } };
       const deletedRole = await models.UserRole.destroy(query);
       const msg = `User can no longer perform operations associated with the role: '${req.roleName}'`; // eslint-disable-line

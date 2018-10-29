@@ -62,7 +62,7 @@ describe('switchMessage helper', () => {
 
     expect(receivedMessage.split(' ')).toContain('');
     done();
-  });
+  }); 
 
   it('should return changed room message', (done) => {
     const receivedMessage = switchMessage({
@@ -76,6 +76,13 @@ describe('switchMessage helper', () => {
       type: 'Trip Survey', senderName: 'Tester'
     });
     expect(surveyMessage.split(' ')).toContain('fill', 'survey');
+    done();
+  });
+  it('should return travel readiness', (done) => {
+    const readinessMessage = switchMessage({
+      type: 'Travel readiness', senderName: 'Travela'
+    });
+    expect(readinessMessage.split(' ')).toContain('achieved', 'readiness');
     done();
   });
 });

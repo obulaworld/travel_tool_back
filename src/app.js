@@ -6,6 +6,8 @@ import morgan from 'morgan';
 import bugsnag from 'bugsnag';
 import expressValidator from 'express-validator';
 import modules from './modules';
+import MailTravelMembers from './modules/userRole/MailTravelMembers';
+import CloudinaryDeletion from './modules/travelChecklist/CloudinaryDeletion';
 
 const app = express();
 
@@ -26,6 +28,12 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(passport.initialize());
 
+((req, res) => {
+  MailTravelMembers.sendMail(req, res);
+})();
+
+
+CloudinaryDeletion.executeResourceDelete();
 // body parser for url params and json
 app.use(
   bodyParser.urlencoded({

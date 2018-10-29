@@ -12,6 +12,9 @@ import {
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 
+import UserRoleController from '../../userRole/UserRoleController';
+import NotificationEngine from '../../notifications/NotificationEngine';
+
 const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',

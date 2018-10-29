@@ -129,13 +129,19 @@ export default class TravelChecklistController {
     }
   }
 
-  static async checkListPercentage(req, res, requestId) {
+  static async checkListPercentageNumber(req, res, requestId) {
     const getChecklists = await TravelChecklistHelper.getChecklists(req, res);
     const checklistLength = getChecklists.checklists.length;
     const getSubmissions = await TravelChecklistController
       .getSubmissions(requestId, res);
     const percentage = Math
       .floor((getSubmissions.length / checklistLength) * 100);
+    return percentage;
+  }
+
+  static async checkListPercentage(req, res, requestId) {
+    const percentage = await TravelChecklistController
+      .checkListPercentageNumber(req, res, requestId);
     const completedPercentage = `${isNaN(percentage) ? 0 : percentage}% complete`; // eslint-disable-line
     return completedPercentage;
   }

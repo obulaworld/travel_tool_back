@@ -53,8 +53,13 @@ export default (sequelize, DataTypes) => {
     notificationCount: {
       allowNull: false,
       defaultValue: 0,
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
     },
+    travelCompletion: {
+      allowNull: false,
+      defaultValue: 'false',
+      type: DataTypes.ENUM('true', 'false')
+    }
   });
   Trip.associate = models => {
     Trip.belongsTo(models.Bed, {

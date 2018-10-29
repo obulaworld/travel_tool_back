@@ -27,14 +27,11 @@ const attachCommentToMail = msgDetail => (
             </table>
   `
 );
-
-
 const switchMessage = (msgDetail) => {
   switch (msgDetail.type) {
     case 'New Request':
       return (
-        `<b style="text-transform: capitalize">${msgDetail.senderName}</b>
-        just submitted a travel request for your approval. Login to your
+        `<b style="text-transform: capitalize">${msgDetail.senderName}</b> just submitted a travel request for your approval. Login to your
         travela account for details.`);
     case 'Approved':
       return (
@@ -45,23 +42,24 @@ const switchMessage = (msgDetail) => {
         ${msgDetail.senderName}. Login to your travela account for details.`);
     case 'Comments':
       return (
-          attachCommentToMail(msgDetail)
-        );
+        attachCommentToMail(msgDetail)
+      );
     case 'Updated Request':
       return (
-        `<b style="text-transform: capitalize;">${msgDetail.senderName}</b>
-        just updated a travel request for your approval. Login to your
+        `<b style="text-transform: capitalize;">${msgDetail.senderName}</b> just updated a travel request for your approval. Login to your
         travela account for details.`);
     case 'Changed Room':
       return (
         `Your residence record for the travel request 
         <a href="${process.env.REDIRECT_URL}/requests/${msgDetail.requestId}"><b>#
-        ${msgDetail.requestId}</b></a> was updated by ${msgDetail.senderName}. 
-        Login to your travela account for details.`);
+        ${msgDetail.requestId}</b></a> was updated by ${msgDetail.senderName}. <b>Login to your travela account for details.`);
     case 'Trip Survey':
       return (
-        `You just checked out of a Travela guesthouse. Please fill in this
-        survey to tell us about your guest experience.`);
+        'You just checked out of a Travela guesthouse. Please fill in this survey to tell us about your guest experience.');
+    case 'Travel readiness':
+      return (
+        `${msgDetail.senderName[1]} has achieved 100% travel readiness for trip to ${msgDetail.senderName[2]}. Kindly login to your Travela account for details.
+        `);
     default:
       return '';
   }
