@@ -74,6 +74,9 @@ const middleware = {
     isRoomFaulty: jest.fn(invokeNextMiddleware),
     isGenderAllowed: jest.fn(invokeNextMiddleware)
   },
+  analyticsValidator: {
+    validateFilterAndType: jest.fn(invokeNextMiddleware)
+  },
   validateDirectReport: jest.fn(mockValidateDirectReport)
 };
 

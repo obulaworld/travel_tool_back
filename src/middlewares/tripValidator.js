@@ -108,7 +108,7 @@ export default class TripValidator {
       });
       if (!userRole) {
         return res.status(403).json({
-          message: 'Only a Travel Admin can change rooms',
+          message: 'Only a Travel Admin can perform this action',
           success: false
         });
       }

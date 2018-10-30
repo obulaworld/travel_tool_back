@@ -30,6 +30,16 @@ class Utils {
     return status === 'Approved'
       ? 'Request approved successfully' : 'Request rejected successfully';
   }
+
+  static dateDiffInMonths(minDate, maxDate) {
+    if (!minDate || !maxDate) return 0;
+    const minimumDate = new Date(minDate);
+    const maximumDate = new Date(maxDate);
+    const yearDifference = (maximumDate.getFullYear() - minimumDate.getFullYear()) * 12;
+    let monthDifference = (yearDifference - minimumDate.getMonth()) + 1;
+    monthDifference += maximumDate.getMonth();
+    return monthDifference;
+  }
 }
 
 export default Utils;

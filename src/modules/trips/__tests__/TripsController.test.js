@@ -402,7 +402,7 @@ describe('Test Suite for Trips Controller', () => {
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
-              .toEqual('Only a Travel Admin can change rooms');
+              .toEqual('Only a Travel Admin can perform this action');
             if (err) return done(err);
             done();
           });
