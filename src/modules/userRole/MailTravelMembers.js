@@ -9,12 +9,12 @@ dotenv.config();
 
 class MailTravelMembers {
   /* istanbul ignore next */
-  static async sendMailToDestination(requester, trips, travelCompletion) {
+  static async sendTravelTeamEmails(requester, trips, travelCompletion) {
     try {
       const travelTeamMembers = await UserRoleController.calculateUserRole('339458');
       const { users } = travelTeamMembers.dataValues;
       trips.filter(async (trip) => {
-        const { destination, id } = trip;
+        const { destination, origin, id } = trip;
         const requestTrip = await models.Trip.findById(id);
         users.filter(async (travelTeamMember) => {
           const { location } = travelTeamMember.centers[0];
@@ -23,23 +23,39 @@ class MailTravelMembers {
             fullName,
             email
           };
-          if (
-            requestTrip.travelCompletion !== 'true'
-            && location === destination
-            && travelCompletion === 100
-          ) {
-            await MailTravelMembers.sendNotificationToManager(
-              recipient, 'Travel readiness completion', 'Travel readiness', requester, destination
-            );
-            requestTrip.update({
-              travelCompletion: 'true'
-            });
+          if(requestTrip.travelCompletion !== 'true'
+          && travelCompletion === 100){
+            if(location === origin){
+              await MailTravelMembers.sendMailToOrigin(requester, recipient, destination, requestTrip);
+            }
+            else if(location === destination){
+              await MailTravelMembers.sendMailToDestination(requester, recipient, destination, requestTrip);
+            }
           }
-        });
-      });
-    } catch (error) {
-      return error;
-    }
+          });
+          })
+        } catch (error) {
+              return error;
+        }}
+
+        /* istanbul ignore next */
+  static async sendMailToOrigin(requester, recipient, destination, requestTrip){
+    await MailTravelMembers.sendNotificationToManager(
+      recipient, 'Travel readiness completion', 'Travel readiness', requester, destination
+    );
+    requestTrip.update({
+      travelCompletion: 'true'
+    });
+  }
+
+   /* istanbul ignore next */
+   static async sendMailToDestination(requester, recipient, destination, requestTrip){
+    await MailTravelMembers.sendNotificationToManager(
+      recipient, 'Travel readiness completion', 'Travel readiness', requester, destination
+    );
+    requestTrip.update({
+      travelCompletion: 'true'
+    });
   }
 
   /* istanbul ignore next */
@@ -70,7 +86,7 @@ class MailTravelMembers {
       const { trips, name } = request.dataValues;
       if (travelCompletion === 100) {
         MailTravelMembers
-          .sendMailToDestination(name, trips, travelCompletion);
+          .sendTravelTeamEmails(name, trips, travelCompletion);
       }
       return request;
     }));

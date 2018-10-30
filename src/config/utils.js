@@ -1,3 +1,4 @@
+
 // a function to notify when some envrironment variables are unset
 const generalOptionalEnvVariables = [
   'DATABASE_DIALECT',

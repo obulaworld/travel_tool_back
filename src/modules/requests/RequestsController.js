@@ -17,6 +17,7 @@ import UserRoleController from '../userRole/UserRoleController';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
 import TravelChecklistController from '../travelChecklist/TravelChecklistController';
+import MailTravelMembers from '../userRole/MailTravelMembers'
 
 dotenv.config();
 
