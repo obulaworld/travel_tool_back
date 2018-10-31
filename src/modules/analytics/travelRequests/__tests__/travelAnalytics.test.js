@@ -1,28 +1,25 @@
-
 import request from 'supertest';
 import app from '../../../../app';
 import models from '../../../../database/models';
+import { role } from '../../../userRole/__tests__/mocks/mockData';
+import Utils from '../../../../helpers/Utils';
 import {
-  requesterPayload,
-  travelAdminPayload,
   userRole,
   travelAdmin,
   travelRequester,
   requestsData,
   tripsData,
   postGuestHouse,
-  tripsReportResponse
-} from '../__mocks__/tripsData';
-import {
-  role,
-} from '../../../userRole/__tests__/mocks/mockData';
-import Utils from '../../../../helpers/Utils';
+  userPayload,
+  travelAdminPayload,
+  analyticsResopnse
+} from '../__mocks__/travelAnalyticsData';
 
-const requesterToken = Utils.generateTestToken(requesterPayload);
 const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
+const travellerToken = Utils.generateTestToken(userPayload);
 
-describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () => {
-  beforeAll(async () => {
+describe('Test for travel analytics by location', () => {
+  beforeAll(async (done) => {
     await models.GuestHouse.destroy({ truncate: true, cascade: true });
     await models.Room.destroy({ truncate: true, cascade: true });
     await models.Bed.destroy({ truncate: true, cascade: true });
@@ -32,18 +29,21 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
     await models.Request.destroy({ truncate: true, cascade: true });
     await models.Trip.destroy({ truncate: true, cascade: true });
     await models.Role.bulkCreate(role);
-    await models.User.create(travelAdmin);
+    const user = await models.User.create(travelAdmin);
     await models.User.create(travelRequester);
     await models.UserRole.create(userRole);
-    await request(app)
+    request(app)
       .post('/api/v1/guesthouses')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
-      .send(postGuestHouse);
-    const bed = models.Bed.findOne({});
-    await models.Request.bulkCreate(requestsData);
-    await models.Trip.bulkCreate(tripsData(bed.id));
-    process.env.DEFAULT_ADMIN = 'john.snow@andela.com';
+      .send(postGuestHouse)
+      .end(async () => {
+        const bed = await models.Bed.findOne({});
+        await models.Request.bulkCreate(requestsData);
+        await models.Trip.bulkCreate(tripsData(bed.id));
+        done();
+      });
+    process.env.DEFAULT_ADMIN = 'captain.america@andela.com';
   });
   afterAll(async () => {
     await models.GuestHouse.destroy({ truncate: true, cascade: true });
@@ -55,77 +55,86 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
     await models.Request.destroy({ truncate: true, cascade: true });
     await models.Trip.destroy({ truncate: true, cascade: true });
   });
-  it('should require a user token', (done) => {
+
+  it('should require a user to be authenticated', (done) => {
     request(app)
-      .get('/api/v1/analytics/trips/departments')
+      .get('/api/v1/analytics')
       .end((err, res) => {
         expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Please provide a token');
-        console.log(res.body.error)
         if (err) return done(err);
         done();
       });
   });
 
-  it('should require user to be a travel Admin', (done) => {
+  it('should require one to be a travel admin', (done) => {
     request(app)
-      .get('/api/v1/analytics/trips/departments')
+      .get('/api/v1/analytics')
       .set('Content-Type', 'application/json')
-      .set('authorization', requesterToken)
+      .set('authorization', travellerToken)
       .end((err, res) => {
         expect(res.statusCode).toEqual(403);
         expect(res.body.success).toEqual(false);
-        expect(res.body.error).toEqual('You don\'t have access to perform this action');
+        expect(res.body.error).toEqual("You don't have access to perform this action");
         if (err) return done(err);
         done();
       });
   });
 
-  it('should require filterBy and type in the query parameter', (done) => {
+  it(' should display details of travel admin for Nairobi', (done) => {
     request(app)
-      .get('/api/v1/analytics/trips/departments')
-      .set('Content-Type', 'application/json')
-      .set('authorization', travelAdminToken)
-      .end((err, res) => {
-        expect(res.statusCode).toEqual(422);
-        expect(res.body.success).toEqual(false);
-        expect(res.body.errors[0].message)
-          .toEqual('filterBy is required');
-        expect(res.body.errors[1].message)
-          .toEqual('filterBy must be "month"');
-        expect(res.body.errors[2].message)
-          .toEqual('type is required');
-        expect(res.body.errors[3].message)
-          .toEqual('type must be "json" or "file"');
-        if (err) return done(err);
-        done();
-      });
-  });
-
-  it('should get trips from admin location', (done) => {
-    request(app)
-      .get('/api/v1/analytics/trips/departments?filterBy=month&type=json')
+      .get('/api/v1/analytics')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        expect(res.body.data).toEqual(tripsReportResponse);
+        expect(res.body).toEqual(analyticsResopnse);
         if (err) return done(err);
         done();
       });
   });
 
-  it('should return csv file', (done) => {
+  it('should filter by date', (done) => {
     request(app)
-      .get('/api/v1/analytics/trips/departments?filterBy=month&type=file')
+      .get('/api/v1/analytics')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {
         expect(res.statusCode).toEqual(200);
-        expect(res.header['content-type']).toBe('text/csv; charset=utf-8');
-        expect(res.header['content-disposition']).toBe('attachment; filename="Departmental Trips Per Month Report.csv"');
+        expect(res.body.success).toEqual(true);
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return a csv report file', (done) => {
+    request(app)
+      .get('/api/v1/analytics?type=file')
+      .set('Content-Type', 'application/json')
+      .set('authorization', travelAdminToken)
+      .end((err, res) => {
+        expect(res.statusCode).toEqual(200);
+        expect(res.headers['content-type']).toEqual('text/csv; charset=utf-8');
+        expect(res.headers['content-disposition']).toEqual(
+          'attachment; filename="Travel Analysis Report.csv"'
+        );
+        expect(res.text).toContain('total_requests');
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return response in json format', (done) => {
+    request(app)
+      .get('/api/v1/analytics?type=json')
+      .set('Content-Type', 'application/json')
+      .set('authorization', travelAdminToken)
+      .end((err, res) => {
+        expect(res.statusCode).toEqual(200);
+        expect(res.headers['content-type']).toEqual('application/json; charset=utf-8');
+        expect(res.text).toContain('total_requests');
         if (err) return done(err);
         done();
       });

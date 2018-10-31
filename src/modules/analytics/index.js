@@ -1,12 +1,14 @@
 import express from 'express';
 import middleware from '../../middlewares';
 import TripsController from './trips/TripsController';
+import AnalyticsController from './travelRequests/analyticsController';
 
-const TripsRouter = express.Router();
+
+const Router = express.Router();
 
 const { authenticate, RoleValidator, analyticsValidator } = middleware;
 
-TripsRouter.get(
+Router.get(
   '/analytics/trips/departments',
   authenticate,
   RoleValidator.checkUserRole(
@@ -16,4 +18,8 @@ TripsRouter.get(
   TripsController.getTripsPerMonth,
 );
 
-export default TripsRouter;
+Router.get('/analytics',
+  authenticate, RoleValidator.checkUserRole(['Super Administrator', 'Travel Administrator']),
+  AnalyticsController.analytics);
+
+export default Router;
