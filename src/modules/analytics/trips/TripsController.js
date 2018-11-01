@@ -2,6 +2,7 @@ import { Parser } from 'json2csv';
 import models from '../../../database/models';
 import Error from '../../../helpers/Error';
 import Utils from '../../../helpers/Utils';
+import TravelChecklistHelper from '../../../helpers/travelChecklist';
 
 const { Op } = models.Sequelize;
 class TripsController {
@@ -25,6 +26,7 @@ class TripsController {
 
   static async getTripsPerMonth(req, res) {
     const { location } = req.user;
+    const andelaCenters = TravelChecklistHelper.getAndelaCenters();
     try {
       const trips = await models.Request.findAll({
         group: ['department'],
@@ -38,7 +40,7 @@ class TripsController {
         where: { status: { [Op.ne]: 'Rejected' } },
         include: [{
           model: models.Trip,
-          where: { origin: location },
+          where: { origin: andelaCenters[`${location}`] },
           as: 'trips',
           attributes: [],
         }]

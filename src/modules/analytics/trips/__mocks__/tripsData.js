@@ -114,7 +114,7 @@ export const tripsData = bedId => ([
   {
     id: 1,
     requestId: 'xDh20cuGz',
-    origin: 'Lagos',
+    origin: 'Lagos, Nigeria',
     destination: 'Nairobi',
     bedId,
     departureDate: '2018-10-01',
@@ -123,7 +123,7 @@ export const tripsData = bedId => ([
   {
     id: 2,
     requestId: 'xDh20cuGy',
-    origin: 'Lagos',
+    origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
     departureDate: '2018-10-11',
@@ -132,7 +132,7 @@ export const tripsData = bedId => ([
   {
     id: 3,
     requestId: 'xDh20cuGx',
-    origin: 'Lagos',
+    origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
     departureDate: '2018-10-01',
@@ -141,7 +141,7 @@ export const tripsData = bedId => ([
   {
     id: 4,
     requestId: 'xDh20cuGs',
-    origin: 'Lagos',
+    origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
     departureDate: '2018-10-01',
@@ -150,7 +150,7 @@ export const tripsData = bedId => ([
   {
     id: 5,
     requestId: 'xDh20cuGhf',
-    origin: 'Lagos',
+    origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
     departureDate: '2018-10-01',

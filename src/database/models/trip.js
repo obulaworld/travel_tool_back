@@ -61,7 +61,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.ENUM('true', 'false')
     }
   });
-  Trip.associate = models => {
+  Trip.associate = (models) => {
     Trip.belongsTo(models.Bed, {
       allowNull: true,
       foreignKey: 'bedId',

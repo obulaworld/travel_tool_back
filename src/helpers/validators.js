@@ -99,3 +99,11 @@ export const deleteChecklistItem = [
     'Reason for deletion is required')
     .trim().isLength({ min: 3, }),
 ];
+export const travelReadinessValidators = [
+  query('page', 'Page must be a positive integer')
+    .isInt({ gt: 0 }),
+  query('limit', 'Limit must be a positive integer')
+    .isInt({ gt: 0 }),
+  query('type', 'Type must be a string')
+    .isString('')
+];

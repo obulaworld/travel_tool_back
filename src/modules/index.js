@@ -11,6 +11,7 @@ import tripsRouter from './trips';
 import analyticsRouter from './analytics';
 import travelChecklistRouter from './travelChecklist';
 
+
 const apiPrefix = '/api/v1';
 
 const routes = (app) => {
