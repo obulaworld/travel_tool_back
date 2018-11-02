@@ -94,9 +94,9 @@ class MailTravelMembers {
 
   /* istanbul ignore next */
   static async sendMail(req, res) {
-    cron.schedule('* * 2 * *', async () => {
-      await MailTravelMembers.executeMailSend(req, res);
-    });
+    // cron.schedule('* * 2 * *', async () => {
+    //   await MailTravelMembers.executeMailSend(req, res);
+    // });
   }
 }
 
