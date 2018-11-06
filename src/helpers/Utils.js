@@ -31,14 +31,23 @@ class Utils {
       ? 'Request approved successfully' : 'Request rejected successfully';
   }
 
-  static dateDiffInMonths(minDate, maxDate) {
-    if (!minDate || !maxDate) return 0;
-    const minimumDate = new Date(minDate);
-    const maximumDate = new Date(maxDate);
-    const yearDifference = (maximumDate.getFullYear() - minimumDate.getFullYear()) * 12;
-    let monthDifference = (yearDifference - minimumDate.getMonth()) + 1;
-    monthDifference += maximumDate.getMonth();
-    return monthDifference;
+  static prependZeroToNumber(value) {
+    return (value < 10) ? `0${value}` : value;
+  }
+
+  static getMonthFirstAndLastDate(monthNumber) {
+    const currentDate = new Date();
+    const firstDate = new Date(currentDate.getFullYear(), monthNumber, 1);
+    const lastDate = new Date(currentDate.getFullYear(), monthNumber + 1, 0);
+    const firstDateMonth = Utils.prependZeroToNumber(firstDate.getMonth() + 1);
+    const lastDateMonth = Utils.prependZeroToNumber(lastDate.getMonth() + 1);
+    const firstDateDay = Utils.prependZeroToNumber(firstDate.getDate());
+    const firstDateString = `${firstDate.getFullYear()}-${firstDateMonth}-${firstDateDay}`;
+    const lastDateString = `${lastDate.getFullYear()}-${lastDateMonth}-${lastDate.getDate()}`;
+    return {
+      firstDate: firstDateString,
+      lastDate: lastDateString
+    };
   }
 }
 

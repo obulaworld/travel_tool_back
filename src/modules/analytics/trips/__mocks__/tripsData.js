@@ -117,7 +117,7 @@ export const tripsData = bedId => ([
     origin: 'Lagos, Nigeria',
     destination: 'Nairobi',
     bedId,
-    departureDate: '2018-10-01',
+    departureDate: new Date(),
     returnDate: '2018-10-20',
   },
   {
@@ -126,7 +126,7 @@ export const tripsData = bedId => ([
     origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
-    departureDate: '2018-10-11',
+    departureDate: new Date(),
     returnDate: '2018-10-20',
   },
   {
@@ -135,7 +135,7 @@ export const tripsData = bedId => ([
     origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
-    departureDate: '2018-10-01',
+    departureDate: new Date(),
     returnDate: '2018-10-20',
   },
   {
@@ -144,7 +144,7 @@ export const tripsData = bedId => ([
     origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
-    departureDate: '2018-10-01',
+    departureDate: new Date(),
     returnDate: '2018-10-20',
   },
   {
@@ -153,7 +153,7 @@ export const tripsData = bedId => ([
     origin: 'Lagos, Nigeria',
     destination: 'New York',
     bedId,
-    departureDate: '2018-10-01',
+    departureDate: new Date(),
     returnDate: '2018-10-20',
   },
   {
@@ -162,7 +162,7 @@ export const tripsData = bedId => ([
     origin: 'New York',
     destination: 'Nairobi',
     bedId,
-    departureDate: '2018-10-01',
+    departureDate: new Date(),
     returnDate: '2018-10-20',
   }
 ]);
@@ -170,19 +170,19 @@ export const tripsData = bedId => ([
 export const tripsReportResponse = [
   {
     label: 'Apprenticeship',
-    value: 1
+    value: '1'
   },
   {
     label: 'Operations',
-    value: 1
+    value: '1'
   },
   {
     label: 'People',
-    value: 1
+    value: '1'
   },
   {
     label: 'TDD',
-    value: 2
+    value: '2'
   }
 ];
 

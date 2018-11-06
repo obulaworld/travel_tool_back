@@ -11,14 +11,8 @@ class TripsController {
     trips.forEach((trip) => {
       const reportItem = {
         label: trip.department,
-        value: 0
+        value: trip.totalTrips || 0
       };
-      if (trip.minDate && trip.maxDate) {
-        const dateDiffInMonths = Utils
-          .dateDiffInMonths(trip.minDate, trip.maxDate) || 1;
-        const averageTrips = (trip.totalTrips / dateDiffInMonths);
-        reportItem.value = Math.ceil(averageTrips);
-      }
       report.push(reportItem);
     });
     return report;
@@ -27,6 +21,7 @@ class TripsController {
   static async getTripsPerMonth(req, res) {
     const { location } = req.user;
     const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+    const monthFirstAndLastDate = Utils.getMonthFirstAndLastDate(new Date().getMonth());
     try {
       const trips = await models.Request.findAll({
         group: ['department'],
@@ -34,13 +29,17 @@ class TripsController {
         attributes: [
           'department',
           [models.sequelize.fn('COUNT', models.sequelize.col('trips.id')), 'totalTrips'],
-          [models.sequelize.fn('MIN', models.sequelize.col('trips.departureDate')), 'minDate'],
-          [models.sequelize.fn('MAX', models.sequelize.col('trips.departureDate')), 'maxDate'],
         ],
         where: { status: { [Op.ne]: 'Rejected' } },
         include: [{
           model: models.Trip,
-          where: { origin: andelaCenters[`${location}`] },
+          where: {
+            origin: andelaCenters[`${location}`],
+            departureDate: {
+              [Op.gte]: monthFirstAndLastDate.firstDate,
+              [Op.lte]: monthFirstAndLastDate.lastDate
+            },
+          },
           as: 'trips',
           attributes: [],
         }]

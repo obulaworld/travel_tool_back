@@ -62,7 +62,6 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
         expect(res.statusCode).toEqual(401);
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Please provide a token');
-        console.log(res.body.error)
         if (err) return done(err);
         done();
       });
