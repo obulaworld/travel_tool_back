@@ -52,7 +52,7 @@ describe('Creating a new occupation', () => {
       .expect(400)
       .end((err, res) => {
         const objectResponse = JSON.parse(res.text);
-        expect(objectResponse.message).toBe(' new occupation name required ');
+        expect(objectResponse.message).toBe('new occupation name required');
         expect(res.status).toEqual(400);
         if (err) return done(err);
         done();

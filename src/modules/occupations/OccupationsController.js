@@ -1,6 +1,7 @@
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 
+
 class OccupationsController {
   static async getAllOccupations(req, res) {
     try {
@@ -21,7 +22,7 @@ class OccupationsController {
         return res.status(400).json({
           request: req.body,
           success: false,
-          message: ' new occupation name required '
+          message: 'new occupation name required'
         });
       }
       if (typeof occupationName !== 'string') {
