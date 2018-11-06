@@ -88,6 +88,16 @@ export const checkListItems = [
     createdAt: new Date(),
     updatedAt: new Date(),
     deletedAt: null
+  },
+  {
+    id: '101',
+    name: 'Green card',
+    requiresFiles: true,
+    deleteReason: 'not needed',
+    destinationName: 'Lagos, Nigeria',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: '2018-11-01T13:34:20.109Z',
   }
 ];
 
@@ -128,6 +138,12 @@ export const checkListItemsResources = [
     updatedAt: new Date(),
     deletedAt: null
   },
+  {
+    id: '5',
+    label: 'National Identity',
+    link: 'http://nira.ids.com',
+    checklistItemId: '101'
+  }
 ];
 
 export const checklistSubmissions = [

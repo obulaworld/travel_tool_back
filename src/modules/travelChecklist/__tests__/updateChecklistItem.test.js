@@ -10,6 +10,7 @@ import {
   checklistSubmissions
 } from './__mocks__/mockData2';
 import { role } from '../../userRole/__tests__/mocks/mockData';
+import { resources } from 'cloudinary/lib/api';
 
 cron.schedule = jest.fn();
 
@@ -149,6 +150,47 @@ describe('Travel ChecklistController', () => {
       .end((err, res) => {
         if (err) done(err);
         expect(res.body).toMatchObject(expectedResponse);
+        done();
+      });
+    });
+
+    it('should restore a deleted checklist item', (done) => {
+      const expectedResponse = {
+        success: true,
+        message: 'Checklist item sucessfully restored',
+        updatedChecklistItem: {
+          name: 'Green card',
+          destinationName: 'Lagos, Nigeria',
+          requiresFiles: true,
+          resources: [{
+            id: 'QWz-cHjSJ',
+            label: 'National Identity',
+            link: 'http://nira.ids.com',
+            checklistItemId: '101',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            deletedAt: null
+          }]
+        }
+      };
+      request(app).put('/api/v1/checklists/101')
+      .set('authorization', token)
+      .send({
+        name: 'Green card',
+        requiresFiles: true,
+        deleteReason: 'kgkgkgm',
+        destinationName: 'Lagos, Nigeria',
+        deletedAt: '2018-11-01T13:34:20.109Z',
+        resources: [{
+          label: 'National Identity',
+          link: 'http://nira.ids.com',
+          checklistItemId: '101'
+        }]
+      })
+      .end((err, res) => {
+        if (err) done(err);
+        expect(res.body.message).toEqual(expectedResponse.message);
+        expect(res.body.deletedAt).toEqual(expectedResponse.deletedAt);
         done();
       });
     });

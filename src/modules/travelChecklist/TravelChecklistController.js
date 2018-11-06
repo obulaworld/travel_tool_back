@@ -80,6 +80,12 @@ export default class TravelChecklistController {
               [Op.ne]: null
             },
             destinationName: andelaCenters[`${destinationName}`]
+          },
+          include: {
+            model: models.ChecklistItemResource,
+            as: 'resources',
+            paranoid: false,
+            attributes: ['id', 'label', 'link', 'checklistItemId']
           }
         });
       if (ChecklistItems.length) {
@@ -147,7 +153,7 @@ export default class TravelChecklistController {
   }
 
   static async updateResources(checklistItemId, resources) {
-    await models.ChecklistItemResource.destroy({ where: { checklistItemId } });
+    await models.ChecklistItemResource.destroy({ where: { checklistItemId }, force: true });
     const newResources = TravelChecklistController
       .addChecklistItemId(checklistItemId, resources);
     await models.ChecklistItemResource.bulkCreate(newResources);
@@ -163,23 +169,28 @@ export default class TravelChecklistController {
       const checklistItemId = req.params.checklistId;
       const { name, requiresFiles, resources } = req.body;
       const checklistItem = await models.ChecklistItem.findOne({
-        where: {
-          id: checklistItemId, destinationName: andelaCenters[`${location}`]
-        }
+        paranoid: false, where: { id: checklistItemId, destinationName: andelaCenters[`${location}`] }
       });
-
       if (checklistItem) {
+        const responseMessage = checklistItem.dataValues.deletedAt === null
+          ? 'Checklist item sucessfully updated' : 'Checklist item sucessfully restored';
         const updatedChecklistItem = await checklistItem
-          .update({ name, requiresFiles });
+          .update({
+            name, requiresFiles, deletedAt: null, deleteReason: null
+          });
+        checklistItem.setDataValue('deletedAt', null);
+        checklistItem.save();
+
         const updatedResources = await TravelChecklistController
           .updateResources(checklistItemId, resources);
 
         return res.status(200).json({
           success: true,
-          message: 'Checklist item sucessfully updated',
+          message: responseMessage,
           updatedChecklistItem: {
             name: updatedChecklistItem.name,
             destinationName: updatedChecklistItem.destinationName,
+            deletedAt: updatedChecklistItem.deletedAt,
             requiresFiles: updatedChecklistItem.requiresFiles,
             resources: updatedResources
           }
