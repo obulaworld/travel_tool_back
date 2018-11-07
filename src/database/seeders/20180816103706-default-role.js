@@ -1,4 +1,5 @@
 module.exports = {
+  // eslint-disable-next-line
   up: (queryInterface, Sequelize) => queryInterface.bulkInsert(
       /* eslint-disable-line */
     'Roles',

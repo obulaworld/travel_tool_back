@@ -166,6 +166,7 @@ class ApprovalsController {
     });
   }
 
+  // eslint-disable-next-line
   static async sendNotificationAfterApproval(user, updatedRequest, res) {
     const { status, id, userId } = updatedRequest;
     const { name, picture } = user.UserInfo;

@@ -123,6 +123,7 @@ describe('Get Guest Houses', () => {
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send(postGuestHouse)
+          // eslint-disable-next-line
           .end((err, res) => {
             if (err) return done(err);
             done();

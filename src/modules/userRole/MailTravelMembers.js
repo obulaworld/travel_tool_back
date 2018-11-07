@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import cron from 'node-cron';
 import models from '../../database/models';
 import NotificationEngine from '../notifications/NotificationEngine';
 import TravelChecklistController from '../travelChecklist/TravelChecklistController';
@@ -23,23 +22,25 @@ class MailTravelMembers {
             fullName,
             email
           };
-          if(requestTrip.travelCompletion !== 'true'
-          && travelCompletion === 100){
-            if(location === origin){
-              await MailTravelMembers.sendMailToOrigin(requester, recipient, destination, requestTrip);
-            }
-            else if(location === destination){
-              await MailTravelMembers.sendMailToDestination(requester, recipient, destination, requestTrip);
+          if (requestTrip.travelCompletion !== 'true'
+          && travelCompletion === 100) {
+            if (location === origin) {
+              await MailTravelMembers
+                .sendMailToOrigin(requester, recipient, destination, requestTrip);
+            } else if (location === destination) {
+              await MailTravelMembers
+                .sendMailToDestination(requester, recipient, destination, requestTrip);
             }
           }
-          });
-          })
-        } catch (error) {
-              return error;
-        }}
+        });
+      });
+    } catch (error) {
+      return error;
+    }
+  }
 
-        /* istanbul ignore next */
-  static async sendMailToOrigin(requester, recipient, destination, requestTrip){
+  /* istanbul ignore next */
+  static async sendMailToOrigin(requester, recipient, destination, requestTrip) {
     await MailTravelMembers.sendNotificationToManager(
       recipient, 'Travel readiness completion', 'Travel readiness', requester, destination
     );
@@ -48,8 +49,8 @@ class MailTravelMembers {
     });
   }
 
-   /* istanbul ignore next */
-   static async sendMailToDestination(requester, recipient, destination, requestTrip){
+  /* istanbul ignore next */
+  static async sendMailToDestination(requester, recipient, destination, requestTrip) {
     await MailTravelMembers.sendNotificationToManager(
       recipient, 'Travel readiness completion', 'Travel readiness', requester, destination
     );
@@ -93,6 +94,7 @@ class MailTravelMembers {
   }
 
   /* istanbul ignore next */
+  // eslint-disable-next-line
   static async sendMail(req, res) {
     // cron.schedule('* * 2 * *', async () => {
     //   await MailTravelMembers.executeMailSend(req, res);

@@ -757,7 +757,7 @@ describe('Requests Controller', () => {
         .set('authorization', token)
         .send(mockRequest);
       const createdRequestId = postResp.body.request.id;
-
+      // eslint-disable-next-line
       const getResp = await request(app)
         .get(`/api/v1/requests/${createdRequestId}`)
         .set('authorization', token);
@@ -791,6 +791,7 @@ describe('Requests Controller', () => {
   describe('PUT /api/v1/requests/:requestId', () => {
     describe('Authenticated user', () => {
       it('should edit the request and return 200 and updated request', (done) => {
+        // eslint-disable-next-line
         const expectedResponse = {
           body: {
             ...editRequestSuccessResponse,

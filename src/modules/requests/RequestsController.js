@@ -17,7 +17,6 @@ import UserRoleController from '../userRole/UserRoleController';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
 import TravelChecklistController from '../travelChecklist/TravelChecklistController';
-import MailTravelMembers from '../userRole/MailTravelMembers'
 
 dotenv.config();
 
@@ -38,6 +37,7 @@ class RequestsController {
   }
 
   static async createRequest(req, res) {
+    // eslint-disable-next-line
     let { trips, ...requestDetails } = req.body;
     let request;
     delete requestDetails.status; // requester cannot post status
@@ -66,6 +66,7 @@ class RequestsController {
           || !availableBedSpaces.includes(trip.bedId)
           || !trip.bedId
         ) {
+          // eslint-disable-next-line
           trip.bedId = null;
         }
 

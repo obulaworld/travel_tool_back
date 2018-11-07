@@ -100,7 +100,9 @@ class AnalyticsController {
       if (!dateFrom && !dateTo) dateQuery[Op.ne] = null;
       if (dateFrom) dateQuery[Op.gte] = dateFrom;
       if (dateTo) dateQuery[Op.lte] = dateTo;
+      // eslint-disable-next-line
       const pendingRequestsQuery = { include: [{ model: models.Trip, as: 'trips', where: { origin: (andelaCenters[location] || location), departureDate: dateQuery } }], where: { status: 'Open' }
+      // eslint-disable-next-line
       };
       let pendingRequests = await AnalyticsController.getRequestFromDb(pendingRequestsQuery, res);
       pendingRequests = JSON.parse(pendingRequests);
@@ -108,7 +110,9 @@ class AnalyticsController {
       const { durationsResult, requestsWithReturnDate } = await AnalyticsController.getRequestsDuration(dateQuery, location);
       const allTrips = await models.Request.findAll({
         include: [
+          // eslint-disable-next-line
           { model: models.Trip, required: true, as: 'trips', where: { [Op.and]: [{ departureDate: { [Op.ne]: null } }, { origin: andelaCenters[location] || location }, { departureDate: dateQuery }] }
+          // eslint-disable-next-line
 }]
       });
       const leadTripDetails = AnalyticsController.leadTime(allTrips);

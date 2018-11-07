@@ -29,6 +29,7 @@ describe('Test for travel analytics by location', () => {
     await models.Request.destroy({ truncate: true, cascade: true });
     await models.Trip.destroy({ truncate: true, cascade: true });
     await models.Role.bulkCreate(role);
+    // eslint-disable-next-line
     const user = await models.User.create(travelAdmin);
     await models.User.create(travelRequester);
     await models.UserRole.create(userRole);

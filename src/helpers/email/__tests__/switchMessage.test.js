@@ -62,7 +62,7 @@ describe('switchMessage helper', () => {
 
     expect(receivedMessage.split(' ')).toContain('');
     done();
-  }); 
+  });
 
   it('should return changed room message', (done) => {
     const receivedMessage = switchMessage({

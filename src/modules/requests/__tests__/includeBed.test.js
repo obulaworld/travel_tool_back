@@ -1,10 +1,10 @@
 import request from 'supertest';
 import models from '../../../database/models';
 import app from '../../../app';
-import {newRequest as secondRequest, travelAdmin} from './mocks/mockData';
-import {postGuestHouse} from '../../guestHouse/__tests__/mocks/guestHouseData';
+import { newRequest as secondRequest, travelAdmin } from './mocks/mockData';
+import { postGuestHouse } from '../../guestHouse/__tests__/mocks/guestHouseData';
 import Utils from '../../../helpers/Utils';
-import {role} from '../../userRole/__tests__/mocks/mockData';
+import { role } from '../../userRole/__tests__/mocks/mockData';
 
 global.io = {
   sockets: {
@@ -23,25 +23,25 @@ const travelAdminPayload = {
 const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
 
 describe('Get an authenticated User Request detail', () => {
-  beforeAll(async done => {
-    await models.Role.sync({force: true});
+  beforeAll(async (done) => {
+    await models.Role.sync({ force: true });
     await models.Role.bulkCreate(role);
-    await models.User.sync({force: true});
+    await models.User.sync({ force: true });
     await models.User.create(travelAdmin);
     process.env.DEFAULT_ADMIN = 'travel.admin@andela.com';
     request(app)
       .put('/api/v1/user/admin')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
-      .end(err => {
+      .end((err) => {
         if (err) return done(err);
         done();
       });
   });
 
   afterAll(async () => {
-    await models.Role.destroy({force: true, truncate: {cascade: true}});
-    await models.User.destroy({force: true, truncate: {cascade: true}});
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
   });
 
   xit('should return accomodation details as part of the trip details', async () => {

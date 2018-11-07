@@ -34,7 +34,8 @@ export default class NotificationEngine {
   }
 
   static sendMail({
-    recipient, sender, topic, type, redirectLink, requestId, comment }) {
+    recipient, sender, topic, type, redirectLink, requestId, comment
+  }) {
     const mailgun = mail({
       apiKey: process.env.MAILGUN_API_KEY,
       domain: process.env.MAILGUN_DOMAIN_NAME

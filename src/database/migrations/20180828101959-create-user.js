@@ -1,4 +1,5 @@
 module.exports = {
+  // eslint-disable-next-line
   up: (queryInterface, Sequelize) => queryInterface.addConstraint(
     'Users', ['userId'], {
       type: 'unique',

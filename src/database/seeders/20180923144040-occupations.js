@@ -1,5 +1,7 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.bulkInsert( /* eslint-disable-line */
+  // eslint-disable-next-line
+  up: (queryInterface, Sequelize) => queryInterface.bulkInsert(
+      /* eslint-disable-line */
     'Occupations',
     [
       {
