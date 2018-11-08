@@ -3,8 +3,8 @@ import Utils from '../../helpers/Utils';
 import models from '../../database/models';
 import Error from '../../helpers/Error';
 import RoomsManager from './RoomsManager';
-import BedName, {
-  GuestHouseIncludeHelper
+import {
+  BedName, GuestHouseIncludeHelper, EditGuestHouseHelper
 } from '../../helpers/guestHouse/index';
 
 dotenv.config();
@@ -25,7 +25,7 @@ class GuestHouseController {
         createdRooms.map(async (roomId) => {
           const bedNumber = roomId.bedCount;
           const createdBed = Promise.all(
-            new Array(+bedNumber).fill(1).map((_, i) => {
+            new Array(+bedNumber).fill(1).map((__, i) => {
               const newBed = models.Bed.create({
                 roomId: roomId.id,
                 bedName: `bed ${i + 1}`
@@ -45,7 +45,6 @@ class GuestHouseController {
       });
     });
   }
-
 
   static async updateRoomFaultyStatus(req, res) {
     const guestRoomId = req.params.id;
@@ -70,11 +69,14 @@ class GuestHouseController {
     });
   }
 
-
   static async getGuestHouses(req, res) {
     try {
       const guestHouses = await models.GuestHouse.findAll({
-        include: ['rooms']
+        include: [{
+          as: 'rooms',
+          model: models.Room,
+          where: { isDeleted: false }
+        }]
       });
       const message = guestHouses.length === 0
         ? 'No guesthouse exists at the moment'
@@ -88,7 +90,6 @@ class GuestHouseController {
       Error.handleError(error, 500, res);
     }
   }
-
 
   static makeTripsWhereClauseFor(column, operatorType, startDate, endDate) {
     const { Op } = models.Sequelize;
@@ -117,7 +118,6 @@ class GuestHouseController {
     );
   }
 
-
   static doInclude(modelName, alias, where = {}, required = true) {
     return {
       model: models[modelName],
@@ -138,6 +138,7 @@ class GuestHouseController {
       where: { id: guestHouseId },
       include: [{
         ...doInclude('Room', 'rooms'),
+        where: { isDeleted: false },
         include: [{
           ...doInclude('Bed', 'beds'),
           include: [{
@@ -159,26 +160,6 @@ class GuestHouseController {
     });
   }
 
-  // Update rooms
-  static async updateRooms(rooms, res) {
-    const updatedRooms = await Promise.all(
-      rooms.map(async (room) => {
-        const foundRoom = await models.Room.findById(room.id);
-        if (!foundRoom) {
-          return Error.handleError('Room does not exist', 404, res);
-        }
-        const updateRoom = await foundRoom.update({
-          roomName: room.roomName || foundRoom.roomName,
-          roomType: room.roomType || foundRoom.roomType,
-          bedCount: room.bedCount || foundRoom.bedCount
-        });
-        return updateRoom.dataValues;
-      })
-    );
-
-    return updatedRooms;
-  }
-
   // Update beds
   static async updateBeds(rooms, res) {
     const updatedBeds = await Promise.all(
@@ -186,10 +167,10 @@ class GuestHouseController {
         let availableBedNames;
         const roomId = room.id;
         const newBedNumbers = Number(room.bedCount);
-        const BookedBeds = await models.Bed
-          .findAll({ where: { roomId, booked: true }, raw: true });
+        const BookedBeds = await models.Bed.findAll({ where: { roomId, booked: true }, raw: true });
         if (BookedBeds.length > newBedNumbers) {
-          return Error.handleError(`There are currently ${BookedBeds.length} booked beds, unable to update bed numbers`, 409, res);
+          return Error.handleError(`There are currently ${BookedBeds.length} booked beds, 
+          unable to update bed numbers`, 409, res);
         }
         const foundBeds = await models.Bed.findAll({ where: { roomId }, raw: true });
         if (newBedNumbers === foundBeds.length) { return foundBeds; }
@@ -220,28 +201,25 @@ class GuestHouseController {
   static async editGuestHouse(req, res) {
     try {
       const {
-        houseName,
-        location,
-        bathRooms,
-        imageUrl,
-        rooms
+        houseName, location, bathRooms, imageUrl, rooms
       } = req.body;
       await models.sequelize.transaction(async () => {
         const foundGuestHouse = await models.GuestHouse.findOne({
+          attributes: ['id'],
           where: { id: req.params.id }
         });
-        if (!foundGuestHouse) {
+        const guestHouseData = Object.values(foundGuestHouse);
+        const guestHouseId = guestHouseData[0].id;
+        if (!guestHouseId) {
           return Error.handleError('Guest house does not exist', 404, res);
         }
         const updatedGuestHouse = await foundGuestHouse.update({
-          houseName: houseName || foundGuestHouse.houseName,
-          location: location || foundGuestHouse.location,
-          bathRooms: bathRooms || foundGuestHouse.bathRooms,
-          imageUrl: imageUrl || foundGuestHouse.imageUrl
+          houseName, location, bathRooms, imageUrl
         });
-
-        const updatedRooms = await GuestHouseController.updateRooms(rooms, res);
-        const updatedBeds = await GuestHouseController.updateBeds(rooms, res);
+        const updatedRooms = await EditGuestHouseHelper.updateRooms(rooms, guestHouseId);
+        const newUpdatedRoomsId = updatedRooms.map(updatedRoom => (updatedRoom.id));
+        await EditGuestHouseHelper.deleteRoomsRemoved(guestHouseId, newUpdatedRoomsId);
+        const updatedBeds = await GuestHouseController.updateBeds(updatedRooms, res);
         return res.status(200).json({
           success: true,
           message: 'Guest house updated successfully',

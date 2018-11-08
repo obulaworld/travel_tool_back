@@ -32,8 +32,12 @@ class AnalyticsController {
 
   static leadTime(allTrips) {
     const alltripDetails = allTrips.map(trip => trip.dataValues.trips);
-    const requestDates = allTrips.map(trip => moment(trip.dataValues.createdAt).format('YYYY-MM-DD'));
-    const departDates = alltripDetails.map(trip => trip.map(departure => departure.dataValues.departureDate));
+    const requestDates = allTrips.map(trip => moment(
+      trip.dataValues.createdAt
+    ).format('YYYY-MM-DD'));
+    const departDates = alltripDetails.map(trip => trip.map(
+      departure => departure.dataValues.departureDate
+    ));
     const minDepart = departDates.map(dep => _.max(dep));
     const convertLeadTimeToString = minDepart.map((x, i) => {
       const leadTimeToString = new Date(x) - new Date(requestDates[i]);
@@ -59,8 +63,12 @@ class AnalyticsController {
     };
     let peopleRequests = await AnalyticsController.getRequestFromDb(query, res);
     peopleRequests = JSON.parse(peopleRequests);
-    const peopleLeaving = peopleRequests.rows.filter(request => this.isLocationInTrips(request.trips, 'origin', location));
-    const peopleVisiting = peopleRequests.rows.filter(request => this.isLocationInTrips(request.trips, 'destination', location));
+    const peopleLeaving = peopleRequests.rows.filter(
+      request => this.isLocationInTrips(request.trips, 'origin', location)
+    );
+    const peopleVisiting = peopleRequests.rows.filter(
+      request => this.isLocationInTrips(request.trips, 'destination', location)
+    );
     return { allRequests: peopleRequests, peopleLeaving, peopleVisiting };
   }
 

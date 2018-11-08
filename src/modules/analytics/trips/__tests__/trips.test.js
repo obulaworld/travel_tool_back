@@ -124,7 +124,9 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
       .end((err, res) => {
         expect(res.statusCode).toEqual(200);
         expect(res.header['content-type']).toBe('text/csv; charset=utf-8');
-        expect(res.header['content-disposition']).toBe('attachment; filename="Departmental Trips Per Month Report.csv"');
+        expect(res.header['content-disposition']).toBe(
+          'attachment; filename="Departmental Trips Per Month Report.csv"'
+        );
         if (err) return done(err);
         done();
       });

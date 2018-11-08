@@ -146,6 +146,7 @@ export const GuestHouseEpicBed = [
 
 export const editGuestHouseEpic = {
   editdata1: {
+    id: 'ND56thdW',
     houseName: 'Bukoto Heights',
     location: 'Kampala, Uganda',
     bathRooms: '5',
@@ -156,6 +157,7 @@ export const editGuestHouseEpic = {
         roomType: 'ensuited',
         bedCount: '1',
         id: 'bEu6thdW',
+        isDeleted: false
       },
     ]
   },
@@ -170,6 +172,7 @@ export const editGuestHouseEpic = {
         roomType: 'ensuited',
         bedCount: '1',
         id: 'invalid_bEuhdW',
+        isDeleted: false
       },
     ]
   },
@@ -184,6 +187,40 @@ export const editGuestHouseEpic = {
         roomType: 'ensuited',
         bedCount: '1',
         id: 'bEu6thdW',
+      },
+    ]
+  },
+  editdata4: {
+    id: 'ND56thdW',
+    houseName: 'Bukoto Heights',
+    location: 'Kampala, Uganda',
+    bathRooms: '5',
+    imageUrl: 'https://www.lol.com',
+    rooms: [
+      {
+        roomName: 'Victoria suite',
+        roomType: 'ensuited',
+        bedCount: '4',
+        id: 'bEu6thdW',
+      },
+      {
+        roomName: 'Victoria suite',
+        roomType: 'ensuited',
+        bedCount: '1',
+      },
+    ]
+  },
+  editdata5: {
+    id: 'ND56thdW',
+    houseName: 'Bukoto Heights',
+    location: 'Kampala, Uganda',
+    bathRooms: '5',
+    imageUrl: 'https://www.lol.com',
+    rooms: [
+      {
+        roomName: 'Victoria suite',
+        roomType: 'ensuited',
+        bedCount: '1',
       },
     ]
   },
@@ -307,5 +344,28 @@ export const editGuestHouseEpicData3 = {
         id: 'Uf6j9TdW',
       },
     ]
+  }
+};
+
+export const editGuestHouseEpicData4 = {
+  editdata7: {
+    houseName: 'Bukoto Heights',
+    location: 'Kampala, Uganda',
+    bathRooms: '5',
+    imageUrl: 'https://www.lol.com',
+    rooms: [
+      {
+        roomName: 'Victoria',
+        roomType: 'ensuited',
+        bedCount: '2',
+        id: 'Uf6j9TdW',
+      },
+      {
+        roomName: 'Room To remove',
+        roomType: 'ensuited',
+        bedCount: '1',
+        id: 'Uf6j7887se',
+      },
+    ],
   }
 };

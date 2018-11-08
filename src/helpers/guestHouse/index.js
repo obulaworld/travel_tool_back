@@ -1,6 +1,8 @@
+import _ from 'lodash';
+import Utils from '../Utils';
 import models from '../../database/models';
 
-class BedName {
+export class BedName {
   static numberRange(start, end) {
     return Array(end - start + 1).fill().map((item, index) => start + index);
   }
@@ -60,4 +62,56 @@ export class GuestHouseIncludeHelper {
   }
 }
 
-export default BedName;
+export class EditGuestHouseHelper {
+  // Delete rooms removed while editing
+  static async deleteRoomsRemoved(guestHouseId, newUpdatedRoomsId) {
+    const findAllRoomsIdInGuestHouse = await models.Room.findAll({
+      attributes: ['id'],
+      where: { guestHouseId, isDeleted: false },
+      raw: true
+    });
+    const allRoomsId = findAllRoomsIdInGuestHouse.map(room => room.id);
+    const roomsToRemoveId = _.difference(allRoomsId, newUpdatedRoomsId);
+    roomsToRemoveId.map(async (roomId) => {
+      const deleteTheseRooms = await models.Room.findById(roomId);
+      await deleteTheseRooms.update({ isDeleted: true });
+    });
+  }
+
+  // Update rooms
+  static async updateRooms(updatedRooms, guestHouseId) {
+    const arrayOfRooms = [];
+    await Promise.all(
+      updatedRooms.map(async (room) => {
+        if (!room.id) {
+          await models.sequelize.transaction(async () => {
+            const createdRoom = await models.Room.create({
+              ...room,
+              id: Utils.generateUniqueId(),
+              guestHouseId
+            });
+            await Promise.all(
+              new Array(+createdRoom.bedCount).fill(1).map(async (__, i) => {
+                const newBed = await models.Bed.create({
+                  roomId: createdRoom.id,
+                  bedName: `bed ${i + 1}`
+                });
+                return newBed;
+              })
+            );
+            arrayOfRooms.push(createdRoom.dataValues);
+          });
+        } else {
+          const foundRoom = await models.Room.findById(room.id);
+          const updateRoom = await foundRoom.update({
+            roomName: room.roomName,
+            roomType: room.roomType,
+            bedCount: room.bedCount
+          });
+          arrayOfRooms.push(updateRoom.dataValues);
+        }
+      }),
+    );
+    return arrayOfRooms;
+  }
+}

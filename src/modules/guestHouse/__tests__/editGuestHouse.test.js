@@ -139,122 +139,115 @@ describe('Update Guest Houses', () => {
           });
       });
 
-      it('should return 404 if guest house is not found', (done) => {
-        request(app)
-          .put('/api/v1/guesthouses/Invalid_qJ-G_C3TX')
-          .set('Content-Type', 'application/json')
-          .set('authorization', token)
-          .send(editGuestHouseEpic.editdata1)
-          .expect(404)
-          .end((err, res) => {
-            expect(res.body.success).toEqual(false);
-            if (err) return done(err);
-            done();
-          });
-      });
-
-      it('should return 404 if room is not found', (done) => {
-        const expectedResponse = {
-          success: false,
-          error: 'Room does not exist'
-        };
+      it('should add a room if added while editing', (done) => {
         request(app)
           .put('/api/v1/guesthouses/ND56thdW')
           .set('Content-Type', 'application/json')
           .set('authorization', token)
-          .send(editGuestHouseEpic.editdata2)
+          .send(editGuestHouseEpic.editdata4)
           .end((err, res) => {
-            expect(res.statusCode).toEqual(404);
-            expect(res.body).toEqual(expectedResponse);
-            if (err) return done(err);
-            done();
-          });
-      });
-    });
-  });
-
-  describe('Authenticated travel admin edits beds', () => {
-    beforeAll((done) => {
-      request(app)
-        .put('/api/v1/user/admin')
-        .set('Content-Type', 'application/json')
-        .set('authorization', token)
-        .end((err) => {
-          if (err) return done(err);
-          done();
-        });
-    });
-    describe('Authenticated travel admin edits booked beds', () => {
-      beforeAll(async () => {
-        await models.Bed.destroy({ truncate: true, cascade: true });
-        await models.Room.destroy({ truncate: true, cascade: true });
-        await models.GuestHouse.destroy({ truncate: true, cascade: true });
-
-        await models.GuestHouse.create(GuestHouseEpicData);
-        await models.Room.create(GuestHouseEpicRoomData);
-        await models.Bed.bulkCreate(GuestHouseEpicBedData);
-      });
-      afterAll(async () => {
-        await models.Bed.destroy({ truncate: true, cascade: true });
-        await models.Room.destroy({ truncate: true, cascade: true });
-        await models.GuestHouse.destroy({ truncate: true, cascade: true });
-      });
-
-      it('should not update booked beds', (done) => {
-        request(app)
-          .put('/api/v1/guesthouses/Rh46thdW')
-          .set('Content-Type', 'application/json')
-          .set('authorization', token)
-          .send(editGuestHouseEpicData.editdata5)
-          .end((err, res) => {
-            expect(res.statusCode).toEqual(409);
-            expect(res.body.success).toEqual(false);
-            if (err) return done(err);
-            done();
-          });
-      });
-    });
-  });
-
-  describe('Authenticated travel admin edits same bed numbers', () => {
-    beforeAll((done) => {
-      request(app)
-        .put('/api/v1/user/admin')
-        .set('Content-Type', 'application/json')
-        .set('authorization', token)
-        .end((err) => {
-          if (err) return done(err);
-          done();
-        });
-    });
-    describe('Authenticated travel admin edits same bed numbers', () => {
-      beforeAll(async () => {
-        await models.Bed.destroy({ truncate: true, cascade: true });
-        await models.Room.destroy({ truncate: true, cascade: true });
-        await models.GuestHouse.destroy({ truncate: { cascade: true } });
-
-        await models.GuestHouse.create(GuestHouseEpicData3);
-        await models.Room.create(GuestHouseEpicRoomData3);
-        await models.Bed.bulkCreate(GuestHouseEpicBedData3);
-      });
-      afterAll(async () => {
-        await models.Bed.destroy({ truncate: { cascade: true } });
-        await models.Room.destroy({ truncate: { cascade: true } });
-        await models.GuestHouse.destroy({ truncate: true, cascade: true });
-      });
-
-      it('should return found beds if number of beds are the same', (done) => {
-        request(app)
-          .put('/api/v1/guesthouses/qN46thdW')
-          .set('Content-Type', 'application/json')
-          .set('authorization', token)
-          .send(editGuestHouseEpicData3.editdata6)
-          .end((err, res) => {
-            expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             if (err) return done(err);
             done();
           });
+      });
+      it('should delete a room if removed while making editing request', (done) => {
+        request(app)
+          .put('/api/v1/guesthouses/ND56thdW')
+          .set('Content-Type', 'application/json')
+          .set('authorization', token)
+          .send(editGuestHouseEpic.editdata5)
+          .end((err, res) => {
+            expect(res.body.success).toEqual(true);
+            if (err) return done(err);
+            done();
+          });
+      });
+    });
+
+    describe('Authenticated travel admin edits beds', () => {
+      beforeAll((done) => {
+        request(app)
+          .put('/api/v1/user/admin')
+          .set('Content-Type', 'application/json')
+          .set('authorization', token)
+          .end((err) => {
+            if (err) return done(err);
+            done();
+          });
+      });
+      describe('Authenticated travel admin edits booked beds', () => {
+        beforeAll(async () => {
+          await models.Bed.destroy({ truncate: true, cascade: true });
+          await models.Room.destroy({ truncate: true, cascade: true });
+          await models.GuestHouse.destroy({ truncate: true, cascade: true });
+
+          await models.GuestHouse.create(GuestHouseEpicData);
+          await models.Room.create(GuestHouseEpicRoomData);
+          await models.Bed.bulkCreate(GuestHouseEpicBedData);
+        });
+        afterAll(async () => {
+          await models.Bed.destroy({ truncate: true, cascade: true });
+          await models.Room.destroy({ truncate: true, cascade: true });
+          await models.GuestHouse.destroy({ truncate: true, cascade: true });
+        });
+
+        it('should not update booked beds', (done) => {
+          request(app)
+            .put('/api/v1/guesthouses/Rh46thdW')
+            .set('Content-Type', 'application/json')
+            .set('authorization', token)
+            .send(editGuestHouseEpicData.editdata5)
+            .end((err, res) => {
+              expect(res.statusCode).toEqual(409);
+              expect(res.body.success).toEqual(false);
+              if (err) return done(err);
+              done();
+            });
+        });
+      });
+    });
+
+    describe('Authenticated travel admin edits same bed numbers', () => {
+      beforeAll((done) => {
+        request(app)
+          .put('/api/v1/user/admin')
+          .set('Content-Type', 'application/json')
+          .set('authorization', token)
+          .end((err) => {
+            if (err) return done(err);
+            done();
+          });
+      });
+      describe('Authenticated travel admin edits same bed numbers', () => {
+        beforeAll(async () => {
+          await models.Bed.destroy({ truncate: true, cascade: true });
+          await models.Room.destroy({ truncate: true, cascade: true });
+          await models.GuestHouse.destroy({ truncate: { cascade: true } });
+
+          await models.GuestHouse.create(GuestHouseEpicData3);
+          await models.Room.create(GuestHouseEpicRoomData3);
+          await models.Bed.bulkCreate(GuestHouseEpicBedData3);
+        });
+        afterAll(async () => {
+          await models.Bed.destroy({ truncate: { cascade: true } });
+          await models.Room.destroy({ truncate: { cascade: true } });
+          await models.GuestHouse.destroy({ truncate: true, cascade: true });
+        });
+
+        it('should return found beds if number of beds are the same', (done) => {
+          request(app)
+            .put('/api/v1/guesthouses/qN46thdW')
+            .set('Content-Type', 'application/json')
+            .set('authorization', token)
+            .send(editGuestHouseEpicData3.editdata6)
+            .end((err, res) => {
+              expect(res.statusCode).toEqual(200);
+              expect(res.body.success).toEqual(true);
+              if (err) return done(err);
+              done();
+            });
+        });
       });
     });
   });
