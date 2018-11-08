@@ -552,10 +552,10 @@ describe('Test Suite for Trips Controller', () => {
             reason: 'reason'
           })
           .end((err, res) => {
-            expect(res.statusCode).toEqual(400);
+            expect(res.statusCode).toEqual(409);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
-              .toEqual('Room is currently occupied by the opposite sex');
+              .toEqual('Room is currently occupied or booked by the opposite gender');
             if (err) return done(err);
             done();
           });

@@ -249,14 +249,14 @@ export default class TripValidator {
         include: [{
           model: models.Request,
           as: 'request',
-          where: { gender: { [Op.ne]: trip.request.gender } }
+          where: { gender: { [Op.ne]: trip.request.gender }, status: { [Op.ne]: 'Rejected' } }
         }]
       });
       trips = trips.map(tripObject => tripObject.id);
       if (trips.length) {
-        return res.status(400).json({
+        return res.status(409).json({
           success: false,
-          message: 'Room is currently occupied by the opposite sex'
+          message: 'Room is currently occupied or booked by the opposite gender'
         });
       }
       next();
