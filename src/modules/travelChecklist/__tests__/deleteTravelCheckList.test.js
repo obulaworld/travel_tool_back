@@ -73,13 +73,13 @@ const invalidToken =  Utils.generateTestToken(invalidTokenPayload);
 
 describe('Travel ChecklistController', () => {
   beforeAll(async () => {
-    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
-    await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItemResource.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
-    
+
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(userMock);
     await models.UserRole.bulkCreate(userRole);
@@ -87,17 +87,16 @@ describe('Travel ChecklistController', () => {
     await models.ChecklistItemResource.bulkCreate(checkListItemsResources);
     await models.ChecklistSubmission.bulkCreate(checklistSubmissions);
   });
-  
-  
+
   afterAll(async () => {
-    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItemResource.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
   });
-  
+
   describe('Delete /api/v1/checklist/:checklistId', () => {
     it('should return an error if no reason for deletion is provided',
     (done) => {
@@ -108,7 +107,7 @@ describe('Travel ChecklistController', () => {
           "param": "deleteReason"
         }
       ];
-      
+
       request(app)
       .delete('/api/v1/checklists/4')
       .set('authorization', token)
@@ -127,6 +126,7 @@ describe('Travel ChecklistController', () => {
           deleteReason: 'No longer applicable'
         });
         expect(response.body.message).toEqual('Checklist item deleted successfully');
+        expect(response.body.checklistItem).toBeInstanceOf(Object);
     });
 
     it('should return an error for unavailable checklist item',

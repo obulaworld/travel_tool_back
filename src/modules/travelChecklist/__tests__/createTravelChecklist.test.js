@@ -166,11 +166,13 @@ describe('Travel ChecklistController', () => {
         status: 201,
         body: {
           success: true,
-          message: 'Check list created successfully',
-          name: 'Visa application',
-          requiresFiles: true,
-          destinationName: 'Lagos, Nigeria',
-          resources: [{ label: 'Visa', link: 'http://myvisa.test' }]
+          message: 'Check list item created successfully',
+          checklistItem: {
+            name: 'Visa application',
+            requiresFiles: true,
+            destinationName: 'Lagos, Nigeria',
+            resources: [{ label: 'Visa', link: 'http://myvisa.test' }]
+          }
         },
       };
       const res = await request(app)
@@ -190,11 +192,13 @@ describe('Travel ChecklistController', () => {
         status: 201,
         body: {
           success: true,
-          message: 'Check list created successfully',
-          name: 'Visa application',
-          requiresFiles: true,
-          destinationName: 'Lagos, Nigeria',
-          resources: []
+          message: 'Check list item created successfully',
+          checklistItem: {
+            name: 'Visa application',
+            requiresFiles: true,
+            destinationName: 'Lagos, Nigeria',
+            resources: []
+          }
         },
       };
       const res = await request(app)

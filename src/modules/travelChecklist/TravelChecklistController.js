@@ -28,14 +28,11 @@ export default class TravelChecklistController {
             modifiedResources
           );
         }
+        createdChecklistItem.dataValues.resources = createdResources;
         res.status(201).json({
           success: true,
-          message: 'Check list created successfully',
-          id: createdChecklistItem.id,
-          name: createdChecklistItem.name,
-          requiresFiles: createdChecklistItem.requiresFiles,
-          destinationName: createdChecklistItem.destinationName,
-          resources: createdResources
+          message: 'Check list item created successfully',
+          checklistItem: createdChecklistItem
         });
       });
     } catch (error) { /* istanbul ignore next */
@@ -237,7 +234,7 @@ export default class TravelChecklistController {
       if (checklistItemResources) checklistItemResources.destroy(); /* istanbul ignore next */
       if (checklistSubmissions) checklistSubmissions.destroy(); /* istanbul ignore next */
       return res.status(200).json({
-        success: true, message: 'Checklist item deleted successfully'
+        success: true, message: 'Checklist item deleted successfully', checklistItem
       });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.stack, 500, res);
