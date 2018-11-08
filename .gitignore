@@ -24,3 +24,10 @@ yarn-error.log
 .idea/
 .db
 
+# Generated csv zip file
+Analytics.zip
+
+# Unzipped files
+Average Travel Duration.csv
+Average Travel Lead Time.csv
+Travel Analysis Report.csv

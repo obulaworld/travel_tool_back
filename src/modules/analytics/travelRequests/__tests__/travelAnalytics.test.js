@@ -83,9 +83,9 @@ describe('Test for travel analytics by location', () => {
       });
   });
 
-  it(' should display details of travel admin for Nairobi', (done) => {
+  it(' should display details of travel admin location', (done) => {
     request(app)
-      .get('/api/v1/analytics')
+      .get('/api/v1/analytics?location=Nairobi')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {
@@ -99,7 +99,20 @@ describe('Test for travel analytics by location', () => {
 
   it('should filter by date', (done) => {
     request(app)
-      .get('/api/v1/analytics')
+      .get('/api/v1/analytics?location=Nairobi&dateFrom=2018-10-29&dateTo=2018-10-31')
+      .set('Content-Type', 'application/json')
+      .set('authorization', travelAdminToken)
+      .end((err, res) => {
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return empty name and value if no duration or leadtime', (done) => {
+    request(app)
+      .get('/api/v1/analytics?location=Nevada')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {
@@ -112,16 +125,13 @@ describe('Test for travel analytics by location', () => {
 
   it('should return a csv report file', (done) => {
     request(app)
-      .get('/api/v1/analytics?type=file')
-      .set('Content-Type', 'application/json')
+      .get('/api/v1/analytics?type=file&location=Nairobi')
+      .set('Content-Type', 'application/zip')
       .set('authorization', travelAdminToken)
       .end((err, res) => {
         expect(res.statusCode).toEqual(200);
-        expect(res.headers['content-type']).toEqual('text/csv; charset=utf-8');
-        expect(res.headers['content-disposition']).toEqual(
-          'attachment; filename="Travel Analysis Report.csv"'
-        );
-        expect(res.text).toContain('total_requests');
+        expect(res.headers['content-type']).toEqual('application/zip');
+        expect(res.headers['content-disposition']).toEqual('attachment; filename="Analytics.zip"');
         if (err) return done(err);
         done();
       });
@@ -129,13 +139,13 @@ describe('Test for travel analytics by location', () => {
 
   it('should return response in json format', (done) => {
     request(app)
-      .get('/api/v1/analytics?type=json')
+      .get('/api/v1/analytics?type=json&location=Nairobi')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {
         expect(res.statusCode).toEqual(200);
         expect(res.headers['content-type']).toEqual('application/json; charset=utf-8');
-        expect(res.text).toContain('total_requests');
+        expect(res.text).toContain('totalRequests');
         if (err) return done(err);
         done();
       });

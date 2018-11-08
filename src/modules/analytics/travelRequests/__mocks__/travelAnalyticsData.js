@@ -82,11 +82,11 @@ export const travelRequester = {
 export const analyticsResopnse = {
   success: true,
   data: {
-    total_requests: 1,
-    pending_requests: 1,
-    people_visiting: 0,
-    people_leaving: 1,
-    travel_duration_breakdown: {
+    totalRequests: 1,
+    pendingRequests: 1,
+    peopleVisiting: 0,
+    peopleLeaving: 1,
+    travelDurationBreakdown: {
       durations: [
         {
           name: '3 days',
@@ -95,8 +95,8 @@ export const analyticsResopnse = {
       ],
       total: 1
     },
-    travel_lead_time_breakdown: {
-      lead_times: [
+    travelLeadTimeBreakdown: {
+      leadTimes: [
         {
           name: '0 days',
           value: 1

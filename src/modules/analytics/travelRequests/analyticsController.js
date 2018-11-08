@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import moment from 'moment';
+import archiver from 'archiver';
+import fs from 'fs';
 import { Parser } from 'json2csv';
 import models from '../../../database/models';
 import Error from '../../../helpers/Error';
-import TravelChecklistHelper from '../../../helpers/travelChecklist';
 
 const { Op } = models.Sequelize;
-const andelaCenters = TravelChecklistHelper.getAndelaCenters();
 class AnalyticsController {
   static getCount(value) {
     const result = value.reduce((i, j) => Object.assign(i, { [j]: (i[j] || 0) + 1 }), {});
@@ -21,23 +21,16 @@ class AnalyticsController {
     return results;
   }
 
-  static async getRequestFromDb(query, res) {
-    try {
-      const requests = await models.Request.findAndCountAll({ ...query });
-      return JSON.stringify(requests);
-    } catch (error) {
-      Error.handleError(error.toString(), 500, res);
-    }
+  static async getRequestFromDb(query) {
+    const requests = await models.Request.findAndCountAll({ ...query });
+    return requests;
   }
 
-  static leadTime(allTrips) {
-    const alltripDetails = allTrips.map(trip => trip.dataValues.trips);
-    const requestDates = allTrips.map(trip => moment(
-      trip.dataValues.createdAt
-    ).format('YYYY-MM-DD'));
-    const departDates = alltripDetails.map(trip => trip.map(
-      departure => departure.dataValues.departureDate
-    ));
+  static async leadTime(city, dateQuery) {
+    const allTrips = await AnalyticsController.getAllTrips(city, dateQuery);
+    const alltripDetails = allTrips.rows.map(trip => trip.trips);
+    const requestDates = allTrips.rows.map(trip => moment(trip.createdAt).format('YYYY-MM-DD'));
+    const departDates = alltripDetails.map(trip => trip.map(departure => departure.departureDate));
     const minDepart = departDates.map(dep => _.max(dep));
     const convertLeadTimeToString = minDepart.map((x, i) => {
       const leadTimeToString = new Date(x) - new Date(requestDates[i]);
@@ -46,46 +39,79 @@ class AnalyticsController {
       return leadTimeDuration;
     });
     const getCountOfLeadDuration = AnalyticsController.getCount(convertLeadTimeToString);
-    const leadTimeduration = AnalyticsController.getResult(getCountOfLeadDuration);
+    let leadTimeduration = AnalyticsController.getResult(getCountOfLeadDuration);
+    if (leadTimeduration.length === 0) {
+      leadTimeduration = [{ name: '', value: '' }];
+    }
     return leadTimeduration;
   }
 
-  static isLocationInTrips(trips, key, location) {
-    const found = trips.find(trip => trip[`${key}`] === (andelaCenters[location] || location));
-    const isFound = !!found;
+  static isLocationInTrips(trips, key, city) {
+    const regexCity = new RegExp(`^${city}`, 'i');
+    const found = trips.findIndex(trip => regexCity.test(trip[`${key}`]));
+    const isFound = found >= 0;
     return isFound;
   }
 
-  static async getPeopleRequests(location, dateQuery, res) {
-    const where = { [Op.or]: { destination: (andelaCenters[location] || location), origin: (andelaCenters[location] || location) }, departureDate: dateQuery };
+  static async getPendingRequests(city, dateQuery) {
+    const pendingRequestsQuery = {
+      include: [
+        {
+          model: models.Trip,
+          as: 'trips',
+          where: { origin: { [Op.iRegexp]: `^${city},` }, departureDate: dateQuery }
+        }
+      ],
+      where: { status: 'Open' }
+    };
+    return pendingRequestsQuery;
+  }
+
+  static async getAllTrips(city, dateQuery) {
+    const where = {
+      [Op.and]: [
+        { departureDate: { [Op.ne]: null } },
+        { origin: { [Op.iRegexp]: `^${city},` } },
+        { departureDate: dateQuery }
+      ]
+    };
     const query = {
       include: [{ model: models.Trip, as: 'trips', where }]
     };
-    let peopleRequests = await AnalyticsController.getRequestFromDb(query, res);
-    peopleRequests = JSON.parse(peopleRequests);
-    const peopleLeaving = peopleRequests.rows.filter(
-      request => this.isLocationInTrips(request.trips, 'origin', location)
-    );
-    const peopleVisiting = peopleRequests.rows.filter(
-      request => this.isLocationInTrips(request.trips, 'destination', location)
-    );
+    const allTrips = await AnalyticsController.getRequestFromDb(query);
+    return allTrips;
+  }
+
+  static async getPeopleRequests(city, dateQuery) {
+    const where = {
+      [Op.or]: {
+        destination: { [Op.iRegexp]: `^${city},` },
+        origin: { [Op.iRegexp]: `^${city},` }
+      },
+      departureDate: dateQuery
+    };
+    const query = {
+      include: [{ model: models.Trip, as: 'trips', where }]
+    };
+    const peopleRequests = await AnalyticsController.getRequestFromDb(query);
+    const peopleLeaving = peopleRequests.rows.filter(request => this.isLocationInTrips(request.trips, 'origin', city));
+    const peopleVisiting = peopleRequests.rows.filter(request => this.isLocationInTrips(request.trips, 'destination', city));
     return { allRequests: peopleRequests, peopleLeaving, peopleVisiting };
   }
 
-  static async getRequestsDuration(dateQuery, location) {
+  static async getRequestsDuration(dateQuery, city) {
     const query = {
       include: [
         {
           model: models.Trip,
           required: true,
           as: 'trips',
-          where: { origin: (andelaCenters[location] || location), departureDate: dateQuery }
+          where: { origin: { [Op.iRegexp]: `^${city},` }, departureDate: dateQuery }
         }
       ],
       where: { tripType: { [Op.ne]: 'oneWay' } }
     };
-    let requestsWithReturnDate = await AnalyticsController.getRequestFromDb(query);
-    requestsWithReturnDate = JSON.parse(requestsWithReturnDate);
+    const requestsWithReturnDate = await AnalyticsController.getRequestFromDb(query);
     const durations = requestsWithReturnDate.rows.map((request) => {
       const depatureDates = request.trips.map(trip => new Date(trip.departureDate));
       const returnDates = request.trips.map(trip => new Date(trip.returnDate));
@@ -96,49 +122,109 @@ class AnalyticsController {
       return day;
     });
     const getCountOfDuration = AnalyticsController.getCount(durations);
-    const durationsResult = AnalyticsController.getResult(getCountOfDuration);
+    let durationsResult = AnalyticsController.getResult(getCountOfDuration);
+    if (durationsResult.length === 0) {
+      durationsResult = [{ name: '', value: '' }];
+    }
     return { durationsResult, requestsWithReturnDate };
+  }
+
+  static async convertToCsv(response, defaultResponse) {
+    const travelFields = ['totalRequests', 'pendingRequests', 'peopleVisiting', 'peopleLeaving'];
+    const averageDurationFields = [
+      'travelDurationBreakdown.durations.name',
+      'travelDurationBreakdown.durations.value'
+    ];
+    const averageLeadtimeFields = [
+      'travelLeadTimeBreakdown.leadTimes.name',
+      'travelLeadTimeBreakdown.leadTimes.value'
+    ];
+    const travelJson2csvParser = new Parser({ travelFields });
+    const durationJson2csvParser = new Parser({ averageDurationFields });
+    const leadtimeJson2csvParser = new Parser({ averageLeadtimeFields });
+    const travelCsv = travelJson2csvParser.parse(defaultResponse);
+    const durationCsv = durationJson2csvParser.parse(response.travelDurationBreakdown.durations);
+    const leadtimeCsv = leadtimeJson2csvParser.parse(response.travelLeadTimeBreakdown.leadTimes);
+    const objectOfFiles = {
+      'Travel Analysis Report.csv': travelCsv,
+      'Average Travel Duration.csv': durationCsv,
+      'Average Travel Lead Time.csv': leadtimeCsv
+    };
+    return objectOfFiles;
+  }
+
+  static async zipFile(objectOfFiles, res) {
+    const output = fs.createWriteStream('Analytics.zip');
+    output.on('close', () => {
+      res.download('Analytics.zip');
+    });
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    archive.pipe(output);
+    await Object.keys(objectOfFiles).map(async (filename) => {
+      const writeStream = fs.createWriteStream(filename);
+      await writeStream.once('open', async () => {
+        await writeStream.write(objectOfFiles[filename]);
+        writeStream.end();
+      });
+    });
+    await Object.keys(objectOfFiles).map(async (filename) => {
+      await archive.file(filename);
+    });
+    archive.finalize();
+  }
+
+  static async dateQuery(dateFrom, dateTo) {
+    const dateQuery = {};
+    if (!dateFrom && !dateTo) dateQuery[Op.ne] = null;
+    if (dateFrom) dateQuery[Op.gte] = dateFrom;
+    if (dateTo) dateQuery[Op.lte] = dateTo;
+    return dateQuery;
+  }
+
+  static async report(req, res, defaultResponse, response) {
+    if (req.query.type === 'file') {
+      const objectOfFiles = await AnalyticsController.convertToCsv(response, defaultResponse);
+      await AnalyticsController.zipFile(objectOfFiles, res);
+    } else {
+      return res.status(200).json({ success: true, data: response });
+    }
   }
 
   static async analytics(req, res) {
     try {
-      const { location } = req.user;
-      const { dateFrom, dateTo } = req.query;
-      const dateQuery = {};
-      if (!dateFrom && !dateTo) dateQuery[Op.ne] = null;
-      if (dateFrom) dateQuery[Op.gte] = dateFrom;
-      if (dateTo) dateQuery[Op.lte] = dateTo;
-      // eslint-disable-next-line
-      const pendingRequestsQuery = { include: [{ model: models.Trip, as: 'trips', where: { origin: (andelaCenters[location] || location), departureDate: dateQuery } }], where: { status: 'Open' }
-      // eslint-disable-next-line
+      const { dateFrom, dateTo, location } = req.query;
+      const dateQuery = await AnalyticsController.dateQuery(dateFrom, dateTo);
+      const city = location.split(',')[0];
+      const pendingRequestsQuery = await AnalyticsController.getPendingRequests(city, dateQuery);
+      const pendingRequests = await AnalyticsController.getRequestFromDb(pendingRequestsQuery);
+      const peopleRequests = await AnalyticsController.getPeopleRequests(city, dateQuery);
+      const {
+        durationsResult,
+        requestsWithReturnDate
+      } = await AnalyticsController.getRequestsDuration(dateQuery, city);
+      const leadTripDetails = await AnalyticsController.leadTime(city, dateQuery, res);
+      const {
+        allRequests: { count },
+        peopleVisiting,
+        peopleLeaving
+      } = peopleRequests;
+      const defaultResponse = {
+        totalRequests: count,
+        pendingRequests: pendingRequests.count,
+        peopleVisiting: peopleVisiting.length,
+        peopleLeaving: peopleLeaving.length
       };
-      let pendingRequests = await AnalyticsController.getRequestFromDb(pendingRequestsQuery, res);
-      pendingRequests = JSON.parse(pendingRequests);
-      const peopleRequests = await AnalyticsController.getPeopleRequests(location, dateQuery, res);
-      const { durationsResult, requestsWithReturnDate } = await AnalyticsController.getRequestsDuration(dateQuery, location);
-      const allTrips = await models.Request.findAll({
-        include: [
-          // eslint-disable-next-line
-          { model: models.Trip, required: true, as: 'trips', where: { [Op.and]: [{ departureDate: { [Op.ne]: null } }, { origin: andelaCenters[location] || location }, { departureDate: dateQuery }] }
-          // eslint-disable-next-line
-}]
-      });
-      const leadTripDetails = AnalyticsController.leadTime(allTrips);
       const response = {
-        total_requests: peopleRequests.allRequests.count,
-        pending_requests: pendingRequests.count,
-        people_visiting: peopleRequests.peopleVisiting.length,
-        people_leaving: peopleRequests.peopleLeaving.length,
-        travel_duration_breakdown: { durations: durationsResult, total: requestsWithReturnDate.count },
-        travel_lead_time_breakdown: { lead_times: leadTripDetails, total: allTrips.length }
+        ...defaultResponse,
+        travelDurationBreakdown: {
+          durations: durationsResult,
+          total: requestsWithReturnDate.count
+        },
+        travelLeadTimeBreakdown: { leadTimes: leadTripDetails, total: leadTripDetails.length }
       };
-      if (req.query.type === 'file') {
-        const fields = ['total_requests', 'pending_requests', 'people_visiting', 'people_leaving', 'travel_duration_breakdown.durations', 'travel_lead_time_breakdown.lead_times'];
-        const json2csvParser = new Parser({ fields });
-        const csv = json2csvParser.parse(response);
-        return res.attachment('Travel Analysis Report.csv').send(csv);
-      } return res.status(200).json({ success: true, data: response });
-    } catch (error) { /* istanbul ignore next */
+      await AnalyticsController.report(req, res, defaultResponse, response);
+    } catch (error) {
+      /* istanbul ignore next */
       return Error.handleError(error.toString(), 500, res);
     }
   }
