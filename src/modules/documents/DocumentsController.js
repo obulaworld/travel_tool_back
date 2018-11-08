@@ -2,8 +2,34 @@ import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 
 const { Op } = models.Sequelize;
-
 export default class DocumentsController {
+  static async deleteDocument(req, res) {
+    const { id } = req.user.UserInfo;
+    const { documentId } = req.params;
+    try {
+      const deletedDocument = await models.Document.destroy({
+        returning: true,
+        where: {
+          id: documentId,
+          userId: id
+        }
+      });
+      if (!deletedDocument[0]) {
+        return res.status(404).json({
+          success: false,
+          message: 'Document not found',
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        message: 'Document deleted successfully',
+        deletedDocument: deletedDocument[0]
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
   static async fetchDocuments(req, res) {
     const query = { name: req.query.search || '' };
     try {
