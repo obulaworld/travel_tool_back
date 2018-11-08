@@ -10,6 +10,7 @@ import guestHouseRouter from './guestHouse';
 import tripsRouter from './trips';
 import analyticsRouter from './analytics';
 import travelChecklistRouter from './travelChecklist';
+import documentsRouter from './documents';
 
 
 const apiPrefix = '/api/v1';
@@ -27,6 +28,7 @@ const routes = (app) => {
   app.use(apiPrefix, centerRouter);
   app.use(apiPrefix, travelChecklistRouter);
   app.use(apiPrefix, analyticsRouter);
+  app.use(apiPrefix, documentsRouter);
   return app;
 };
 
