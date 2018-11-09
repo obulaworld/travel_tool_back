@@ -77,7 +77,12 @@ const middleware = {
   analyticsValidator: {
     validateFilterAndType: jest.fn(invokeNextMiddleware)
   },
-  validateDirectReport: jest.fn(mockValidateDirectReport)
+  validateDirectReport: jest.fn(mockValidateDirectReport),
+  DocumentsValidator: {
+    validateDocumentName: jest.fn(invokeNextMiddleware),
+    checkDocumentName: jest.fn(invokeNextMiddleware),
+    getDocumentFromDb: jest.fn(invokeNextMiddleware)
+  }
 };
 
 export default middleware;

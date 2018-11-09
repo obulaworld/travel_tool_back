@@ -35,7 +35,7 @@ export default class DocumentsController {
     try {
       const userId = req.user.UserInfo.id;
       const documents = await models.Document.findAll({
-        order: [['createdAt', 'ASC']],
+        order: [['updatedAt', 'DESC']],
         where: {
           userId,
           name: {
@@ -53,6 +53,32 @@ export default class DocumentsController {
       });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError('Server Error', 500, res);
+    }
+  }
+
+  static async updateDocument(req, res) {
+    try {
+      const { documentId } = req.params;
+      const { id: userId } = req.user.UserInfo;
+      const { name } = req.body;
+      const where = { id: documentId, userId };
+      const document = await models.Document
+        .update({ name }, { returning: true, where });
+
+      const [rowsUpdated, [updatedDocument]] = document;
+
+      if (!rowsUpdated) {
+        const error = 'Document not found!';
+        return CustomError.handleError(error, 404, res);
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Document name updated successfully!',
+        document: updatedDocument
+      });
+    } catch (error) { /* istanbul ignore next */
+      return CustomError.handleError('Server Error', 500, res);
     }
   }
 }

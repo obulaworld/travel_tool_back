@@ -3,7 +3,7 @@ import middleware from '../../middlewares';
 import DocumentsController from './DocumentsController';
 
 const DocumentsRouter = express.Router();
-const { authenticate } = middleware;
+const { authenticate, DocumentsValidator } = middleware;
 
 DocumentsRouter.delete(
   '/documents/:documentId',
@@ -15,6 +15,13 @@ DocumentsRouter.get(
   '/documents',
   authenticate,
   DocumentsController.fetchDocuments
+);
+
+DocumentsRouter.put(
+  '/documents/:documentId',
+  authenticate,
+  DocumentsValidator.validateDocumentName,
+  DocumentsController.updateDocument
 );
 
 export default DocumentsRouter;

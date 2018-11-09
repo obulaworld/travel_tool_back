@@ -4,6 +4,7 @@ import validateDirectReport from './validateDirectReport';
 import tripValidator from './tripValidator';
 import RoleValidator from './RoleValidator';
 import analyticsValidator from './analyticsValidator';
+import DocumentsValidator from './DocumentsValidator';
 
 const middleware = {
   authenticate,
@@ -11,7 +12,8 @@ const middleware = {
   validateDirectReport,
   tripValidator,
   RoleValidator,
-  analyticsValidator
+  analyticsValidator,
+  DocumentsValidator
 };
 
 export default middleware;

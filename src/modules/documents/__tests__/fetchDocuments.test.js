@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import app from '../../../app';
-import { mockDocuments } from './mocks/mockDocuments';
+import mockDocuments from './__mocks__/mockDocuments';
 import Utils from '../../../helpers/Utils';
 import models from '../../../database/models';
 import { role } from '../../userRole/__tests__/mocks/mockData';
@@ -59,12 +59,12 @@ const userWithDocuments = Utils.generateTestToken(payload);
 const userWithoutDocuments = Utils.generateTestToken(payload2);
 
 
-describe('Centers controller', () => {
+describe('Documents controller', () => {
   beforeAll(async () => {
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
-    await models.Role.destroy({ truncate: { cascade: true }, force: true });
-    await models.User.destroy({ truncate: { cascade: true }, force: true });
-    await models.Document.destroy({ truncate: { cascade: true }, force: true });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.Document.destroy({ force: true, truncate: { cascade: true } });
 
     process.env.DEFAULT_ADMIN = 'black.windows@andela.com';
     await models.Role.bulkCreate(role);
@@ -74,8 +74,8 @@ describe('Centers controller', () => {
   });
   afterAll(async () => {
     await models.User.destroy({ force: true, truncate: { cascade: true } });
-    await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.Document.destroy({ force: true, truncate: { cascade: true } });
   });
   describe('Fetch Document: GET /api/v1/documents', () => {
@@ -93,7 +93,8 @@ describe('Centers controller', () => {
           .set('authorization', userWithoutDocuments)
           .end((err, res) => {
             if (err) done(err);
-            expect(res).toMatchObject(expectedResponse);
+            expect(res.status).toBe(expectedResponse.status);
+            expect(res.body).toMatchObject(expectedResponse.body);
             done();
           });
       });
@@ -113,7 +114,10 @@ describe('Centers controller', () => {
           .set('authorization', userWithDocuments)
           .end((err, res) => {
             if (err) done(err);
-            expect(res).toMatchObject(expectedResponse);
+            expect(res.status).toBe(expectedResponse.status);
+            expect(res.body.success).toBe(expectedResponse.body.success);
+            expect(res.body.message).toBe(expectedResponse.body.message);
+            expect(res.body.documents.length).toEqual(3);
             done();
           });
       });
@@ -131,6 +135,7 @@ describe('Centers controller', () => {
               cloudinary_public_id: 'eDjweu4I236FvT',
               cloudinary_url: 'https://image.url',
               userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+              deletedAt: null,
               createdAt: '2018-11-07T04:33:06.288Z',
               updatedAt: '2018-11-07T04:34:06.288Z',
             }]
@@ -141,7 +146,8 @@ describe('Centers controller', () => {
           .set('authorization', userWithDocuments)
           .end((err, res) => {
             if (err) done(err);
-            expect(res).toMatchObject(expectedResponse);
+            expect(res.status).toBe(expectedResponse.status);
+            expect(res.body).toEqual(expectedResponse.body);
             done();
           });
       });
