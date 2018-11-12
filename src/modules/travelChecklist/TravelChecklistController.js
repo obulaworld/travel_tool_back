@@ -1,3 +1,4 @@
+import cloudinary from 'cloudinary';
 import Utils from '../../helpers/Utils';
 import models from '../../database/models';
 import TravelChecklistHelper from '../../helpers/travelChecklist';
@@ -239,5 +240,120 @@ export default class TravelChecklistController {
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.stack, 500, res);
     }
+  }
+
+  static async handleCloudinaryUpload(file, tags, props, fileName) {
+    const { tripId, checklistItemId } = props;
+    let cloudinaryResponse;
+    await cloudinary.v2.uploader.upload(`${file}`,
+      { resource_type: 'raw', tags },
+      (error, result) => {
+        cloudinaryResponse = result;
+      });
+    return {
+      value: {
+        url: cloudinaryResponse.url,
+        secureUrl: cloudinaryResponse.secure_url,
+        publicId: cloudinaryResponse.public_id,
+        fileName,
+      },
+      tripId,
+      checklistItemId,
+    };
+  }
+
+  static async handleUpdateSubmission(submissionId, checklistSubmission, res) {
+    let submission;
+    try {
+      if (submissionId) {
+        const checkSubmission = await
+        models.ChecklistSubmission.findById(submissionId);
+        submission = await checkSubmission.update(checklistSubmission);
+      } else {
+        const existingSubmission = await
+        models.ChecklistSubmission.find({
+          where: {
+            tripId: checklistSubmission.tripId,
+            checklistItemId: checklistSubmission.checklistItemId
+          }
+        });
+        if (existingSubmission) {
+          await existingSubmission.destroy();
+        }
+        submission = await
+        models.ChecklistSubmission.create({
+          ...checklistSubmission,
+          id: Utils.generateUniqueId()
+        });
+      }
+    } catch (error) { /* istanbul ignore next */
+      return CustomError.handleError(error, 500, res);
+    }
+    return submission;
+  }
+
+  static async postTripChecklistItemSubmission(req, res) {
+    const { checklistItemId } = req.params;
+    const {
+      file, tripId, isUpload, data, label, submissionId, fileName
+    } = req.body;
+    let checklistSubmission;
+    let submission;
+    const extension = file ? file.split('.')[1] : null;
+    const body = { tripId, checklistItemId };
+    if (isUpload) {
+      try {
+        checklistSubmission = await TravelChecklistController
+          .handleCloudinaryUpload(file, [extension, label], body, fileName);
+      } catch (error) { /* istanbul ignore next */
+        if (error.error) {
+          const isError = error.error.errno === -2 ? error : '';
+          return CustomError.handleError(isError, 404, res);
+        }
+        return CustomError.handleError(error, 500, res);
+      }
+    } else {
+      checklistSubmission = {
+        value: data,
+        tripId,
+        checklistItemId,
+      };
+    }
+    await models.sequelize.transaction(async () => {
+      submission = await TravelChecklistController
+        .handleUpdateSubmission(submissionId, checklistSubmission, res);
+    });
+    return res.status(201).json({
+      success: true,
+      submission,
+      message: 'Uploaded Successfully'
+    });
+  }
+
+  static async getCheckListItemSubmission(req, res) {
+    const { requestId } = req.params;
+    let submissions;
+    try {
+      submissions = await TravelChecklistController.getSubmissions(requestId, res);
+    } catch (error) { /* istanbul ignore next */
+      return CustomError.handleError(error, 500, res);
+    }
+    let message;
+    if (submissions.length > 0) {
+      submissions = submissions.map((submission) => {
+        let { value } = submission;
+        const newValue = JSON.parse(value);
+        value = newValue;
+        return submission;
+      });
+      message = 'Successfully retrieved';
+    } else {
+      message = 'Submission does not exist';
+    }
+    return res.status(200).json({
+      success: true,
+      submissions,
+      message
+    });
   }
 }

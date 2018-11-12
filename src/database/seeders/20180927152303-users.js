@@ -14,7 +14,7 @@ module.exports = {
         occupation: 'software developer',
         manager: 'Samuel Kubai',
         gender: 'female',
-        location: 'Lagos',
+        location: 'Nairobi',
         createdAt: '2018-08-16 012:11:52.181+01',
         updatedAt: '2018-08-16 012:11:52.181+01',
       }

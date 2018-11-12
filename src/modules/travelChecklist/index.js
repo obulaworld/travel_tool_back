@@ -58,4 +58,16 @@ TravelChecklistRouter.put(
   TravelChecklistController.updateChecklistItem,
 );
 
+TravelChecklistRouter.post(
+  '/checklists/:checklistItemId/submission',
+  authenticate,
+  TravelChecklistController.postTripChecklistItemSubmission,
+);
+
+TravelChecklistRouter.get(
+  '/checklists/:requestId/submission',
+  authenticate,
+  TravelChecklistController.getCheckListItemSubmission,
+);
+
 export default TravelChecklistRouter;

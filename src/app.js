@@ -4,6 +4,7 @@ import passport from 'passport';
 import cors from 'cors';
 import morgan from 'morgan';
 import bugsnag from 'bugsnag';
+import cloudinary from 'cloudinary';
 import expressValidator from 'express-validator';
 import modules from './modules';
 import MailTravelMembers from './modules/userRole/MailTravelMembers';
@@ -23,6 +24,14 @@ if (
   /* istanbul ignore next */
   app.use(bugsnag.errorHandler);
 }
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  enhance_image_tag: process.env.CLOUDINARY_ENHANCE_IMAGE,
+  static_image_support: process.env.CLOUDINARY_STATIC_IMAGE
+});
 
 app.use(cors());
 app.use(morgan('dev'));
