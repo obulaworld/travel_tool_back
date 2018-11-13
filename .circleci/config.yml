@@ -17,7 +17,7 @@ defaults: &defaults
 install_npm_packages: &install_npm_packages
   run:
     name: Install Npm Dependencies
-    command: yarn install
+    command: sudo npm install -g yarn@1.12.x && rm -rf package-lock.json && yarn install
 
 attach_workspace: &attach_workspace
   attach_workspace:
