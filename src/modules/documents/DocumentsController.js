@@ -1,8 +1,26 @@
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
+import Utils from '../../helpers/Utils';
 
 const { Op } = models.Sequelize;
 export default class DocumentsController {
+  static async addDocument(req, res) {
+    try {
+      const addedDocument = await models.Document.create({
+        ...req.body,
+        id: Utils.generateUniqueId(),
+        userId: req.user.UserInfo.id
+      });
+      res.status(201).json({
+        success: true,
+        message: 'Document uploaded successfully',
+        addedDocument
+      });
+    } catch (error) {
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
   static async deleteDocument(req, res) {
     const { id } = req.user.UserInfo;
     const { documentId } = req.params;

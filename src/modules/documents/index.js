@@ -24,4 +24,11 @@ DocumentsRouter.put(
   DocumentsController.updateDocument
 );
 
+DocumentsRouter.post(
+  '/documents',
+  authenticate,
+  DocumentsValidator.validateDocumentName,
+  DocumentsController.addDocument
+);
+
 export default DocumentsRouter;
