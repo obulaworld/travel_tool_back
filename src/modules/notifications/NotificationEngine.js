@@ -8,8 +8,9 @@ dotenv.config();
 export default class NotificationEngine {
   static async notify(data) {
     const dataKeys = Object.keys(data);
+    /* istanbul ignore next */
+
     if (dataKeys.length < 1) {
-      /* istanbul ignore next */
       return false;
     }
     const validKeys = ['senderId', 'recipientId', 'notificationType',

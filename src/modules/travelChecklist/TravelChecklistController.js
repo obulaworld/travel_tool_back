@@ -133,9 +133,14 @@ export default class TravelChecklistController {
     }
   }
 
+
   static async checkListPercentageNumber(req, res, requestId) {
+    req.query.requestId = requestId;
     const getChecklists = await TravelChecklistHelper.getChecklists(req, res);
-    const checklistLength = getChecklists.checklists.length;
+    let checklistLength = 0;
+    getChecklists.checklists.forEach(
+      (destination) => { checklistLength += destination.checklist.length; }
+    );
     const getSubmissions = await TravelChecklistController
       .getSubmissions(requestId, res);
     const percentage = Math

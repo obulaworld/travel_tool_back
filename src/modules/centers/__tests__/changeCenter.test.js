@@ -28,6 +28,7 @@ const token2 = Utils.generateTestToken(payload2);
 
 describe('Update center test', () => {
   beforeAll(async () => {
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ truncate: { cascade: true }, force: true });
     await models.User.destroy({ truncate: { cascade: true }, force: true });

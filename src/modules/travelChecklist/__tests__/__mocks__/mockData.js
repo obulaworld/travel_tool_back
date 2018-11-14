@@ -158,6 +158,15 @@ export const checklistSubmissions = [
     updatedAt: new Date(),
     deletedAt: null
   },
+  {
+    id: '4',
+    value: 'submitted',
+    tripId: 'trip-12',
+    checklistItemId: '6',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null
+  },
 ];
 
 export const trips = [
@@ -334,6 +343,14 @@ export const nairobiCheckListResponse2 = {
   destination: 'Nairobi, Kenya',
   checklist: [
     {
+      id: '5',
+      name: 'Travel stipend',
+      requiresFiles: false,
+      destinationName: 'Nairobi, Kenya',
+      deleteReason: null,
+      resources: []
+    },
+    {
       id: '6',
       name: 'visa application',
       requiresFiles: true,
@@ -347,14 +364,6 @@ export const nairobiCheckListResponse2 = {
           checklistItemId: '6'
         }
       ]
-    },
-    {
-      id: '5',
-      name: 'Travel stipend',
-      requiresFiles: false,
-      destinationName: 'Nairobi, Kenya',
-      deleteReason: null,
-      resources: []
     }
   ]
 };

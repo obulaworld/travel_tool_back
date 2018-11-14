@@ -94,8 +94,8 @@ describe('Requests Controller', () => {
   beforeAll((done) => {
     models.Role.destroy({ force: true, truncate: { cascade: true } });
     models.Request.destroy({ force: true, truncate: { cascade: true } });
-    models.Trip.truncate();
-    models.Notification.truncate();
+    models.Trip.destroy({ force: true, truncate: { cascade: true } });
+    models.Notification.destroy({ force: true, truncate: { cascade: true } });
     models.Role.bulkCreate(role);
     models.User.create(userMock);
     models.Bed.create(bedMock);

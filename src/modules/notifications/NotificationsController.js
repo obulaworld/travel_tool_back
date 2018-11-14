@@ -51,7 +51,9 @@ class NotificationController {
           message:
             `All ${notificationType} notifications have been marked as read`
         });
-      } if (!notificationIsUpdated[0]) {
+      } /* istanbul ignore next */
+
+      if (!notificationIsUpdated[0]) {
         throw new Error(msg);
       }
     } catch (error) {

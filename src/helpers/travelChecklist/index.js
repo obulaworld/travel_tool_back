@@ -57,7 +57,6 @@ class TravelChecklistHelper {
 
       const checklists = await TravelChecklistHelper
         .getChecklistFromDb(query, res);
-
       return checklists;
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error, 500, res);

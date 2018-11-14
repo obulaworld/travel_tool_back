@@ -36,32 +36,37 @@ const request = supertest;
 
 describe('Checklist Percentage', () => {
   beforeAll(async () => {
-    await models.Bed.sync({ force: true });
-    await models.Room.sync({ force: true });
-    await models.GuestHouse
-      .destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistItemResource
-      .destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistSubmission
-      .destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistItem.sync({ force: true });
-    await models.Request.destroy({ force: true, truncate: { cascade: true } });
-    await models.Trip.sync({ force: true });
-
-    await models.User.create(user);
-    await models.GuestHouse
-      .create({ ...guestHouse, userId: user.userId });
-    await models.Room.bulkCreate(rooms);
-    await models.Bed.bulkCreate(beds);
-    await models.Request.create(requests[0]);
-    await models.Trip.create(trips[0]);
-    await models.ChecklistItem.bulkCreate(checkListItems);
-    await models.ChecklistItemResource.bulkCreate(checkListItemsResources);
-    await models.ChecklistSubmission.bulkCreate(checklistSubmissions);
+    try {
+      await models.User.destroy({ force: true, truncate: { cascade: true } });
+      await models.Bed.sync({ force: true });
+      await models.Room.sync({ force: true });
+      await models.GuestHouse
+        .destroy({ force: true, truncate: { cascade: true } });
+      await models.ChecklistItemResource
+        .destroy({ force: true, truncate: { cascade: true } });
+      await models.ChecklistSubmission
+        .destroy({ force: true, truncate: { cascade: true } });
+      await models.ChecklistItem.sync({ force: true });
+      await models.Request.destroy({ force: true, truncate: { cascade: true } });
+      await models.Trip.sync({ force: true });
+      await models.User.create(user);
+      await models.GuestHouse
+        .create({ ...guestHouse, userId: user.userId });
+      await models.Room.bulkCreate(rooms);
+      await models.Bed.bulkCreate(beds);
+      await models.Request.create(requests[0]);
+      await models.Trip.create(trips[0]);
+      await models.ChecklistItem.bulkCreate(checkListItems);
+      await models.ChecklistItemResource.bulkCreate(checkListItemsResources);
+      await models.ChecklistSubmission.bulkCreate(checklistSubmissions);
+    } catch (error) {
+      return null;
+    }
   });
 
 
   afterAll(async () => {
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Bed.sync({ force: true });
     await models.Room.sync({ force: true });
     await models.GuestHouse
@@ -139,17 +144,26 @@ describe('Checklist Percentage', () => {
             done();
           });
       });
-    it('should get all request including travechecklist percentage as 25 for approved request',
+    it('should get all request including travechecklist percentage as 50 for approved request',
       async (done) => {
-        await models.Request.create({ ...requests[1], status: 'Approved' });
-        await models.Trip.create(trips[3]);
+        const requestId = requests[0].id;
+        try {
+          const testRequest = await models.Request.findById(requestId);
+          await testRequest.update({
+            status: 'Approved'
+          });
+          await models.Trip.create(trips[2]);
+        } catch (error) {
+          return null;
+        }
+
         request(app)
           .get('/api/v1/requests')
           .set('authorization', token)
           .end((err, res) => {
-            expect(res.body.requests.length).toEqual(2);
-            expect(res.body.requests[1]).toHaveProperty('travelCompletion');
-            expect(res.body.requests[1].travelCompletion).toEqual('25% complete');
+            expect(res.body.requests.length).toEqual(1);
+            expect(res.body.requests[0]).toHaveProperty('travelCompletion');
+            expect(res.body.requests[0].travelCompletion).toEqual('50% complete');
             done();
           });
       });
