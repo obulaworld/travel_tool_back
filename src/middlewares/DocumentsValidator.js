@@ -5,32 +5,35 @@ import CustomError from '../helpers/Error';
 const { sequelize } = models;
 
 export default class DocumentsValidator {
-  static async validateDocumentName(req, res, next) {
-    let { name } = req.body;
+  static validateCloudinaryPayload(req, res, next) {
     // eslint-disable-next-line camelcase
     const { cloudinary_public_id, cloudinary_url } = req.body;
-
-    if (!name) {
-      return CustomError.handleError('Name field cannot be empty!', 400, res);
-    }
-
     const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
-    const checkUrl = reg.test(cloudinary_url);
-
+  
     // eslint-disable-next-line camelcase
     if (!cloudinary_public_id || (cloudinary_public_id.length < 3)) {
       return CustomError.handleError(
         'cloudinary_public_id is not valid', 400, res
       );
     }
-
+    // eslint-disable-next-line camelcase
+    const checkUrl = reg.test(cloudinary_url);
     // eslint-disable-next-line camelcase
     if (!cloudinary_url || !checkUrl) {
       return CustomError.handleError(
         'cloudinary_url is not a valid url', 400, res
       );
     }
+    next();
+  }
 
+  static async validateDocumentName(req, res, next) {
+    let { name } = req.body;
+    
+    if (!name) {
+      return CustomError.handleError('Name field cannot be empty!', 400, res);
+    }
+    
     const { id: userId } = req.user.UserInfo;
     name = name.toString().toLowerCase().trim();
     const where = {

@@ -27,6 +27,7 @@ DocumentsRouter.put(
 DocumentsRouter.post(
   '/documents',
   authenticate,
+  DocumentsValidator.validateCloudinaryPayload,
   DocumentsValidator.validateDocumentName,
   DocumentsController.addDocument
 );
