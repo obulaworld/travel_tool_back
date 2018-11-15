@@ -105,7 +105,6 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
       .end((err, res) => {
         expect(res.statusCode).toEqual(200);
         expect(res.body.success).toEqual(true);
-        // console.log('..............................', res);
         expect(res.body.readiness[0].request.name).toEqual('Kongo Love');
         expect(res.body.readiness[1].travelReadiness).toEqual('0% complete');
         expect(res.body.readiness[2].arrivalDate).toEqual('2018-10-29T00:00:00.000Z');

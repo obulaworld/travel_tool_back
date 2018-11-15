@@ -49,7 +49,7 @@ export default class DocumentsValidator {
   }
 
   static async checkDocumentName(name, query, req, res, next) {
-    const regex = /(^[A-Za-z])([0-9a-zA-Z _-]+)$/;
+    const regex = /(^[A-Za-z])(.+)$/;
     if (!regex.test(name)) {
       return CustomError.handleError('Name is not valid!', 400, res);
     }

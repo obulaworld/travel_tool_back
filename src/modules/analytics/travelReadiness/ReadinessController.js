@@ -6,7 +6,7 @@ import Pagination from '../../../helpers/Pagination';
 import TravelChecklistHelper from '../../../helpers/travelChecklist';
 
 class ReadinessController {
-  static calculateArrivalAndPercentageCompletion(result, req, res) {
+  static calcArrivalAndPercentageCompletion(result, req, res) {
     if (!result.rows.length) return [];
     const departure = (result.rows[0].dataValues.departureDate);
     const departureDate = new Date(departure);
@@ -46,7 +46,7 @@ class ReadinessController {
         attributes: ['departureDate'],
         include: [{
           model: models.Request,
-          attributes: ['name'],
+          attributes: ['name', 'id'],
           where: { status: 'Approved' },
           as: 'request',
         }],
@@ -55,7 +55,7 @@ class ReadinessController {
         req.query.page, req.query.limit, result.count
       );
 
-      const travelReady = this.calculateArrivalAndPercentageCompletion(result, req, res);
+      const travelReady = this.calcArrivalAndPercentageCompletion(result, req, res);
 
       const readiness = await travelReady;
       return ({
