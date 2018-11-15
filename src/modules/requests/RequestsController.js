@@ -241,6 +241,7 @@ class RequestsController {
       await RequestsController.processResult(req, res);
     } catch (error) {
       /* istanbul ignore next */
+      console.log('error', error);
       return Error.handleError('Server Error', 500, res);
     }
   }

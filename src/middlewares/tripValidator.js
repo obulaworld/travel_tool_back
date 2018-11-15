@@ -49,8 +49,7 @@ export default class TripValidator {
         });
       }
       next();
-    } catch (error) {
-      /* istanbul ignore next */
+    } catch (error) { /* istanbul ignore next */
       return CustomError.handleError('An error occurred', 400, res);
     }
   }

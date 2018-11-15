@@ -86,6 +86,11 @@ const middleware = {
     checkDocumentName: jest.fn(invokeNextMiddleware),
     getDocumentFromDb: jest.fn(invokeNextMiddleware),
     validateCloudinaryPayload: jest.fn(invokeNextMiddleware)
+  },
+  ChecklistValidator: {
+    validateSubmission: jest.fn(invokeNextMiddleware),
+    validateTrip: jest.fn(invokeNextMiddleware),
+    getChecklistItem: jest.fn(invokeNextMiddleware),
   }
 };
 

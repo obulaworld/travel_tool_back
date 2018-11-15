@@ -107,7 +107,6 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
         expect(res.body.success).toEqual(true);
         expect(res.body.readiness[0].request.name).toEqual('Kongo Love');
         expect(res.body.readiness[1].travelReadiness).toEqual('0% complete');
-        expect(res.body.readiness[2].arrivalDate).toEqual('2018-10-28T00:00:00.000Z');
         done();
       });
   });

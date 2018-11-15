@@ -7,7 +7,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       value: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       tripId: {
         type: Sequelize.STRING

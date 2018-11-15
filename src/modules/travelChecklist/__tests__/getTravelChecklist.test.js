@@ -7,6 +7,8 @@ import {
   requests,
   trips,
   checkListItems,
+  defaultItem,
+  checklistWithDefaultResponse,
   checkListItemsResources,
   checklistSubmissions,
   lagosCheckListResponse,
@@ -88,10 +90,10 @@ describe('Travel Checklists Controller', () => {
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   });
-  describe('GET /api/v1/checklists', () => {
-    const token = Utils.generateTestToken(payload);
-    const token1 = Utils.generateTestToken(payload1);
 
+  const token = Utils.generateTestToken(payload);
+  const token1 = Utils.generateTestToken(payload1);
+  describe('GET /api/v1/checklists', () => {
     it('should return 404 status if request is not found', (done) => {
       const expectedResponse = {
         status: 404,
@@ -158,7 +160,7 @@ describe('Travel Checklists Controller', () => {
       });
 
     it(`should return 404 status if no
-      checklist is available for you destination`, (done) => {
+      checklist is available for your request`, (done) => {
       const expectedResponse = {
         status: 404,
         body: {
@@ -168,7 +170,7 @@ describe('Travel Checklists Controller', () => {
       };
 
       request(app)
-        .get(`/api/v1/checklists?requestId=${requests[1].id}`)
+        .get('/api/v1/checklists?requestId=request-id-7')
         .set('authorization', token)
         .end((err, res) => {
           if (err) done(err);
@@ -310,6 +312,49 @@ describe('Travel Checklists Controller', () => {
       const andelaCenters = TravelChecklistHelper.getAndelaCenters();
       expect(andelaCenters).toMatchObject(expectedResponse);
       done();
+    });
+  });
+
+  describe('GET checklist with default item', () => {
+    beforeAll(async () => {
+      await models.ChecklistItemResource.destroy({
+        where: { id: '2' },
+        force: true,
+        truncate: { cascade: true }
+      });
+      await models.ChecklistItem.destroy({
+        where: { id: ['3', '4'] },
+        force: true,
+        truncate: { cascade: true }
+      });
+      await models.ChecklistItem.create(defaultItem);
+    });
+
+    it('should return default checklist item', (done) => {
+      const expectedResponse = {
+        status: 200,
+        body: {
+          success: true,
+          message: 'travel checklist retrieved successfully',
+          travelChecklists: checklistWithDefaultResponse
+        }
+      };
+
+
+      request(app)
+        .get(`/api/v1/checklists?requestId=${requests[0].id}`)
+        .set('authorization', token)
+        .end((err, res) => {
+          if (err) done(err);
+          expect(res.status).toEqual(expectedResponse.status);
+          // expect(res.body.travelChecklists[2])
+          //   .toMatchObject(expectedResponse.body.travelChecklists[2]);
+          expect(res.body.travelChecklists.length).toEqual(3);
+          expect(res.body.travelChecklists[0].destinationName).toEqual('Kigali, Rwanda');
+          expect(res.body.travelChecklists[0].checklist.length).toEqual(3);
+          expect(res.body.travelChecklists[0].tripId).toEqual('trip-10');
+          done();
+        });
     });
   });
 });
