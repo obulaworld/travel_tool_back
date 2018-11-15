@@ -51,7 +51,8 @@ export default class TravelChecklistController {
 
   static async getChecklistsResponse(req, res) {
     try {
-      const response = await TravelChecklistHelper.getChecklists(req, res);
+      const { requestId } = req.query;
+      const response = await TravelChecklistHelper.getChecklists(req, res, requestId);
       if (response.checklists.length) {
         return res.status(200).json({
           success: true,
@@ -135,12 +136,15 @@ export default class TravelChecklistController {
 
 
   static async checkListPercentageNumber(req, res, requestId) {
-    req.query.requestId = requestId;
-    const getChecklists = await TravelChecklistHelper.getChecklists(req, res);
-    let checklistLength = 0;
-    getChecklists.checklists.forEach(
-      (destination) => { checklistLength += destination.checklist.length; }
-    );
+    const getChecklists = await TravelChecklistHelper.getChecklists(req, res, requestId);
+    let totalChecklistNumber = 0;
+    let numberOfTickets = 0;
+    getChecklists.checklists.forEach((item) => {
+      const numberOfChecklist = item.checklist.length;
+      totalChecklistNumber += numberOfChecklist;
+      numberOfTickets += 1;
+    });
+    const checklistLength = (totalChecklistNumber + numberOfTickets);
     const getSubmissions = await TravelChecklistController
       .getSubmissions(requestId, res);
     const percentage = Math

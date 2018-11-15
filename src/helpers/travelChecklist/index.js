@@ -29,9 +29,9 @@ class TravelChecklistHelper {
     }
   }
 
-  static async getChecklists(req, res) {
+  static async getChecklists(req, res, requestId) {
     try {
-      const { requestId, destinationName } = req.query;
+      const { destinationName } = req.query;
       let where = {};
 
       if (requestId) {
