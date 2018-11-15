@@ -9,6 +9,7 @@ import {
   dates,
   manager,
   mockRequest, generateMockData,
+  guestHouse, rooms, beds
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 import RequestsController from '../RequestsController';
@@ -25,6 +26,24 @@ global.io = {
 };
 
 const newRequest = {
+  name: 'Test',
+  manager: 'Some manager',
+  tripType: 'return',
+  gender: 'Female',
+  department: 'TDD',
+  role: 'Software Developer',
+  trips: [
+    {
+      origin: 'Lagos',
+      destination: 'Nairobi',
+      departureDate: dates.departureDate,
+      returnDate: dates.returnDate,
+      bedId: 18,
+    },
+  ],
+};
+
+const anotherRequest = {
   name: 'Test',
   manager: 'Some manager',
   tripType: 'return',
@@ -91,23 +110,33 @@ const invalidToken = 'eyJhbGciOiJSUzI1Ni6IkpXVCJ9.eyJVc2CI6Ii1MSEptS3J4';
 let updatedTripId;
 
 describe('Requests Controller', () => {
-  beforeAll((done) => {
-    models.Role.destroy({ force: true, truncate: { cascade: true } });
-    models.Request.destroy({ force: true, truncate: { cascade: true } });
-    models.Trip.destroy({ force: true, truncate: { cascade: true } });
-    models.Notification.destroy({ force: true, truncate: { cascade: true } });
-    models.Role.bulkCreate(role);
-    models.User.create(userMock);
-    models.Bed.create(bedMock);
+  beforeAll(async (done) => {
+    await models.Bed.destroy({ force: true, truncate: { cascade: true } });
+    await models.Room.destroy({ force: true, truncate: { cascade: true } });
+    await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.ChangedRoom.destroy({ force: true, truncate: { cascade: true } });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
+    await models.Trip.destroy({ force: true, truncate: { cascade: true } });
+    await models.Notification.truncate();
+    await models.Role.bulkCreate(role);
+    await models.User.create(userMock);
+    await models.GuestHouse.create(guestHouse);
+    await models.Room.bulkCreate(rooms);
+    await models.Bed.bulkCreate(beds);
     done();
   });
 
   afterAll(async () => {
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.Request.destroy({ force: true, truncate: { cascade: true } });
-    await models.Trip.truncate();
+    await models.ChangedRoom.destroy({ force: true, truncate: { cascade: true } });
+    await models.Trip.destroy({ force: true, truncate: { cascade: true } });
     await models.Notification.truncate();
     await models.User.truncate();
+    await models.Bed.destroy({ force: true, truncate: { cascade: true } });
+    await models.Room.destroy({ force: true, truncate: { cascade: true } });
+    await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
   });
 
   describe('GET /api/v1/requests', () => {
@@ -666,6 +695,22 @@ describe('Requests Controller', () => {
         expect(res).toMatchObject(expectedResponse);
         done();
       });
+
+      it(`should return error if bed id does not exist in 
+      any guesthouse when posting a request`, async (done) => {
+        const customRequest = { ...newRequest };
+        customRequest.trips[0].destination = 'Stan Lee\'s Suites';
+        request(app)
+          .post('/api/v1/requests')
+          .set('authorization', token)
+          .send({ ...customRequest })
+          .end((err, res) => {
+            expect(res.status).toBe(400);
+            expect(res.body.success).toBe(false);
+            expect(res.body.message).toBe('A bed in this trip does not belong to its destination guesthouse');
+            done();
+          });
+      });
     });
   }); // end of CREATE REQUEST API
 
@@ -819,6 +864,22 @@ describe('Requests Controller', () => {
           });
       });
 
+      it(`should return error if bed id does not exist in any guesthouse
+      when updating a request`, async (done) => {
+        const customRequest = { ...newRequest };
+        customRequest.trips[0].destination = 'Stan Lee\'s Suites';
+        request(app)
+          .put('/api/v1/requests/xDh20cuGz')
+          .set('authorization', token)
+          .send({ ...customRequest })
+          .end((err, res) => {
+            expect(res.status).toBe(400);
+            expect(res.body.success).toBe(false);
+            expect(res.body.message).toBe('A bed in this trip does not belong to its destination guesthouse');
+            done();
+          });
+      });
+
       it('should return 422 error if the user supplies empty fields', (done) => {
         const expectedResponse = {
           body: {
@@ -903,7 +964,7 @@ describe('Requests Controller', () => {
           .put('/api/v1/requests/xDh20cuGy')
           .set('authorization', token)
           .send({
-            ...newRequest,
+            ...anotherRequest,
           })
           .end((err, res) => {
             expect(res).toMatchObject(expectedResponse);
@@ -922,7 +983,7 @@ describe('Requests Controller', () => {
           .put('/api/v1/requests/myRequest0iD')
           .set('authorization', token)
           .send({
-            ...newRequest,
+            ...anotherRequest,
           })
           .end((err, res) => {
             expect(res).toMatchObject(expectedResponse);

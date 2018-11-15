@@ -29,6 +29,7 @@ RequestsRouter.post(
   authenticate,
   editAndCreateRequestValidators,
   Validator.validateRequest, // check req.body
+  Validator.validateTripBeds,
   RequestsController.createRequest,
 );
 
@@ -37,6 +38,7 @@ RequestsRouter.put(
   authenticate,
   editAndCreateRequestValidators,
   Validator.validateRequest,
+  Validator.validateTripBeds,
   RequestsController.updateRequest,
 );
 

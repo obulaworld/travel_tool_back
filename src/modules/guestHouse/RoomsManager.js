@@ -1,5 +1,6 @@
 import models from '../../database/models';
 
+const { Op } = models.Sequelize;
 class RoomsManager {
   static async fetchAvailableRooms({
     arrivalDate,
@@ -7,8 +8,6 @@ class RoomsManager {
     location,
     gender
   }) {
-    const { Op } = models.Sequelize;
-
     const bookedBeds = await RoomsManager.fetchBookedRooms({
       arrivalDate,
       departureDate,
@@ -55,12 +54,7 @@ class RoomsManager {
     });
   }
 
-  /**
-   * @return[{ bedId: int }] - Array of bed ids that are booked within
-   * the alloted timeframe.
-   */
-  static async fetchBookedRooms({ arrivalDate, departureDate, location }) {
-    const { Op } = models.Sequelize;
+  static getDateRange(departureDate, arrivalDate) {
     let range = {
       departureDate: {
         [Op.gte]: new Date(departureDate),
@@ -82,7 +76,14 @@ class RoomsManager {
         }
       };
     }
+    return range;
+  }
 
+  /**
+   * @return[{ bedId: int }] - Array of bed ids that are booked within
+   * the alloted timeframe.
+   */
+  static async fetchBookedRooms({ arrivalDate, departureDate, location }) {
     const bookedBeds = await models.Trip.findAll({
       attributes: ['bedId'],
       where: {
@@ -92,7 +93,7 @@ class RoomsManager {
             departureDate: { [Op.lte]: departureDate },
             returnDate: { [Op.gte]: arrivalDate }
           },
-          ...range
+          ...RoomsManager.getDateRange(departureDate, arrivalDate)
         }
       },
       raw: true
@@ -135,30 +136,6 @@ class RoomsManager {
     location,
     gender
   }) {
-    const { Op } = models.Sequelize;
-
-    let range = {
-      departureDate: {
-        [Op.lte]: new Date(departureDate),
-        [Op.gte]: new Date(arrivalDate)
-      },
-      returnDate: {
-        [Op.lte]: new Date(departureDate),
-        [Op.gte]: new Date(arrivalDate)
-      }
-    };
-
-    if (!arrivalDate) {
-      range = {
-        departureDate: {
-          [Op.lte]: new Date(departureDate)
-        },
-        returnDate: {
-          [Op.lte]: new Date(departureDate)
-        }
-      };
-    }
-
     const oppositeRequestSql = models.sequelize.dialect.QueryGenerator.selectQuery(
       'Requests',
       {
@@ -178,7 +155,7 @@ class RoomsManager {
         where: {
           destination: location,
           [Op.or]: {
-            ...range
+            ...RoomsManager.getDateRange(departureDate, arrivalDate)
           },
           requestId: {
             [Op.in]: models.sequelize.literal(`(${oppositeRequestSql})`)

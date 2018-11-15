@@ -275,6 +275,7 @@ class RequestsController {
   }
 
   static async updateRequestTrips(trips, tripData, requestId) {
+    const alteredTripData = { ...tripData };
     // Delete trips with ids not included in the update field
     const tripIds = trips
       .filter(trip => trip.id !== undefined)
@@ -285,14 +286,15 @@ class RequestsController {
         id: { [Op.notIn]: tripIds },
       },
     });
-    const trip = await models.Trip.findById(tripData.id);
+    alteredTripData.bedId = (tripData.bedId < 1) ? null : tripData.bedId;
+    const trip = await models.Trip.findById(alteredTripData.id);
     let requestTrip;
     if (trip) {
-      requestTrip = await trip.updateAttributes(tripData);
+      requestTrip = await trip.updateAttributes(alteredTripData);
     } else {
       requestTrip = await models.Trip.create({
         requestId,
-        ...tripData,
+        ...alteredTripData,
         id: Utils.generateUniqueId(),
       });
     }

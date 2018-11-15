@@ -57,6 +57,19 @@ export const composeInclude = (model, alias, where) => [
   },
 ];
 
+export const composeTripInclude = (model, alias, where) => [
+  {
+    ...composeInclude(model, alias, where)[0],
+    include: [{
+      ...composeInclude(models.Bed, 'beds', null)[0],
+      include: [{
+        ...composeInclude(models.Room, 'rooms', null)[0],
+        include: [{ ...composeInclude(models.GuestHouse, 'guestHouses', null)[0] }]
+      }]
+    }]
+  },
+];
+
 export const createIncludeSubquery = (model, search, usePrefix = true) => {
   const prefix = usePrefix ? `${model.name.toLowerCase()}s` : null;
   const searchClause = createSearchClause(
@@ -65,7 +78,10 @@ export const createIncludeSubquery = (model, search, usePrefix = true) => {
     prefix,
   );
   const where = { [Op.or]: searchClause };
-  const include = composeInclude(model, `${model.name.toLowerCase()}s`, where);
+  let include = composeInclude(model, `${model.name.toLowerCase()}s`, where);
+  if (model === models.Trip) {
+    include = composeTripInclude(model, `${model.name.toLowerCase()}s`, where);
+  }
   return include;
 };
 
@@ -88,7 +104,7 @@ export function createSubquery({
     include: [...tripInclude],
     limit,
     offset,
-    order: [['createdAt', 'DESC']],
+    order: [['createdAt', 'DESC'], [{ model: models.Trip, as: 'trips' }, 'departureDate']],
   };
   if (!status) return subQuery;
   return includeStatusSubquery(subQuery, status, modelName);
@@ -242,10 +258,6 @@ export function asyncWrapper(...args) {
 export const retrieveParams = (req) => {
   const { page, limit, offset } = Pagination.initializePagination(req);
   return {
-    page,
-    limit,
-    offset,
-    status: req.query.status || '',
-    search: req.query.search || '',
+    page, limit, offset, status: req.query.status || '', search: req.query.search || '',
   };
 };

@@ -305,4 +305,44 @@ export default class Validator {
     }
     return next();
   }
+
+  static async checkTripBeds(trips, res, next) {
+    let isValid = true;
+    trips.forEach(async (trip, i) => {
+      if (trip.bedId > 0) {
+        const bed = await models.Bed.findById(trip.bedId, {
+          include: [{
+            required: true,
+            model: models.Room,
+            as: 'rooms',
+            include: [{
+              required: true,
+              model: models.GuestHouse,
+              as: 'guestHouses',
+              where: { location: trip.destination }
+            }]
+          }]
+        });
+        if (!bed) isValid = false;
+      }
+      if (trips.length === i + 1) {
+        if (isValid) {
+          return next();
+        }
+        return res.status(400).json({
+          success: false,
+          message: 'A bed in this trip does not belong to its destination guesthouse'
+        });
+      }
+    });
+  }
+
+  static async validateTripBeds(req, res, next) {
+    try {
+      const { trips } = req.body;
+      Validator.checkTripBeds(trips, res, next);
+    } catch (error) {
+      return Error.handleError(error, 404, res);
+    }
+  }
 }

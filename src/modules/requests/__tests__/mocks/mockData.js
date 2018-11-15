@@ -175,7 +175,7 @@ export const mockRequest = {
   trips: [
     {
       origin: 'Nairobi',
-      destination: 'New York',
+      destination: 'Nairobi',
       departureDate,
       returnDate,
       bedId: 18
@@ -275,5 +275,84 @@ export const generateMockData = (mailType) => {
     req, res, travelRequest, message, mailType, mailTopic
   };
 };
+
+export const guestHouse = {
+  id: 'rx123z',
+  houseName: 'Stan Lee\'s Suites',
+  location: 'Nairobi',
+  bathRooms: '1',
+  imageUrl: 'ded',
+  userId: '--MUyHJmKrxA90lPNQ1FOLNm',
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
+export const rooms = [
+  {
+    id: 'qweaf',
+    roomName: 'big cutter',
+    roomType: 'ensuited',
+    bedCount: '2',
+    isDeleted: false,
+    faulty: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    guestHouseId: 'rx123z'
+  },
+  {
+    id: 'craite',
+    roomName: 'small cutter',
+    roomType: 'ensuited',
+    bedCount: '2',
+    isDeleted: false,
+    faulty: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    guestHouseId: 'rx123z'
+  }
+];
+
+export const beds = [
+  {
+    id: 321,
+    bedName: 'bed 1',
+    booked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    roomId: 'qweaf'
+  },
+  {
+    id: 322,
+    bedName: 'bed 2',
+    booked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    roomId: 'qweaf'
+  },
+  {
+    id: 323,
+    bedName: 'bed 3',
+    booked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    roomId: 'craite'
+  },
+  {
+    id: 324,
+    bedName: 'bed 4',
+    booked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    roomId: 'craite'
+  },
+  {
+    id: 18,
+    bedName: 'bed 5',
+    booked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    roomId: 'craite'
+  }
+];
 
 export default testRequests;
