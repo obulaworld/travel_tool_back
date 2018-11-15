@@ -104,6 +104,8 @@ export const tripsData = [
     bedId: 4,
     departureDate: '2018-09-27',
     returnDate: dates.returnDate,
+    checkOutDate: dates.returnDate,
+    checkStatus: 'Checked Out'
   }
 ];
 

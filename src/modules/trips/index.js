@@ -30,6 +30,7 @@ TripsRouter.put(
   tripValidator.validateReason,
   tripValidator.checkBedExists,
   tripValidator.checkTripExists,
+  tripValidator.checkTripCheckedOut,
   tripValidator.isBedAvailable,
   tripValidator.isRoomFaulty,
   tripValidator.isGenderAllowed,

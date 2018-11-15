@@ -517,6 +517,26 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
+      it('should not update if trip is checked out', (done) => {
+        request(app)
+          .put('/api/v1/trips/4/room')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .send({
+            bedId: 2,
+            reason: 'reason'
+          })
+          .end((err, res) => {
+            expect(res.statusCode).toEqual(400);
+            expect(res.body.success).toEqual(false);
+            expect(res.body.message)
+              .toEqual('This trip is already checked out');
+            if (err) return done(err);
+            done();
+          });
+      });
+
+
       it('should not update if room is faulty', async (done) => {
         const bed = await models.Bed.findById(2);
         const room = await models.Room.findById(bed.roomId);

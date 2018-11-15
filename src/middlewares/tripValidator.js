@@ -1,6 +1,7 @@
 
 import models from '../database/models';
 import Validator from './Validator';
+import CustomError from '../helpers/Error';
 
 const { Op } = models.Sequelize;
 export default class TripValidator {
@@ -25,10 +26,7 @@ export default class TripValidator {
       next();
     } catch (error) {
       /* istanbul ignore next */
-      return res.status(400).json({
-        success: false,
-        message: 'An error occurred'
-      });
+      return CustomError.handleError('An error occurred', 400, res);
     }
   }
 
@@ -47,17 +45,13 @@ export default class TripValidator {
       });
       if (!trip) {
         return res.status(403).json({
-          success: false,
-          message: 'You don\'t have access to this trip'
+          success: false, message: 'You don\'t have access to this trip'
         });
       }
       next();
     } catch (error) {
       /* istanbul ignore next */
-      return res.status(400).json({
-        success: false,
-        message: 'An error occurred'
-      });
+      return CustomError.handleError('An error occurred', 400, res);
     }
   }
 
@@ -76,17 +70,13 @@ export default class TripValidator {
       });
       if (!trip) {
         return res.status(400).json({
-          success: false,
-          message: 'This trip is not approved'
+          success: false, message: 'This trip is not approved'
         });
       }
       next();
     } catch (error) {
       /* istanbul ignore next */
-      return res.status(400).json({
-        success: false,
-        message: 'An error occurred'
-      });
+      return CustomError.handleError('An error occurred', 400, res);
     }
   }
 
@@ -115,10 +105,7 @@ export default class TripValidator {
       next();
     } catch (error) {
       /* istanbul ignore next */
-      res.status(400).json({
-        success: false,
-        message: 'User not found in database'
-      });
+      return CustomError.handleError('User not found in database', 400, res);
     }
   }
 
@@ -140,17 +127,13 @@ export default class TripValidator {
       const bed = await models.Bed.findById(req.body.bedId);
       if (!bed) {
         return res.status(400).json({
-          success: false,
-          message: 'Bed does not exist'
+          success: false, message: 'Bed does not exist'
         });
       }
       next();
     } catch (error) {
       /* istanbul ignore next */
-      return res.status(400).json({
-        success: false,
-        message: 'An error occurred'
-      });
+      return CustomError.handleError('An error occurred', 400, res);
     }
   }
 
@@ -193,18 +176,12 @@ export default class TripValidator {
         }]
       });
       if (trips && trips.length > 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'Bed is currently unavailable'
-        });
+        return res.status(400).json({ success: false, message: 'Bed is currently unavailable' });
       }
       next();
     } catch (error) {
       /* istanbul ignore next */
-      return res.status(400).json({
-        success: false,
-        message: 'An error occurred'
-      });
+      return CustomError.handleError('An error occurred', 400, res);
     }
   }
 
@@ -222,10 +199,7 @@ export default class TripValidator {
       next();
     } catch (error) {
       /* istanbul ignore next */
-      return res.status(400).json({
-        success: false,
-        message: 'An error occurred'
-      });
+      return CustomError.handleError('An error occurred', 400, res);
     }
   }
 
@@ -262,9 +236,22 @@ export default class TripValidator {
       next();
     } catch (error) {
       /* istanbul ignore next */
-      return res.status(400).json({
-        success: false, message: 'An error occurred'
-      });
+      return CustomError.handleError('An error occurred', 400, res);
+    }
+  }
+
+  static async checkTripCheckedOut(req, res, next) {
+    try {
+      const trip = await models.Trip.findById(req.params.tripId);
+      if (trip.checkOutDate !== null && trip.checkStatus === 'Checked Out') {
+        return res.status(400).json({
+          message: 'This trip is already checked out',
+          success: false
+        });
+      }
+      next();
+    } catch (error) {
+      return CustomError.handleError('An error occured', 500, res);
     }
   }
 }
