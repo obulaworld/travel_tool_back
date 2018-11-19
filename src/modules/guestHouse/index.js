@@ -2,6 +2,7 @@ import express from 'express';
 import GuestHouseController from './GuestHouseController';
 import middlewares from '../../middlewares';
 
+
 const { authenticate, Validator, RoleValidator } = middlewares;
 const Router = express.Router();
 
@@ -42,7 +43,6 @@ Router.put(
   GuestHouseController.updateRoomFaultyStatus
 );
 
-
 Router.put('/guesthouses/:id',
   authenticate,
   RoleValidator.checkUserRole(
@@ -60,6 +60,16 @@ Router.get(
     ['Super Administrator', 'Travel Administrator']
   ),
   GuestHouseController.getGuestHouseDetails
+);
+
+Router.post(
+  '/room/:id/maintainance',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  Validator.validateMaintainanceRecord,
+  GuestHouseController.createMaintainanceRecord,
 );
 
 export default Router;

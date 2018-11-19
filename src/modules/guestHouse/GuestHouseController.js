@@ -46,6 +46,31 @@ class GuestHouseController {
     });
   }
 
+  static async createMaintainanceRecord(req, res) {
+    const roomId = req.params.id;
+    const room = await models.Room.findOne({
+      where: {
+        id: req.params.id
+      }
+    });
+    if (!room) {
+      return res.status(400).json({
+        success: false,
+        message: 'The room does not exist'
+      });
+    }
+    const maintainanceData = {
+      ...req.body,
+      roomId
+    };
+    const newMaintainanceRecord = await models.Maintainance.create(maintainanceData);
+    return res.status(201).json({
+      success: true,
+      message: 'Room maintainance record created',
+      maintainance: newMaintainanceRecord,
+    });
+  }
+
   static async updateRoomFaultyStatus(req, res) {
     const guestRoomId = req.params.id;
     const room = await models.Room.findOne({
@@ -130,7 +155,6 @@ class GuestHouseController {
   static async getGuestHouseDetails(req, res) {
     const { guestHouseId } = req.params;
     const { query } = req;
-
     const { doInclude, makeTripsDateClauseFrom } = GuestHouseIncludeHelper;
     const bedTripsWhereClause = makeTripsDateClauseFrom(query);
     const srcRequestWhereClause = { status: 'Approved' };
@@ -148,6 +172,8 @@ class GuestHouseController {
               ...doInclude('Request', 'request', srcRequestWhereClause),
             }]
           }]
+        }, {
+          ...doInclude('Maintainance', 'maintainances', {}, false)
         }]
       }]
     });
@@ -160,7 +186,7 @@ class GuestHouseController {
     });
   }
 
-  // Update beds
+
   static async updateBeds(rooms, res) {
     const updatedBeds = await Promise.all(
       rooms.map(async (room) => {
@@ -197,7 +223,6 @@ class GuestHouseController {
     return updatedBeds;
   }
 
-  // Update guest house center and return expected response data
   static async editGuestHouse(req, res) {
     try {
       const {
