@@ -7,7 +7,7 @@ module.exports = {
       {
         id: '10948',
         houseName: 'Guest House B',
-        location: 'Nairobi',
+        location: 'Nairobi, Kenya',
         bathRooms: 3,
         imageUrl: 'guest.com',
         userId: '-LMgZQKq6MXAj_41iRWi',
