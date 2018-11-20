@@ -30,7 +30,7 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.DATE,
     }
-  });
+  }, { paranoid: true });
   Approval.associate = (models) => {
     Approval.belongsTo(models.Request, {
       foreignKey: 'requestId',

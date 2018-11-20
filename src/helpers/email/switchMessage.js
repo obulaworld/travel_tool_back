@@ -14,11 +14,7 @@ const attachCommentToMail = msgDetail => (
           <tbody >
             <tr >
             <td width="20%" ><img src=${msgDetail.comment.dataValues.picture} 
-            style="
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-              "
+            style="border-radius: 50%; width: 50px; height: 50px;"
             /></td>
             <td width="80%"> 
               <i>${msgDetail.comment.dataValues.comment}</i></td>
@@ -27,6 +23,16 @@ const attachCommentToMail = msgDetail => (
             </table>
   `
 );
+
+const deleteMessage = msgDetail => `The travel request\
+<b> #${msgDetail.requestId}</b> was just deleted
+  by ${msgDetail.senderName}. Login to your travela account for details.`;
+
+const updateMessage = msgDetail => (
+  `<b style="text-transform: capitalize;\
+  ">${msgDetail.senderName}</b> just updated a travel request for your approval. Login to your
+  travela account for details.`);
+
 const switchMessage = (msgDetail) => {
   switch (msgDetail.type) {
     case 'New Request':
@@ -44,10 +50,10 @@ const switchMessage = (msgDetail) => {
       return (
         attachCommentToMail(msgDetail)
       );
+    case 'Deleted Request':
+      return deleteMessage(msgDetail);
     case 'Updated Request':
-      return (
-        `<b style="text-transform: capitalize;">${msgDetail.senderName}</b> just updated a travel request for your approval. Login to your
-        travela account for details.`);
+      return updateMessage(msgDetail);
     case 'Changed Room':
       return (
         `Your residence record for the travel request 

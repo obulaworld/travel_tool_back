@@ -42,4 +42,11 @@ RequestsRouter.put(
   RequestsController.updateRequest,
 );
 
+RequestsRouter.delete(
+  '/requests/:requestId',
+  authenticate,
+  Validator.validateRequest,
+  RequestsController.deleteRequest,
+);
+
 export default RequestsRouter;

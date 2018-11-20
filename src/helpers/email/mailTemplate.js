@@ -4,6 +4,26 @@ import switchButtonText from './switchButtonText';
 
 dotenv.config();
 
+const returnButton = (type, redirectLink) => {
+  const button = type !== 'Deleted Request' ? `<a
+  href="${redirectLink}"
+  class="button"
+  style="width: 174px;
+    border-radius: 4px;
+    background-color: #3359DB;
+    text-decoration: none;
+    color: white;
+    font-family: Helvetica; font-size: 17px;
+    line-height: 20px; text-align: center;
+    display: block; padding: 13px 0;
+    margin: 0 auto 73px auto;
+    margin-bottom: 73px;"
+>
+  ${switchButtonText(type)}
+</a>` : '';
+  return button;
+};
+
 const mailTemplate = (
   recipientName,
   senderName,
@@ -63,22 +83,7 @@ const mailTemplate = (
     type, senderName, recipientName, requestId, comment
   })}
     </p>
-    <a
-      href="${redirectLink}"
-      class="button"
-      style="width: 174px;
-        border-radius: 4px;
-        background-color: #3359DB;
-        text-decoration: none;
-        color: white;
-        font-family: Helvetica; font-size: 17px;
-        line-height: 20px; text-align: center;
-        display: block; padding: 13px 0;
-        margin: 0 auto 73px auto;
-        margin-bottom: 73px;"
-    >
-      ${switchButtonText(type)}
-    </a>
+    ${returnButton(type, redirectLink)}
   </div>
   <div
     style="box-sizing: border-box;

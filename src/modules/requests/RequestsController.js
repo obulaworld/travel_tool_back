@@ -122,7 +122,8 @@ class RequestsController {
     // map the mailType to a notificationType.
     const notificationTypeMap = {
       'New Request': 'pending',
-      'Updated Request': 'general'
+      'Updated Request': 'general',
+      'Deleted Request': 'general'
     };
     const notificationData = {
       senderId: userId,
@@ -144,6 +145,7 @@ class RequestsController {
     return {
       recipient: { name: request.manager, email: recipient.email },
       sender: request.name,
+      requestId: request.id,
       topic,
       type,
       redirectLink: `${
@@ -190,6 +192,13 @@ class RequestsController {
   static async getRequestsFromDb(subquery) {
     const requests = await models.Request.findAndCountAll(subquery);
     return requests;
+  }
+
+  static async getRequest(requestId, userId) {
+    const request = await models.Request.find({
+      where: { userId, id: requestId },
+    });
+    return request;
   }
 
   static async returnRequests(req, res, requests) {
@@ -306,9 +315,8 @@ class RequestsController {
     const { trips, ...requestDetails } = req.body;
     try {
       await models.sequelize.transaction(async () => {
-        const request = await models.Request.find({
-          where: { userId: req.user.UserInfo.id, id: requestId },
-        });
+        const userId = req.user.UserInfo.id;
+        const request = await RequestsController.getRequest(requestId, userId);
         if (!request) {
           return Error.handleError('Request was not found', 404, res);
         }
@@ -334,6 +342,50 @@ class RequestsController {
           success: true,
           request: updatedRequest,
           trips: requestTrips,
+        });
+      });
+    } catch (error) {
+      /* istanbul ignore next */
+      return Error.handleError(error, 500, res);
+    }
+  }
+
+  static async handleDestroyTripComments(req) {
+    const { requestId } = req.params;
+    await models.Trip.destroy({ where: { requestId } });
+    await models.Comment.destroy({ where: { requestId } });
+    await models.Approval.destroy({ where: { requestId } });
+  }
+
+  static async deleteRequest(req, res) {
+    const { requestId } = req.params;
+    const userId = req.user.UserInfo.id;
+    try {
+      await models.sequelize.transaction(async () => {
+        const request = await RequestsController.getRequest(requestId, userId);
+        if (!request) {
+          return Error.handleError('Request was not found', 404, res);
+        }
+        if (request.status !== 'Open') {
+          return Error.handleError(`Request is already ${request.status.toLowerCase()}`, 409, res);
+        }
+        request.destroy();
+        RequestsController.handleDestroyTripComments(req);
+
+        const notificationMessage = 'deleted a travel request';
+
+        RequestsController.sendNotificationToManager(
+          req,
+          res,
+          request,
+          notificationMessage,
+          'Deleted Travel Request',
+          'Deleted Request',
+        );
+        const message = `Request ${request.id} has been successfully deleted`;
+        return res.status(200).json({
+          success: true,
+          message
         });
       });
     } catch (error) {
