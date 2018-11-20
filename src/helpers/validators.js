@@ -99,6 +99,8 @@ export const deleteChecklistItem = [
     'Reason for deletion is required')
     .trim().isLength({ min: 3, }),
 ];
+
+// type can be file or json
 export const travelReadinessValidators = [
   query('page', 'Page must be a positive integer')
     .isInt({ gt: 0 })
@@ -107,5 +109,7 @@ export const travelReadinessValidators = [
     .isInt({ gt: 0 })
     .optional(),
   query('type', 'Type must be a string')
-    .isString('')
+    .isString(''),
+  query('travelFlow', 'Travel flow should either be inflow or outflow')
+    .isIn(['inflow', 'outflow'])
 ];
