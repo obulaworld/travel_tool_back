@@ -103,9 +103,13 @@ export default class TravelChecklistController {
 
   static async getApprovedRequest(type, requestId, res) {
     try {
+      const filter = [type];
+      const enums = await models.sequelize
+        .query('SELECT enumlabel from pg_enum where enumlabel = \'Verified\' ;');
+      if (enums[0].length > 1) filter.push('Verified');
       const requestType = await models.Request.findOne({
         where: {
-          status: type,
+          status: filter,
           id: requestId,
         }
       });
@@ -143,7 +147,6 @@ export default class TravelChecklistController {
     }
   }
 
-
   static async checkListPercentageNumber(req, res, requestId) {
     const checklists = await TravelChecklistHelper
       .getChecklists(req, res, requestId);
@@ -159,7 +162,6 @@ export default class TravelChecklistController {
     const checklistLength = checklists.reduce(reducer, 0);
     const percentage = Math
       .floor((submissions.length / checklistLength) * 100);
-    
     return percentage;
   }
 

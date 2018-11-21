@@ -358,4 +358,229 @@ export const beds = [
   }
 ];
 
+export const travelTeamMember = [
+  {
+    id: 3023,
+    fullName: 'Drew Barrymore',
+    email: 'drewbarrymore@andela.com',
+    userId: '-MUyHJmKrxA90lPNQ1FOENx',
+    picture: 'fakePicture.png',
+    location: 'Lagos',
+    passportName: 'Drew Barrymore',
+  },
+  {
+    UserInfo: {
+      name: 'Drew Barrymore',
+      email: 'drewbarrymore@andela.com',
+      id: '-MUyHJmKrxA90lPNQ1FOENx',
+      picture: 'fakePicture.png'
+    }
+  }
+];
+
+export const normalRequester = [
+  {
+    id: 3024,
+    fullName: 'Felix Sterling',
+    email: 'felixsterling@andela.com',
+    userId: '-MUyHJmKrxA90lPNQ1FOENy',
+    picture: 'fakePicture.png',
+    location: 'Lagos',
+    passportName: 'Felix Sterling',
+  },
+  {
+    UserInfo: {
+      name: 'Felix Sterling',
+      email: 'felixsterling@andela.com',
+      id: '-MUyHJmKrxA90lPNQ1FOENy',
+      picture: 'fakePicture.png',
+    }
+  }
+];
+
+export const userRoles = [
+  {
+    userId: 3023,
+    roleId: 339458
+  },
+  {
+    userId: 3024,
+    roleId: 401938,
+  }
+];
+
+export const checkListItems = [
+  {
+    id: 'qwsaafr',
+    name: 'Visa',
+    requiresFiles: true,
+    destinationName: 'Nairobi, Kenya'
+  }
+];
+
+export const checkListSubmissions = [
+  {
+    id: 'eqwu',
+    value: 'visa link',
+    tripId: 'trip798',
+    checklistItemId: 'qwsaafr'
+  }
+];
+
+export const requestsList = [
+  {
+    id: 'qw234re',
+    name: 'Felix Sterling',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Male',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Approved',
+    userId: '-MUyHJmKrxA90lPNQ1FOENy',
+    picture: 'https://sgeeegege'
+  },
+  {
+    id: 'qw234rb',
+    name: 'Felix Sterling',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Male',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Open',
+    userId: '-MUyHJmKrxA90lPNQ1FOENy',
+    picture: 'https://sgeeegege'
+  },
+  {
+    id: 'qw234rc',
+    name: 'Felix Sterling',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Male',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Approved',
+    userId: '-MUyHJmKrxA90lPNQ1FOENy',
+    picture: 'https://sgeeegege'
+  },
+  {
+    id: 'qw234rq',
+    name: 'Felix Sterling',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Male',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Approved',
+    userId: '-MUyHJmKrxA90lPNQ1FOENy',
+    picture: 'https://sgeeegege'
+  },
+  {
+    id: 'qw235rp',
+    name: 'Felix Sterling',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Male',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Approved',
+    userId: '-MUyHJmKrxA90lPNQ1FOENy',
+    picture: 'https://sgeeegege'
+  },
+  {
+    id: 'eq23xsd',
+    name: 'Felix Sterling',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Male',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Approved',
+    userId: '-MUyHJmKrxA90lPNQ1FOENy',
+    picture: 'https://sgeeegege'
+  }
+];
+
+export const approvalsList = [
+  {
+    id: 1209,
+    requestId: 'qw234re',
+    status: 'Approved',
+    approverId: 'Samuel Kubai'
+  },
+  {
+    id: 1210,
+    requestId: 'qw234rc',
+    status: 'Approved',
+    approverId: 'Samuel Kubai'
+  },
+  {
+    id: 1213,
+    requestId: 'qw234rq',
+    status: 'Approved',
+    approverId: 'Samuel Kubai'
+  },
+  {
+    id: 1214,
+    requestId: 'qw235rp',
+    status: 'Approved',
+    approverId: 'Samuel Kubai'
+  },
+  {
+    id: 1215,
+    requestId: 'eq23xsd',
+    status: 'Approved',
+    approverId: 'Samuel Kubai'
+  }
+];
+
+export const trips = [
+  {
+    id: 'trip797',
+    requestId: 'qw234rb',
+    origin: 'Lagos, Nigeria',
+    destination: 'Nairobi, Kenya',
+    bedId: 323,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 'trip798',
+    requestId: 'qw234re',
+    origin: 'Lagos, Nigeria',
+    destination: 'Nairobi, Kenya',
+    bedId: 323,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 'trip799',
+    requestId: 'qw234rc',
+    origin: 'kampala, Uganda',
+    destination: 'Nairobi, Kenya',
+    bedId: 323,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 'trip800',
+    requestId: 'qw234rq',
+    origin: 'Lagos, Nigeria',
+    destination: 'Nairobi, Kenya',
+    bedId: 323,
+    departureDate: '2017-01-01',
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 'trip802',
+    requestId: 'qw235rp',
+    origin: 'Lagos, Nigeria',
+    destination: 'Nairobi, Kenya',
+    bedId: 323,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  }
+];
+
 export default testRequests;

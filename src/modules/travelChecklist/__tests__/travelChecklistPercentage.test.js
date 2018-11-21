@@ -72,7 +72,7 @@ describe('Checklist Percentage', () => {
     await models.Room.sync({ force: true });
     await models.GuestHouse
       .destroy({ force: true, truncate: { cascade: true } });
-    await models.Request.sync({ force: true });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.sync({ force: true });
     await models.ChecklistItem.sync({ force: true });
     await models.ChecklistItemResource

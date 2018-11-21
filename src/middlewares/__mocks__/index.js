@@ -47,7 +47,13 @@ const middleware = {
     checkSignedInUser: jest.fn(invokeNextMiddleware),
     validateNewCentre: jest.fn(invokeNextMiddleware),
     validateTripBeds: jest.fn(invokeNextMiddleware),
-    checkTripBeds: jest.fn(invokeNextMiddleware)
+    checkTripBeds: jest.fn(invokeNextMiddleware),
+    checkStatusIsApproved: jest.fn(invokeNextMiddleware),
+    validateRequestHasTrips: jest.fn(invokeNextMiddleware),
+    validateTeamMemberLocation: jest.fn(invokeNextMiddleware),
+    validateDepartureDate: jest.fn(invokeNextMiddleware),
+    validateCheckListComplete: jest.fn(invokeNextMiddleware)
+
   },
   RoleValidator: {
     validateUpdateRole: jest.fn(invokeNextMiddleware),

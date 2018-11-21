@@ -688,6 +688,7 @@ describe('Notifications Controller', () => {
 
     const token2 = Utils.generateTestToken(payload2);
     beforeAll(async () => {
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await  models.Role.bulkCreate(role);
     const res = await request(app)

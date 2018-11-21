@@ -5,8 +5,8 @@ const date = new Date();
 const minDate = new Date(date.setDate(date.getDate() - 1));
 
 export const getRequestsValidators = [
-  query('status', 'Status must be "open", "past", "approved" or "rejected"')
-    .isIn(['open', 'approved', 'past', 'rejected'])
+  query('status', 'Status must be "open", "past", "approved", "rejected" or "verified"')
+    .isIn(['open', 'approved', 'past', 'rejected', 'verified'])
     .optional(),
   query('page', 'Page must be a positive integer')
     .isInt({ gt: 0 })
