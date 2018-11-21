@@ -101,9 +101,11 @@ export const deleteChecklistItem = [
 ];
 export const travelReadinessValidators = [
   query('page', 'Page must be a positive integer')
-    .isInt({ gt: 0 }),
+    .isInt({ gt: 0 })
+    .optional(),
   query('limit', 'Limit must be a positive integer')
-    .isInt({ gt: 0 }),
+    .isInt({ gt: 0 })
+    .optional(),
   query('type', 'Type must be a string')
     .isString('')
 ];
