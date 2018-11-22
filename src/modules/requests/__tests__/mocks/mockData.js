@@ -269,6 +269,9 @@ export const generateMockData = (mailType) => {
   } else if (mailType === 'Updated Request') {
     message = 'edited a travel request';
     mailTopic = 'Updated Travel Request';
+  } else if (mailType === 'Deleted Request') {
+    message = 'deleted a travel request';
+    mailTopic = 'Deleted Travel Request';
   }
 
   return {

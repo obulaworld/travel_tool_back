@@ -101,6 +101,18 @@ const bedMock = {
   booked: false,
 };
 
+const commentMock = {
+  id: 'er456tgf',
+  comment: "I thought we agreed you'd spend only two weeks",
+  isEdited: false,
+  requestId: 'xDh20cuGz',
+  userName: 'Doctor Strange',
+  userEmail: 'doctor.strange@andela.com',
+  picture: 'fakepicture.png',
+  createdAt: '2018-08-16 012:11:52.181+01',
+  updatedAt: '2018-08-16 012:11:52.181+01',
+};
+
 const requestId = 'xDh20cuGz';
 const invalidId = 'xghvhbdebdhhe';
 const token = Utils.generateTestToken(payload);
@@ -137,6 +149,7 @@ describe('Requests Controller', () => {
     await models.Bed.destroy({ force: true, truncate: { cascade: true } });
     await models.Room.destroy({ force: true, truncate: { cascade: true } });
     await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
+    await models.Comment.destroy({ force: true, truncate: { cascade: true } });
   });
 
   describe('GET /api/v1/requests', () => {
@@ -796,7 +809,7 @@ describe('Requests Controller', () => {
       done();
     });
 
-    xit('should return the expected number of trips', async (done) => {
+    it('should return the expected number of trips', async (done) => {
       const postResp = await request(app)
         .post('/api/v1/requests')
         .set('authorization', token)
@@ -1248,6 +1261,23 @@ describe('Requests Controller', () => {
         done();
       });
 
+    it('should send "delete" notification if mailType is "Deleted Request"',
+      async (done) => {
+        // generate the mock data and call the function
+        const {
+          req, res, travelRequest, message, mailTopic, mailType
+        } = generateMockData('Deleted Request');
+        await RequestsController.sendNotificationToManager(
+          req, res, travelRequest, message, mailTopic, mailType
+        );
+
+        // get the arguments that NotificationEngine.notify was called with last
+        const [args] = NotificationEngine
+          .notify.mock.calls[NotificationEngine.notify.mock.calls.length - 1];
+        expect(args.notificationType).toEqual('general');
+        done();
+      });
+
     it('should default to sending "general" notification if '
       + 'mailType is not given',
     async (done) => {
@@ -1264,6 +1294,47 @@ describe('Requests Controller', () => {
         .notify.mock.calls[NotificationEngine.notify.mock.calls.length - 1];
       expect(args.notificationType).toEqual('general');
       done();
+    });
+  });
+
+  describe('DELETE /api/v1/requests/:requestId', () => {
+    describe('An authenticated user', () => {
+      it('should delete the request and return 200 ', async (done) => {
+        await models.Comment.destroy({ force: true, truncate: { cascade: true } });
+        await models.Comment.create(commentMock);
+        request(app)
+          .delete('/api/v1/requests/xDh20cuGz')
+          .set('authorization', token)
+          .end((err, res) => {
+            const deleteMessage = res.body.message;
+            expect(deleteMessage).toBe('Request xDh20cuGz has been successfully deleted');
+            expect(res.status).toBe(200);
+            expect(res.body.success).toBe(true);
+            done();
+          });
+      });
+
+      it(`should return 409 error if the
+        request has been approved or rejected`, (done) => {
+        request(app)
+          .delete('/api/v1/requests/xDh20cuGy')
+          .set('authorization', token)
+          .end((err, res) => {
+            expect(res.body.error).toBe('Request is already approved');
+            expect(res.status).toBe(409);
+            done();
+          });
+      });
+      it('should return 404 error if the request does not exist', (done) => {
+        request(app)
+          .delete('/api/v1/requests/myRequest0iD')
+          .set('authorization', token)
+          .end((err, res) => {
+            expect(res.body.error).toBe('Request was not found');
+            expect(res.status).toBe(404);
+            done();
+          });
+      });
     });
   });
 });

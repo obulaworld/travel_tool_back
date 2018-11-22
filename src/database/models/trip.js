@@ -60,7 +60,7 @@ export default (sequelize, DataTypes) => {
       defaultValue: 'false',
       type: DataTypes.ENUM('true', 'false')
     }
-  });
+  }, { paranoid: true });
   Trip.associate = (models) => {
     Trip.belongsTo(models.Bed, {
       allowNull: true,

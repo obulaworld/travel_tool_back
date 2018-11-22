@@ -88,7 +88,7 @@ export default (sequelize, DataTypes) => {
         },
       },
     },
-  });
+  }, { paranoid: true });
 
   Request.associate = (models) => {
     Request.hasMany(models.Comment, {
