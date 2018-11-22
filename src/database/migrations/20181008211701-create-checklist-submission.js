@@ -10,7 +10,14 @@ module.exports = {
         type: Sequelize.STRING
       },
       tripId: {
-        type: Sequelize.STRING
+        allowNull: false,
+        type: Sequelize.STRING,
+        references: {
+          model: 'Trips',
+          key: 'id',
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        }
       },
       checklistItemId: {
         type: Sequelize.STRING

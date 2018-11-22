@@ -3,13 +3,13 @@ import middleware from '../../middlewares';
 import TripsController from './trips/TripsController';
 import AnalyticsController from './travelRequests/analyticsController';
 import ReadinessController from './travelReadiness/ReadinessController';
+import CalendarController from './travelCalendar/TravelCalendar';
 import { travelReadinessValidators } from '../../helpers/validators';
-
 
 const Router = express.Router();
 
 const {
-  authenticate, RoleValidator, analyticsValidator, Validator
+  authenticate, RoleValidator, analyticsValidator, travelCalendarValidator, Validator
 } = middleware;
 
 Router.get(
@@ -37,5 +37,11 @@ Router.get(
   ReadinessController.getReadinessCsv
 );
 
-
+Router.get('/analytics/calendar',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  travelCalendarValidator.validateRequestQuery,
+  CalendarController.getTravelCalendarAnalytics);
 export default Router;

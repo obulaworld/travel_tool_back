@@ -73,6 +73,10 @@ export default (sequelize, DataTypes) => {
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     });
+    Trip.hasMany(models.ChecklistSubmission, {
+      foreignKey: 'tripId',
+      as: 'submissions',
+    });
     Trip.hasMany(models.ChangedRoom, {
       foreignKey: 'tripId',
       as: 'changedRooms',

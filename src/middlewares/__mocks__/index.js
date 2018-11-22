@@ -81,6 +81,9 @@ const middleware = {
   analyticsValidator: {
     validateFilterAndType: jest.fn(invokeNextMiddleware)
   },
+  travelCalendarValidator: {
+    validateRequestQuery: jest.fn(invokeNextMiddleware)
+  },
   validateDirectReport: jest.fn(mockValidateDirectReport),
   DocumentsValidator: {
     validateDocumentName: jest.fn(invokeNextMiddleware),
