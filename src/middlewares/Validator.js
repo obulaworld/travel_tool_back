@@ -152,6 +152,7 @@ export default class Validator {
     Validator.errorHandler(res, errors, next);
   }
 
+
   static validateGuestHouse(req, res, next) {
     req.checkBody('houseName', 'House name is required').notEmpty();
     req.checkBody('location', 'Location is required').notEmpty();
@@ -166,6 +167,24 @@ export default class Validator {
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
   }
+
+  static validateMaintainanceRecord(req, res, next) {
+    req.checkBody('reason', 'Maintainace reason is required').notEmpty();
+    req.checkBody('start', 'start date must be provided').notEmpty();
+    req.checkBody('start', 'start date must be formatted correcty mm/dd/yyyy')
+    .matches(/^(0[1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01])[- \/.]((?:19|20)\d\d)$/); /* eslint-disable-line*/
+    req.checkBody('end', 'Maintainance end data must be provided').notEmpty();
+    req.checkBody('end', 'end date must be formatted correcty mm/dd/yyyy')
+    .matches(/^(0[1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01])[- \/.]((?:19|20)\d\d)$/); /* eslint-disable-line*/
+    req.checkBody('start', 'end date should be greater than start date').custom((start) => {
+      const dateStart = new Date(start);
+      const dateEnd = new Date(req.body.end);
+      return dateEnd > dateStart;
+    });
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
+  
 
   static checkDate(req, res, next) {
     const { startDate, endDate } = req.query;

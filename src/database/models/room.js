@@ -39,6 +39,10 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'roomId',
       as: 'beds',
     });
+    Room.hasMany(models.Maintainance, {
+      foreignKey: 'roomId',
+      as: 'maintainances',
+    });
   };
   return Room;
 };

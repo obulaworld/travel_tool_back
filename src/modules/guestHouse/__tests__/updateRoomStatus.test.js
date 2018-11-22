@@ -13,7 +13,7 @@ import {
 
 const payload = {
   UserInfo: {
-    id: '-TRUniplpknbbh',
+    id: '-TRUniolpknbnk',
     fullName: 'Collins Muru',
     email: 'collins.muru@andela.com',
     picture: 'fakePicture.png'
@@ -23,13 +23,12 @@ const payload = {
 const token = Utils.generateTestToken(payload);
 const invalidToken = 'YYTRYIM0nrbuy7tonfenu';
 
-
 describe('Update the room fault status', () => {
   beforeAll(async (done) => {
-    await models.Role.destroy({ truncate: true, cascade: true });
+    await models.Role.sync({ force: true });
     await models.Role.bulkCreate(role);
-    await models.User.destroy({ truncate: true, cascade: true });
-    await models.UserRole.destroy({ truncate: true, cascade: true });
+    await models.User.sync({ force: true });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     process.env.DEFAULT_ADMIN = 'collins.muru@andela.com';
     request(app)
       .post('/api/v1/user')
@@ -37,7 +36,7 @@ describe('Update the room fault status', () => {
       .send({
         fullName: 'Collins Muru',
         email: 'collins.muru@andela.com',
-        userId: '-TRUniplpknbbh',
+        userId: '-TRUniolpknbnk',
         picture: 'fakePicture.png',
         location: 'Lagos',
       })
@@ -46,12 +45,10 @@ describe('Update the room fault status', () => {
         done();
       });
   });
-
   afterAll(async () => {
-    await models.Role.destroy({ truncate: true, cascade: true });
-    await models.User.destroy({ truncate: true, cascade: true });
-    await models.GuestHouse.destroy({ truncate: true, cascade: true });
-    await models.UserRole.destroy({ truncate: true, cascade: true });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   });
 
   describe('Unauthorized user', () => {
@@ -112,14 +109,21 @@ describe('Update the room fault status', () => {
 
       describe('Update room fault status', () => {
         beforeAll(async (done) => {
-          await models.Bed.destroy({ truncate: true, cascade: true });
-          await models.Room.destroy({ truncate: true, cascade: true });
-          await models.GuestHouse.destroy({ truncate: true, cascade: true });
+          await models.Bed.destroy({ truncate: { cascade: true } });
+          await models.Room.destroy({ truncate: { cascade: true } });
+          await models.GuestHouse.destroy({ truncate: { cascade: true } });
           await models.GuestHouse.create(GuestHouseEpic);
           await models.Room.create(GuestHouseEpicRoom);
           await models.Bed.bulkCreate(GuestHouseEpicBed);
           done();
         });
+        afterAll(async (done) => {
+          await models.Bed.destroy({ truncate: { cascade: true } });
+          await models.Room.destroy({ truncate: { cascade: true } });
+          await models.GuestHouse.destroy({ truncate: { cascade: true } });
+          done();
+        });
+
         it('returns appropriate message if room is updated', (done) => {
           request(app)
             .put('/api/v1/room/bEu6thdW')

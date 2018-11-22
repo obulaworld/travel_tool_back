@@ -37,6 +37,7 @@ const middleware = {
     checkFaultRoomStatus: jest.fn(invokeNextMiddleware),
     checkUrl: jest.fn(invokeNextMiddleware),
     validateGuestHouse: jest.fn(invokeNextMiddleware),
+    validateMaintainanceRecord: jest.fn(invokeNextMiddleware),
     validateImage: jest.fn(invokeNextMiddleware),
     getUserId: jest.fn(mockGetUserId),
     centerExists: jest.fn(invokeNextMiddleware),
@@ -60,8 +61,8 @@ const middleware = {
     checkUserRoleById: jest.fn(invokeNextMiddleware),
     validateChecklistQuery: jest.fn(invokeNextMiddleware),
     validateRequestIdQuery: jest.fn(invokeNextMiddleware),
-    validateDestinationNameQuery: jest.fn(invokeNextMiddleware)
-
+    validateDestinationNameQuery: jest.fn(invokeNextMiddleware),
+    validateMaintainanceRecord: jest.fn(invokeNextMiddleware)
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),

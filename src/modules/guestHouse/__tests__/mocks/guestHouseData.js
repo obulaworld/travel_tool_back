@@ -45,6 +45,18 @@ export const updateRoomFaultStatus = {
   }
 };
 
+export const maintainanceRecord = {
+  reason: 'Windows are broken',
+  start: '11/02/2018',
+  end: '11/21/2018'
+};
+
+export const maintainanceRecord2 = {
+  reason: '',
+  start: '11/02/2018',
+  end: '11/21/2018'
+};
+
 export const guestHouseResponse = {
   success: true,
   message: 'Guest House created successfully',
@@ -113,6 +125,18 @@ export const GuestHouseEpic = {
   createdAt: '2018-09-26T15:47:47.576Z',
   updatedAt: '2018-09-26T15:47:47.576Z',
 };
+
+export const GuestHouse1 = {
+  id: 'ND56thdW',
+  houseName: 'Bukoto Heights',
+  location: 'Kampala, Uganda',
+  bathRooms: '2',
+  imageUrl: 'https://www.lol.com',
+  userId: '-TRUniplpknbbh',
+  createdAt: '2018-09-26T15:47:47.576Z',
+  updatedAt: '2018-09-26T15:47:47.576Z',
+};
+
 
 export const GuestHouseEpicRoom = {
   id: 'bEu6thdW',
