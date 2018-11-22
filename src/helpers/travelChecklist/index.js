@@ -1,3 +1,5 @@
+/* eslint object-property-newline: 0 */
+import _ from 'lodash';
 import models from '../../database/models';
 import TripsController from '../../modules/trips/TripsController';
 import CustomError from '../Error';
@@ -12,51 +14,120 @@ class TravelChecklistHelper {
       return newGroup;
     }, {});
     const groupedCheckList = Object.keys(modifiedChecklist).map(key => ({
-      destination: key,
+      [groupBy]: key,
       checklist: modifiedChecklist[key]
     }));
     return groupedCheckList;
   }
 
+  static addTripIds(checklists, tripsDestinationsWithId) {
+    const uniqueTrips = _.uniqBy(
+      tripsDestinationsWithId, trip => trip.destination
+    );
+
+    const checklistWithTripId = checklists.map((checklist) => {
+      const { destinationName } = checklist;
+      const destinationTrip = uniqueTrips
+        .find(trip => trip.destination === destinationName);
+
+      return { ...checklist, tripId: destinationTrip.id };
+    });
+
+    return checklistWithTripId;
+  }
+
+  static addDefaultItems(checklists) {
+    const travelTicket = checklists.find(
+      checklist => checklist.destinationName.toLowerCase().match('default')
+    );
+
+    const checkList = checklists.filter(
+      checklist => !checklist.destinationName.toLowerCase().match('default')
+    );
+    
+    if (!travelTicket || !checkList.length) return checklists;
+    const checklistWithDefaultItem = checkList.map(
+      checklist => ({
+        ...checklist,
+        checklist: [...checklist.checklist, ...travelTicket.checklist]
+      })
+    );
+    return checklistWithDefaultItem;
+  }
+
+  static addDestinationsWithNoChecklist(groupedChecklists, tripsDestinations) {
+    const uniqueDestinations = [...new Set(tripsDestinations)];
+    const destinationsWithChecklists = groupedChecklists
+      .map(checklist => checklist.destinationName);
+    
+    const destinationsWithNoChecklist = [];
+    uniqueDestinations.forEach((destination) => {
+      if (!destinationsWithChecklists.includes(destination)) {
+        destinationsWithNoChecklist
+          .push({ destinationName: destination, checklist: [] });
+      }
+    });
+
+    return [...groupedChecklists, ...destinationsWithNoChecklist];
+  }
+
   static async getChecklistFromDb(query, res) {
     try {
       const checklists = await models.ChecklistItem.findAll(query);
-      const groupedCheckList = TravelChecklistHelper
+      const groupedCheckLists = TravelChecklistHelper
         .groupCheckList(checklists, 'destinationName');
-      return { checklists: groupedCheckList };
+      return groupedCheckLists;
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError('Server Error', 500, res);
     }
   }
 
-  static async getChecklists(req, res, requestId) {
-    try {
-      const { destinationName } = req.query;
-      let where = {};
+  static async modifyChecklistStructure(
+    groupedCheckLists, tripsDestination, tripsDestinationsWithId
+  ) {
+    const newChecklist = TravelChecklistHelper
+      .addDestinationsWithNoChecklist(groupedCheckLists, tripsDestination);
+    let modifiedChecklist = TravelChecklistHelper
+      .addDefaultItems(newChecklist);
+    if (tripsDestinationsWithId.length) {
+      modifiedChecklist = TravelChecklistHelper
+        .addTripIds(modifiedChecklist, tripsDestinationsWithId);
+    }
+    return modifiedChecklist;
+  }
 
-      if (requestId) {
-        const trips = await TripsController.getTripsByRequestId(requestId, res);
-        const tripsDestination = trips.map(trip => trip.destination);
-        where = { destinationName: tripsDestination };
+  static async getChecklists(req, res, requestID = null) {
+    try {
+      const { requestId, destinationName } = req.query;
+      let where = {};
+      const tripsDestination = [];
+      const tripsDestinationsWithId = [];
+      const reqId = requestId || requestID;
+      if (reqId) {
+        const trips = await TripsController.getTripsByRequestId(reqId, res);
+        trips.forEach((trip) => {
+          const { id, destination } = trip;
+          tripsDestinationsWithId.push({ id, destination });
+          tripsDestination.push(destination);
+        });
+        where = { destinationName: [...tripsDestination, 'Default'] };
       } else if (destinationName) {
         const andelaCenters = TravelChecklistHelper.getAndelaCenters();
-        where = { destinationName: andelaCenters[`${destinationName}`] };
+        where = { destinationName: [andelaCenters[`${destinationName}`], 'Default'] };
       }
-
       const query = {
-        where,
-        attributes:
-        ['id', 'name', 'requiresFiles', 'destinationName', 'deleteReason'],
-        order: [['destinationName', 'ASC']],
+        where, attributes: ['id', 'name', 'requiresFiles',
+          'destinationName', 'deleteReason'], order: [['destinationName', 'ASC']],
         include: [{
-          model: models.ChecklistItemResource,
-          as: 'resources',
+          model: models.ChecklistItemResource, as: 'resources',
           attributes: ['id', 'label', 'link', 'checklistItemId']
         }]
       };
-
-      const checklists = await TravelChecklistHelper
-        .getChecklistFromDb(query, res);
+      const groupedChecklists = await TravelChecklistHelper.getChecklistFromDb(query, res);
+      const checklists = groupedChecklists.length
+        ? TravelChecklistHelper.modifyChecklistStructure(
+          groupedChecklists, tripsDestination, tripsDestinationsWithId
+        ) : [];
       return checklists;
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error, 500, res);
@@ -73,6 +144,28 @@ class TravelChecklistHelper {
     };
 
     return andelaCenters;
+  }
+
+  static combineSubmittedChecklists(travelCheckLists, submissions) {
+    const combinedChecklist = travelCheckLists.map((travelChecklist) => {
+      const checklistWithSubmissions = travelChecklist.checklist.map((checklist) => {
+        const { id } = checklist;
+        const foundSubmission = submissions
+          .filter(submission => (submission.tripId === travelChecklist.tripId
+            && submission.checklistSubmissions.id === id));
+
+        return {
+          ...checklist,
+          submissions: foundSubmission
+        };
+      });
+
+      return {
+        ...travelChecklist,
+        checklist: checklistWithSubmissions
+      };
+    });
+    return combinedChecklist;
   }
 }
 

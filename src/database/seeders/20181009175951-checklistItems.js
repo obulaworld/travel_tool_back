@@ -2,7 +2,7 @@ module.exports = {
   up: queryInterface => queryInterface.bulkInsert('ChecklistItems',
     [
       {
-        id: '1',
+        id: '2',
         name: 'visa application',
         requiresFiles: true,
         deleteReason: null,
@@ -11,7 +11,7 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '2',
+        id: '3',
         name: 'travel stipend',
         requiresFiles: false,
         deleteReason: null,
@@ -20,8 +20,8 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '3',
-        name: 'Travel Ticket Details',
+        id: '4',
+        name: 'Travel Stipend',
         requiresFiles: false,
         deleteReason: null,
         destinationName: 'New York, United States',
@@ -29,7 +29,7 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '4',
+        id: '5',
         name: 'visa application',
         requiresFiles: true,
         deleteReason: null,
@@ -38,7 +38,7 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '5',
+        id: '6',
         name: 'Travel stipend',
         requiresFiles: false,
         deleteReason: null,
@@ -47,7 +47,7 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '6',
+        id: '7',
         name: 'visa application',
         requiresFiles: true,
         deleteReason: null,
@@ -56,7 +56,7 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '7',
+        id: '8',
         name: 'travel stipend',
         requiresFiles: false,
         deleteReason: null,
@@ -65,7 +65,7 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '8',
+        id: '9',
         name: 'visa application',
         requiresFiles: true,
         deleteReason: null,
@@ -74,7 +74,7 @@ module.exports = {
         updatedAt: '2018-10-05T08:36:11.170Z',
       },
       {
-        id: '9',
+        id: '10',
         name: 'yellow card',
         requiresFiles: false,
         deleteReason: null,

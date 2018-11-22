@@ -8,7 +8,9 @@ import {
 
 const TravelChecklistRouter = express.Router();
 
-const { authenticate, Validator, RoleValidator } = middleware;
+const {
+  authenticate, Validator, RoleValidator, ChecklistValidator
+} = middleware;
 
 TravelChecklistRouter.get(
   '/checklists',
@@ -59,13 +61,15 @@ TravelChecklistRouter.put(
 );
 
 TravelChecklistRouter.post(
-  '/checklists/:checklistItemId/submission',
+  '/checklists/:requestId/submissions/:checklistItemId',
   authenticate,
-  TravelChecklistController.postTripChecklistItemSubmission,
+  ChecklistValidator.validateSubmission,
+  ChecklistValidator.validateTrip,
+  TravelChecklistController.addChecklistItemSubmission
 );
 
 TravelChecklistRouter.get(
-  '/checklists/:requestId/submission',
+  '/checklists/:requestId/submissions',
   authenticate,
   TravelChecklistController.getCheckListItemSubmission,
 );

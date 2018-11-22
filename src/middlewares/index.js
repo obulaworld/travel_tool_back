@@ -5,6 +5,7 @@ import tripValidator from './tripValidator';
 import RoleValidator from './RoleValidator';
 import analyticsValidator from './analyticsValidator';
 import DocumentsValidator from './DocumentsValidator';
+import ChecklistValidator from './checklistValidator';
 
 const middleware = {
   authenticate,
@@ -13,7 +14,8 @@ const middleware = {
   tripValidator,
   RoleValidator,
   analyticsValidator,
-  DocumentsValidator
+  DocumentsValidator,
+  ChecklistValidator
 };
 
 export default middleware;

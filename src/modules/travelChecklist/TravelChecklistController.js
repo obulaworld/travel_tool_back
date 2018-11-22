@@ -1,4 +1,4 @@
-import cloudinary from 'cloudinary';
+/* eslint object-property-newline: 0 */
 import Utils from '../../helpers/Utils';
 import models from '../../database/models';
 import TravelChecklistHelper from '../../helpers/travelChecklist';
@@ -52,16 +52,16 @@ export default class TravelChecklistController {
   static async getChecklistsResponse(req, res) {
     try {
       const { requestId } = req.query;
-      const response = await TravelChecklistHelper.getChecklists(req, res, requestId);
-      if (response.checklists.length) {
-        return res.status(200).json({
-          success: true,
-          message: 'travel checklist retrieved successfully',
-          travelChecklists: response.checklists
-        });
-      }
+      const checklists = await TravelChecklistHelper.getChecklists(req, res, requestId);
+      const response = {
+        success: true,
+        message: 'travel checklist retrieved successfully',
+        travelChecklists: checklists,
+      };
+      if (checklists.length) return res.status(200).json(response);
+
       const errorMsg = 'There are no checklist items for your selected destination(s). Please contact your Travel Department.'; // eslint-disable-line
-      CustomError.handleError(errorMsg, 404, res);
+      return CustomError.handleError(errorMsg, 404, res);
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error, 500, res);
     }
@@ -123,10 +123,19 @@ export default class TravelChecklistController {
       let submissions = [];
       const trips = await TripsController.getTripsByRequestId(requestId, res);
       const tripsId = trips.map(trip => trip.id);
-      where = { tripId: { [Op.in]: tripsId } };
+      where = {
+        tripId: { [Op.in]: tripsId }
+      };
 
       if (request) {
-        submissions = await models.ChecklistSubmission.findAll({ where });
+        submissions = await models.ChecklistSubmission.findAll({
+          where,
+          include: [{
+            model: models.ChecklistItem,
+            as: 'checklistSubmissions',
+            attributes: ['id']
+          }]
+        });
       }
       return submissions;
     } catch (error) { /* istanbul ignore next */
@@ -136,19 +145,21 @@ export default class TravelChecklistController {
 
 
   static async checkListPercentageNumber(req, res, requestId) {
-    const getChecklists = await TravelChecklistHelper.getChecklists(req, res, requestId);
-    let totalChecklistNumber = 0;
-    let numberOfTickets = 0;
-    getChecklists.checklists.forEach((item) => {
-      const numberOfChecklist = item.checklist.length;
-      totalChecklistNumber += numberOfChecklist;
-      numberOfTickets += 1;
-    });
-    const checklistLength = (totalChecklistNumber + numberOfTickets);
-    const getSubmissions = await TravelChecklistController
+    const checklists = await TravelChecklistHelper
+      .getChecklists(req, res, requestId);
+    const submissions = await TravelChecklistController
       .getSubmissions(requestId, res);
+    const percentage = TravelChecklistController
+      .calcPercentage(checklists, submissions);
+    return percentage;
+  }
+
+  static async calcPercentage(checklists, submissions) {
+    const reducer = (accumulator, item) => accumulator + item.checklist.length;
+    const checklistLength = checklists.reduce(reducer, 0);
     const percentage = Math
-      .floor((getSubmissions.length / checklistLength) * 100);
+      .floor((submissions.length / checklistLength) * 100);
+    
     return percentage;
   }
 
@@ -176,35 +187,29 @@ export default class TravelChecklistController {
       const checklistItemId = req.params.checklistId;
       const { name, requiresFiles, resources } = req.body;
       const checklistItem = await models.ChecklistItem.findOne({
-        paranoid: false, where: { id: checklistItemId, destinationName: andelaCenters[`${location}`] }
+        paranoid: false,
+        where: { id: checklistItemId, destinationName: andelaCenters[`${location}`] }
       });
       if (checklistItem) {
         const responseMessage = checklistItem.dataValues.deletedAt === null
           ? 'Checklist item sucessfully updated' : 'Checklist item sucessfully restored';
-        const updatedChecklistItem = await checklistItem
-          .update({
-            name, requiresFiles, deletedAt: null, deleteReason: null
-          });
+        const updatedChecklistItem = await checklistItem.update({
+          name, requiresFiles, deletedAt: null, deleteReason: null
+        });
         checklistItem.setDataValue('deletedAt', null);
         checklistItem.save();
-
-        const updatedResources = await TravelChecklistController
-          .updateResources(checklistItemId, resources);
-
+        const updatedResources = await TravelChecklistController.updateResources(checklistItemId, resources); // eslint-disable-line
         return res.status(200).json({
           success: true,
           message: responseMessage,
           updatedChecklistItem: {
-            name: updatedChecklistItem.name,
+            name: updatedChecklistItem.name, resources: updatedResources,
             destinationName: updatedChecklistItem.destinationName,
-            deletedAt: updatedChecklistItem.deletedAt,
-            requiresFiles: updatedChecklistItem.requiresFiles,
-            resources: updatedResources
+            deletedAt: updatedChecklistItem.deletedAt, requiresFiles: updatedChecklistItem.requiresFiles, // eslint-disable-line
           }
         });
       }
-      return CustomError
-        .handleError('Checklist item cannot be found', 404, res);
+      return CustomError.handleError('Checklist item cannot be found', 404, res);
     } catch (error) { /* istanbul ignore next */
       return CustomError.handleError('Server Error', 500, res);
     }
@@ -244,125 +249,80 @@ export default class TravelChecklistController {
       if (checklistItemResources) checklistItemResources.destroy(); /* istanbul ignore next */
       if (checklistSubmissions) checklistSubmissions.destroy(); /* istanbul ignore next */
       return res.status(200).json({
-        success: true, message: 'Checklist item deleted successfully', checklistItem
+        success: true,
+        message: 'Checklist item deleted successfully',
+        checklistItem
       });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.stack, 500, res);
     }
   }
 
-  static async handleCloudinaryUpload(file, tags, props, fileName) {
-    const { tripId, checklistItemId } = props;
-    let cloudinaryResponse;
-    await cloudinary.v2.uploader.upload(`${file}`,
-      { resource_type: 'raw', tags },
-      (error, result) => {
-        cloudinaryResponse = result;
-      });
-    return {
-      value: {
-        url: cloudinaryResponse.url,
-        secureUrl: cloudinaryResponse.secure_url,
-        publicId: cloudinaryResponse.public_id,
-        fileName,
-      },
-      tripId,
-      checklistItemId,
-    };
-  }
-
-  static async handleUpdateSubmission(submissionId, checklistSubmission, res) {
-    let submission;
+  static async addChecklistItemSubmission(req, res) {
     try {
-      if (submissionId) {
-        const checkSubmission = await
-        models.ChecklistSubmission.findById(submissionId);
-        submission = await checkSubmission.update(checklistSubmission);
-      } else {
-        const existingSubmission = await
-        models.ChecklistSubmission.find({
-          where: {
-            tripId: checklistSubmission.tripId,
-            checklistItemId: checklistSubmission.checklistItemId
-          }
-        });
-        if (existingSubmission) {
-          await existingSubmission.destroy();
-        }
-        submission = await
-        models.ChecklistSubmission.create({
-          ...checklistSubmission,
-          id: Utils.generateUniqueId()
-        });
+      const { requestId, checklistItemId } = req.params;
+      const { file, tripId } = req.body;
+      const query = {
+        where: { tripId, checklistItemId },
+        defaults: { value: file, id: Utils.generateUniqueId() }
+      };
+      const submit = await models.ChecklistSubmission.findOrCreate(query);
+      const [submission, created] = submit;
+
+      if (!created) {
+        submission.value = file;
+        await submission.save();
       }
+
+      const percentageCompleted = await TravelChecklistController
+        .checkListPercentageNumber(req, res, requestId);
+      res.status(201).json({
+        success: true,
+        message: 'Submission uploaded successfully',
+        percentageCompleted,
+        submission
+      });
     } catch (error) { /* istanbul ignore next */
       return CustomError.handleError(error, 500, res);
     }
-    return submission;
-  }
-
-  static async postTripChecklistItemSubmission(req, res) {
-    const { checklistItemId } = req.params;
-    const {
-      file, tripId, isUpload, data, label, submissionId, fileName
-    } = req.body;
-    let checklistSubmission;
-    let submission;
-    const extension = file ? file.split('.')[1] : null;
-    const body = { tripId, checklistItemId };
-    if (isUpload) {
-      try {
-        checklistSubmission = await TravelChecklistController
-          .handleCloudinaryUpload(file, [extension, label], body, fileName);
-      } catch (error) { /* istanbul ignore next */
-        if (error.error) {
-          const isError = error.error.errno === -2 ? error : '';
-          return CustomError.handleError(isError, 404, res);
-        }
-        return CustomError.handleError(error, 500, res);
-      }
-    } else {
-      checklistSubmission = {
-        value: data,
-        tripId,
-        checklistItemId,
-      };
-    }
-    await models.sequelize.transaction(async () => {
-      submission = await TravelChecklistController
-        .handleUpdateSubmission(submissionId, checklistSubmission, res);
-    });
-    return res.status(201).json({
-      success: true,
-      submission,
-      message: 'Uploaded Successfully'
-    });
   }
 
   static async getCheckListItemSubmission(req, res) {
-    const { requestId } = req.params;
-    let submissions;
     try {
-      submissions = await TravelChecklistController.getSubmissions(requestId, res);
+      const { requestId } = req.params;
+      let checklists = await TravelChecklistHelper
+        .getChecklists(req, res, requestId);
+      let submissions = await TravelChecklistController
+        .getSubmissions(requestId, res);
+
+      let success = false;
+      let message = 'No checklist have been submitted';
+      let percentageCompleted = 0;
+      if (submissions.length > 0) {
+        submissions = JSON.parse(JSON.stringify(submissions));
+        submissions = submissions.map((submission) => {
+          let { value } = submission;
+          value = JSON.parse(value);
+          return { ...submission, value };
+        });
+        percentageCompleted = await TravelChecklistController
+          .calcPercentage(checklists, submissions);
+        success = true;
+        message = 'Checklist with submissions retrieved successfully';
+      }
+
+      const lists = JSON.parse(JSON.stringify(checklists));
+      checklists = TravelChecklistHelper
+        .combineSubmittedChecklists(lists, submissions);
+
+      return res.status(200).json({
+        success,
+        message,
+        percentageCompleted,
+        submissions: checklists
+      });
     } catch (error) { /* istanbul ignore next */
       return CustomError.handleError(error, 500, res);
     }
-    let message;
-    if (submissions.length > 0) {
-      submissions = submissions.map((submission) => {
-        let { value } = submission;
-        const newValue = JSON.parse(value);
-        value = newValue;
-        return submission;
-      });
-      message = 'Successfully retrieved';
-    } else {
-      message = 'Submission does not exist';
-    }
-    return res.status(200).json({
-      success: true,
-      submissions,
-      message
-    });
   }
 }

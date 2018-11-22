@@ -18,7 +18,7 @@ export const checklistSubmission = {
     publicId: 'w26o4c86mw4047ttwfld',
     fileName: 'airticket.pdf'
   },
-  tripId: '35678',
+  tripId: 'trip-12',
   checklistItemId: '46664'
 };
 
@@ -70,28 +70,53 @@ export const bedData = [{
 
 }];
 
-export const tripsMock = {
-  id: '35678',
-  requestId: '35678',
-  origin: 'Nairobi',
-  destination: 'New York',
-  bedId: 1,
-  departureDate: dates.departureDate,
-  returnDate: dates.returnDate,
-};
+export const tripsMock = [
+  {
+    id: 'trip-12',
+    requestId: '35678',
+    origin: 'Nairobi',
+    destination: 'New York, United States',
+    bedId: 1,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 'trip-13',
+    requestId: '99999',
+    origin: 'Nairobi',
+    destination: 'New York, United States',
+    bedId: 2,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  }
+];
 
-export const requestMock = {
-  id: '35678',
-  name: 'Test user A',
-  manager: 'Samuel Kubai',
-  role: 'Software Developer',
-  gender: 'Female',
-  department: 'TDD',
-  tripType: 'return',
-  status: 'Approved',
-  userId: '-AVwHJmKrxA90lPNQ1FOLNn',
-  picture: 'https://sgeeegege',
-};
+export const requestMock = [
+  {
+    id: '35678',
+    name: 'Test user A',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Female',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Approved',
+    userId: '-AVwHJmKrxA90lPNQ1FOLNn',
+    picture: 'https://sgeeegege',
+  },
+  {
+    id: '99999',
+    name: 'Test user A',
+    manager: 'Samuel Kubai',
+    role: 'Software Developer',
+    gender: 'Female',
+    department: 'TDD',
+    tripType: 'return',
+    status: 'Open',
+    userId: '-AVwHJmKrxA90lPNQ1FOLNn',
+    picture: 'https://sgeeegege',
+  },
+];
 
 export const travelChecklists = [
   {
@@ -183,8 +208,8 @@ export const travelChecklists = [
 
 export const checklist = {
   id: '46664',
-  destinationName: 'New York',
-  name: 'Visa Application',
-  requiresFiles: true,
+  destinationName: 'New York, United States',
+  name: 'Travel Stipend',
+  requiresFiles: false,
   deleteReason: null,
 };

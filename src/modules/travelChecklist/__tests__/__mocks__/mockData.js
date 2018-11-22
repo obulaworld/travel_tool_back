@@ -91,6 +91,17 @@ export const checkListItems = [
   }
 ];
 
+export const defaultItem = {
+  id: '10',
+  name: 'Travel Ticket',
+  requiresFiles: false,
+  deleteReason: null,
+  destinationName: 'Default',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null
+};
+
 export const checkListItemsResources = [
   {
     id: '1',
@@ -275,7 +286,7 @@ export const approvedRequests = {
 };
 
 export const lagosCheckListResponse = {
-  destination: 'Lagos, Nigeria',
+  destinationName: 'Lagos, Nigeria',
   checklist: [
     {
       id: '8',
@@ -312,7 +323,7 @@ export const lagosCheckListResponse = {
 };
 
 export const nairobiCheckListResponse = {
-  destination: 'Nairobi, Kenya',
+  destinationName: 'Nairobi, Kenya',
   checklist: [
     {
       id: '5',
@@ -340,7 +351,7 @@ export const nairobiCheckListResponse = {
   ]
 };
 export const nairobiCheckListResponse2 = {
-  destination: 'Nairobi, Kenya',
+  destinationName: 'Nairobi, Kenya',
   checklist: [
     {
       id: '5',
@@ -369,7 +380,7 @@ export const nairobiCheckListResponse2 = {
 };
 
 export const kigaliCheckListResponse = {
-  destination: 'Kigali, Rwanda',
+  destinationName: 'Kigali, Rwanda',
   checklist: [
     {
       id: '1',
@@ -398,7 +409,7 @@ export const kigaliCheckListResponse = {
 };
 
 export const newyorkCheckListResponse = {
-  destination: 'New York, United States',
+  destinationName: 'New York, United States',
   checklist: [
     {
       id: '3',
@@ -426,7 +437,7 @@ export const newyorkCheckListResponse = {
   ]
 };
 export const newyorkCheckListResponse2 = {
-  destination: 'New York, United States',
+  destinationName: 'New York, United States',
   checklist: [
     {
       id: '4',
@@ -453,6 +464,34 @@ export const newyorkCheckListResponse2 = {
     },
   ]
 };
+
+const defaultItemResponse = {
+  name: 'Travel Ticket',
+  id: '10',
+  requiresFiles: false,
+  destinationName: 'Default',
+  deleteReason: null,
+  resources: []
+};
+
+export const checklistWithDefaultResponse = [
+  {
+    ...kigaliCheckListResponse,
+    checklist: [...kigaliCheckListResponse.checklist, defaultItemResponse],
+    tripId: 'trip-10'
+  },
+  {
+    ...nairobiCheckListResponse,
+    checklist: [...nairobiCheckListResponse.checklist, defaultItemResponse],
+    tripId: 'trip-12'
+  },
+  {
+    ...newyorkCheckListResponse,
+    checklist: [...newyorkCheckListResponse.checklist, defaultItemResponse],
+    tripId: 'trip-11'
+  },
+];
+
 
 export const guestHouse = {
   id: 'guestHouse-1',
@@ -512,7 +551,7 @@ export const expectedResponse = {
   message: 'travel checklist retrieved successfully',
   travelChecklists: [
     {
-      destination: 'Kigali, Rwanda',
+      destinationName: 'Kigali, Rwanda',
       checkList: [
         {
           id: 1,
@@ -549,7 +588,7 @@ export const expectedResponse = {
       ]
     },
     {
-      destination: 'New York, United States',
+      destinationName: 'New York, United States',
       checkList: [
         {
           id: 4,
@@ -586,7 +625,7 @@ export const expectedResponse = {
       ]
     },
     {
-      destination: 'Lagos, Nigeria',
+      destinationName: 'Lagos, Nigeria',
       checkList: [
         {
           id: 8,
@@ -632,7 +671,7 @@ export const expectedResponse = {
       ]
     },
     {
-      destination: 'Nairobi, Kenya',
+      destinationName: 'Nairobi, Kenya',
       checkList: [
         {
           id: 6,
