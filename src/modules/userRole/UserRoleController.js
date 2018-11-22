@@ -26,17 +26,13 @@ class UserRoleController {
   static async getOneUser(req, res) {
     const { id } = req.user;
     const result = await models.User.findOne({
-      where: {
-        userId: req.params.id
-      },
+      where: { userId: req.params.id },
       include: [
         {
           model: models.Role,
           as: 'roles',
           attributes: ['roleName', 'description'],
-          through: {
-            attributes: []
-          },
+          through: { attributes: [] },
           include: [
             {
               model: models.Center,
@@ -44,9 +40,7 @@ class UserRoleController {
               attributes: ['id', 'location'],
               through: {
                 attributes: [],
-                where: {
-                  userId: id
-                },
+                where: { userId: id },
               }
             }
           ]
@@ -152,6 +146,9 @@ class UserRoleController {
 
   static async getRoles(req, res) {
     const result = await models.Role.findAll({
+      order: [
+        ['createdAt', 'DESC']
+      ],
       include: [
         {
           model: models.User,
@@ -179,13 +176,15 @@ class UserRoleController {
 
   static async calculateUserRole(roleId) {
     const result = await models.Role.findById(roleId, {
+      order: [[{ model: models.User, as: 'users' },
+        models.UserRole, 'createdAt', 'DESC']],
       include: [
         {
           model: models.User,
           as: 'users',
           attributes: ['email', 'fullName', 'userId', 'id'],
           through: {
-            attributes: []
+            attributes: [],
           },
           include: [
             {
@@ -194,9 +193,7 @@ class UserRoleController {
               attributes: ['id', 'location'],
               through: {
                 attributes: [],
-                where: {
-                  roleId
-                }
+                where: { roleId }
               }
             }
           ],

@@ -76,7 +76,10 @@ class GuestHouseController {
           as: 'rooms',
           model: models.Room,
           where: { isDeleted: false }
-        }]
+        }],
+        order: [
+          ['createdAt', 'DESC']
+        ]
       });
       const message = guestHouses.length === 0
         ? 'No guesthouse exists at the moment'
