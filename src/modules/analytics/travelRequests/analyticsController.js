@@ -5,6 +5,7 @@ import fs from 'fs';
 import { Parser } from 'json2csv';
 import models from '../../../database/models';
 import Error from '../../../helpers/Error';
+import TravelChecklistController from '../../travelChecklist/TravelChecklistController';
 
 const { Op } = models.Sequelize;
 class AnalyticsController {
@@ -62,7 +63,7 @@ class AnalyticsController {
           where: { origin: { [Op.iRegexp]: `^${city},` }, departureDate: dateQuery }
         }
       ],
-      where: { status: 'Open' }
+      where: { status: 'Approved' }
     };
     return pendingRequestsQuery;
   }
@@ -190,18 +191,25 @@ class AnalyticsController {
     }
   }
 
+  static async getReady(req, res, requests) {
+    const ready = await Promise.all(requests.rows.map(async (request) => {
+      const travelCompletion = await TravelChecklistController
+        .checkListPercentage(req, res, request.id);
+      return travelCompletion === '100% complete' && request;
+    }));
+    return ready.filter(completion => completion);
+  }
+
   static async analytics(req, res) {
     try {
       const { dateFrom, dateTo, location } = req.query;
       const dateQuery = await AnalyticsController.dateQuery(dateFrom, dateTo);
-      const city = location.split(',')[0];
+      const [city] = location.split(',');
       const pendingRequestsQuery = await AnalyticsController.getPendingRequests(city, dateQuery);
-      const pendingRequests = await AnalyticsController.getRequestFromDb(pendingRequestsQuery);
+      const allPendingRequests = await AnalyticsController.getRequestFromDb(pendingRequestsQuery);
+      const pendingRequests = await AnalyticsController.getReady(req, res, allPendingRequests);
       const peopleRequests = await AnalyticsController.getPeopleRequests(city, dateQuery);
-      const {
-        durationsResult,
-        requestsWithReturnDate
-      } = await AnalyticsController.getRequestsDuration(dateQuery, city);
+      const { durationsResult, requestsWithReturnDate } = await AnalyticsController.getRequestsDuration(dateQuery, city);
       const leadTripDetails = await AnalyticsController.leadTime(city, dateQuery, res);
       const {
         allRequests: { count },
@@ -210,7 +218,7 @@ class AnalyticsController {
       } = peopleRequests;
       const defaultResponse = {
         totalRequests: count,
-        pendingRequests: pendingRequests.count,
+        pendingRequests: pendingRequests.length,
         peopleVisiting: peopleVisiting.length,
         peopleLeaving: peopleLeaving.length
       };
