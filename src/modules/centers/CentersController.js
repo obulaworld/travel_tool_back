@@ -20,7 +20,11 @@ class CentersController {
 
   static async getCenters(req, res) {
     try {
-      const centers = await models.Center.findAll({});
+      const centers = await models.Center.findAll({
+        order: [
+          ['createdAt', 'DESC']
+        ]
+      });
       return res.status(200).json({
         success: true,
         message: 'Centres retrieved successfully',
@@ -34,13 +38,14 @@ class CentersController {
 
   static async changeCenter(req, res) {
     try {
+      const { params: { id }, centerId, body: { roleId } } = req;
       const updateRole = await models.UserRole.update(
-        { centerId: req.centerId },
+        { centerId },
         {
           returning: true,
           where: {
-            userId: req.params.id,
-            roleId: 339458
+            userId: id,
+            roleId: roleId || 339458
           }
         }
       );
