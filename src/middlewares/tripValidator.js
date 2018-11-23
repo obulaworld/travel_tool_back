@@ -250,6 +250,7 @@ export default class TripValidator {
       }
       next();
     } catch (error) {
+      /* istanbul ignore next */
       return CustomError.handleError('An error occured', 500, res);
     }
   }

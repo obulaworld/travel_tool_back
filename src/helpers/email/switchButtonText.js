@@ -6,6 +6,8 @@ const switchButtonText = (type) => {
       return 'Fill Survey';
     case 'Deleted Request':
       return 'View Notification';
+    case 'Travel Readiness':
+      return 'View Dashboard';
     default:
       return 'View Request';
   }

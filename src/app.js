@@ -37,9 +37,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(passport.initialize());
 
-((req, res) => {
-  MailTravelMembers.sendMail(req, res);
-})();
+MailTravelMembers.sendMail();
 
 
 CloudinaryDeletion.executeResourceDelete();

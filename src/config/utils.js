@@ -5,6 +5,7 @@ const generalOptionalEnvVariables = [
   'DATABASE_HOST',
   'DATABASE_PORT',
   'DATABASE_PASSWORD',
+  'TRAVEL_READINESS_MAIL_CYCLE',
 ];
 
 const optionalEnvVariables = {
@@ -20,6 +21,8 @@ module.exports = (env) => {
     && !optionalEnvVariables[process.env.NODE_ENV].includes(variable));
 
   if (!undefinedVariables.length) return env;
+
+  /* istanbul ignore next */
   throw new Error(`
     \nThe following variables are required and missing in .env:
     \n${undefinedVariables.join('\n')}`);

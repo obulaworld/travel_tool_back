@@ -90,7 +90,7 @@ describe('switchMessage helper', () => {
   });
   it('should return travel readiness', (done) => {
     const readinessMessage = switchMessage({
-      type: 'Travel readiness', senderName: 'Travela'
+      type: 'Travel Readiness', senderName: 'Travela'
     });
     expect(readinessMessage.split(' ')).toContain('achieved', 'readiness');
     done();

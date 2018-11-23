@@ -60,10 +60,8 @@ const switchMessage = (msgDetail) => {
     case 'Trip Survey':
       return (
         'You just checked out of a Travela guesthouse. Please fill in this survey to tell us about your guest experience.');
-    case 'Travel readiness':
-      return (
-        `${msgDetail.senderName[1]} has achieved 100% travel readiness for trip to ${msgDetail.senderName[2]}. Kindly login to your Travela account for details.
-        `);
+    case 'Travel Readiness':
+      return (`${msgDetail.senderName[1]} has achieved 100% travel readiness for trip to ${msgDetail.senderName[2]}. Kindly login to your Travela account for details.`);
     default: return '';
   }
 };
