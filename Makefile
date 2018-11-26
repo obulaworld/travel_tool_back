@@ -3,6 +3,20 @@ PROJECT_NAME ?= travela-backend
 DOCKER_DEV_COMPOSE_FILE := docker/dev/docker-compose.yml
 DOCKER_TEST_COMPOSE_FILE := docker/tests/docker-compose.yml
 TARGET_MAX_CHAR_NUM=10
+
+# a variable that stores application's container id if the container is running
+CONTAINER_ID := $(shell docker-compose -f docker/dev/docker-compose.yml ps -q app)
+ifeq ($(CONTAINER_ID),)
+	CONTAINER := $(shell docker-compose -f docker/dev/docker-compose.yml ps -q app)
+else
+	CONTAINER := $(shell docker ps -q --no-trunc | grep $$(docker-compose -f docker/dev/docker-compose.yml ps -q app))
+endif
+
+# function that displays an error to user if the application is not running
+define container_err
+	${INFO} "Please execute \"make start\" on a different terminal tab before running \"make migrate\""
+endef
+
 ## Show help
 help:
 	@echo ''
@@ -39,6 +53,7 @@ start:
 	@ echo " "
 	@ ${INFO} "Starting local development server"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up
+	@ ${INFO} "Starting local development server"
 
 ## Stop local development server containers
 stop:
@@ -71,42 +86,42 @@ clean:
 
 ## [ service ] Ssh into service container
 ssh:
-	@ ${INFO} "Building required docker images"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) build app
-	@ ${INFO} "Starting containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
+ifeq ($(CONTAINER),)
+	$(call container_err)
+else
 	${INFO} "Open app container terminal"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app bash
+endif
 
+## run migrations, the application needs to be running using make start
 migrate:
-	@ ${INFO} "Starting containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
-	${INFO} "Running local travela migrations"
+ifeq ($(CONTAINER),)
+	$(call container_err)
+else
+	${INFO} "Running travela migrations"
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:migrate
 	${SUCCESS} "Migration executed successfully"
-	${INFO} "Stop and remove docker containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down
-	${SUCCESS} "Docker containers stopped and removed successfully"
+endif
 
+## run seeders, the application needs to be running using make start
 seed:
-	${INFO} "Starting background application containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
-	${INFO} "Running local travela migrations"
+ifeq ($(CONTAINER),)
+	$(call container_err)
+else
+	${INFO} "Running travela seeders"
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:seed
-	${SUCCESS} "Migration executed successfully"
-	${INFO} "Stop and remove docker containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down
-	${SUCCESS} "Docker containers stopped and removed successfully"
+	${SUCCESS} "Seeds executed successfully"
+endif
 
+## rollback the database, the application needs to be running using make start
 rollback:
-	${INFO} "Starting background application containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up -d app
-	${INFO} "Running local travela migrations rollback"
+ifeq ($(CONTAINER),)
+	$(call container_err)
+else
+	${INFO} "Running travela database rollback"
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:rollback
 	${SUCCESS} "Migration rollback executed successfully"
-	${INFO} "Stop and remove docker containers"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) down
-	${SUCCESS} "Docker containers stopped and removed successfully"
+endif
 
 # COLORS
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -115,5 +130,5 @@ WHITE  := $(shell tput -Txterm setaf 7)
 NC := "\e[0m"
 RESET  := $(shell tput -Txterm sgr0)
 # Shell Functions
-INFO := @bash -c 'printf "\n"; printf $(YELLOW); echo "===> $$1"; printf $(NC)' SOME_VALUE
-SUCCESS := @bash -c 'printf "\n"; printf $(GREEN); echo "===> $$1"; printf $(NC)' SOME_VALUE
+INFO := @bash -c 'printf "\n"; printf $(YELLOW); echo "===> $$1"; printf "\n"; printf $(NC)' SOME_VALUE
+SUCCESS := @bash -c 'printf "\n"; printf $(GREEN); echo "===> $$1"; printf "\n"; printf $(NC)' SOME_VALUE
