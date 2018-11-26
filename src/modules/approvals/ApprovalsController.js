@@ -1,10 +1,13 @@
 import models from '../../database/models';
 import {
+  asyncWrapper,
+  retrieveParams,
+} from '../../helpers/requests';
+import {
   countByStatus,
   getTotalCount,
-  asyncWrapper,
-  retrieveParams
-} from '../../helpers/requests';
+  countVerifiedByStatus
+} from '../../helpers/requests/paginationHelper';
 import {
   createApprovalSubquery
 } from '../../helpers/approvals';
@@ -45,12 +48,26 @@ class ApprovalsController {
     };
   }
 
+  static async getStatusCount(req, res) {
+    let count;
+    if (req.query.verified) {
+      const { location } = req.user;
+      count = await asyncWrapper(res, countVerifiedByStatus, models.Approval,
+        location, params.search);
+    } else {
+      count = await asyncWrapper(res, countByStatus, models.Approval,
+        params.userName, params.search);
+    }
+
+    return count;
+  }
+
   static async sendResult(req, res, result) {
-    const count = await asyncWrapper(res, countByStatus, models.Approval,
-      params.userName, params.search);
+    const count = await ApprovalsController.getStatusCount(req, res);
     const pagination = Pagination.getPaginationData(
       params.page, params.limit, getTotalCount(params.status, count)
     );
+
     const { fillWithRequestData } = ApprovalsController;
     const message = (params.search && !result.count)
       ? noResult
@@ -81,7 +98,6 @@ class ApprovalsController {
   }
 
   static async processQuery(req, res, repeat) {
-    // create query using `approverId` as the column name bearing the user id
     const subquery = createApprovalSubquery({
       ...params.parameters,
       searchRequest: !repeat

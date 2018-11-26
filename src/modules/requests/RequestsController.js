@@ -5,12 +5,14 @@ import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import {
   createSubquery,
-  countByStatus,
   includeStatusSubquery,
-  getTotalCount,
   asyncWrapper,
   retrieveParams,
 } from '../../helpers/requests';
+import {
+  countByStatus,
+  getTotalCount,
+} from '../../helpers/requests/paginationHelper';
 import ApprovalsController from '../approvals/ApprovalsController';
 import RoomsManager from '../guestHouse/RoomsManager';
 import UserRoleController from '../userRole/UserRoleController';
@@ -141,16 +143,15 @@ class RequestsController {
       .getMailData(request, recipient, mailTopic, mailType));
   }
 
-  static getMailData(request, recipient, topic, type) {
+  static getMailData(request, recipient, topic, type, redirectPath) {
+    const redirect = redirectPath || '/redirect/requests/my-approvals/';
     return {
       recipient: { name: request.manager, email: recipient.email },
       sender: request.name,
       requestId: request.id,
       topic,
       type,
-      redirectLink: `${
-        process.env.REDIRECT_URL
-      }/redirect/requests/my-approvals/${request.id}`,
+      redirectLink: `${process.env.REDIRECT_URL}${redirect}${request.id}`,
     };
   }
 
@@ -250,7 +251,6 @@ class RequestsController {
       await RequestsController.processResult(req, res);
     } catch (error) {
       /* istanbul ignore next */
-      console.log('error', error);
       return Error.handleError('Server Error', 500, res);
     }
   }
@@ -389,6 +389,42 @@ class RequestsController {
           message
         });
       });
+    } catch (error) {
+      /* istanbul ignore next */
+      return Error.handleError(error, 500, res);
+    }
+  }
+
+  static async verifyRequest(req, res) {
+    try {
+      const { requestId } = req.params;
+      const { name, picture, id: senderId } = req.user.UserInfo;
+      const request = await models.Request.findById(requestId);
+      const approval = await models.Approval.findOne({ where: { requestId } });
+      approval.status = 'Verified';
+      request.status = 'Verified';
+      await request.save();
+      await approval.save();
+      const { id, userId } = request;
+      const recipient = await UserRoleController.getRecipient(null, userId);
+      const notificationData = {
+        senderId,
+        senderName: name,
+        senderImage: picture,
+        recipientId: userId,
+        notificationType: 'general',
+        requestId: id,
+        message: 'verified your travel request',
+        notificationLink: `/requests/${id}`
+      };
+      const emailRequest = { name: request.name, manager: request.name, id: request.id };
+      const emailData = RequestsController.getMailData(
+        emailRequest, recipient, 'Travel Request Verified', 'Verified', '/redirect/requests/'
+      );
+      NotificationEngine.notify(notificationData);
+      NotificationEngine.sendMail(emailData);
+      return res.status(200)
+        .json({ success: true, message: 'Verification Successful', updatedRequest: { request } });
     } catch (error) {
       /* istanbul ignore next */
       return Error.handleError(error, 500, res);

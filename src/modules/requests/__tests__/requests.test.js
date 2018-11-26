@@ -9,7 +9,9 @@ import {
   dates,
   manager,
   mockRequest, generateMockData,
-  guestHouse, rooms, beds
+  guestHouse, rooms, beds,
+  travelTeamMember, normalRequester, userRoles,
+  checkListItems, checkListSubmissions, requestsList, trips, approvalsList
 } from './mocks/mockData';
 import Utils from '../../../helpers/Utils';
 import RequestsController from '../RequestsController';
@@ -82,6 +84,7 @@ const someManager = {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     name: 'Some manager',
     picture: 'fakePicture.png',
+    email: 'captan.ameria@andela.com',
   },
 };
 
@@ -123,16 +126,23 @@ let updatedTripId;
 
 describe('Requests Controller', () => {
   beforeAll(async (done) => {
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.Bed.destroy({ force: true, truncate: { cascade: true } });
     await models.Room.destroy({ force: true, truncate: { cascade: true } });
     await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.ChangedRoom.destroy({ force: true, truncate: { cascade: true } });
     await models.Request.destroy({ force: true, truncate: { cascade: true } });
+    await models.Approval.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
     await models.Notification.truncate();
     await models.Role.bulkCreate(role);
-    await models.User.create(userMock);
+    const savedManager = await models.User.create(userMock);
+    await models.UserRole.create({ userId: savedManager.id, roleId: 53019 });
     await models.GuestHouse.create(guestHouse);
     await models.Room.bulkCreate(rooms);
     await models.Bed.bulkCreate(beds);
@@ -142,6 +152,7 @@ describe('Requests Controller', () => {
   afterAll(async () => {
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.Request.destroy({ force: true, truncate: { cascade: true } });
+    await models.Approval.destroy({ force: true, truncate: { cascade: true } });
     await models.ChangedRoom.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.destroy({ force: true, truncate: { cascade: true } });
     await models.Notification.truncate();
@@ -150,6 +161,9 @@ describe('Requests Controller', () => {
     await models.Room.destroy({ force: true, truncate: { cascade: true } });
     await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
     await models.Comment.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
   });
 
   describe('GET /api/v1/requests', () => {
@@ -440,7 +454,7 @@ describe('Requests Controller', () => {
                 location: 'query',
                 param: 'status',
                 value: 'archive',
-                msg: 'Status must be "open", "past", "approved" or "rejected"',
+                msg: 'Status must be "open", "past", "approved", "rejected" or "verified"',
               },
             ],
           },
@@ -709,7 +723,7 @@ describe('Requests Controller', () => {
         done();
       });
 
-      it(`should return error if bed id does not exist in 
+      it(`should return error if bed id does not exist in
       any guesthouse when posting a request`, async (done) => {
         const customRequest = { ...newRequest };
         customRequest.trips[0].destination = 'Stan Lee\'s Suites';
@@ -1003,33 +1017,38 @@ describe('Requests Controller', () => {
             done();
           });
       });
-      xit(`should update or create a new trip if it does not exist
+      it(`should update or create a new trip if it does not exist
         in the database`, (done) => {
-        const trips = [
+        const newTestRequest = { ...newRequest };
+        const newTestTrips = [
           {
             id: updatedTripId,
             origin: 'Kigali',
-            destination: 'Kampala',
+            destination: 'Nairobi',
             departureDate: dates.departureDate,
             returnDate: dates.returnDate,
-            bedId: 5,
+            bedId: 321,
           },
+        ];
+        newTestRequest.trips = newTestTrips;
+        const tripsData = [
           {
-            origin: 'Kampala',
-            destination: 'Lagos',
+            id: updatedTripId,
+            origin: 'Kigali',
+            destination: 'Nairobi',
             departureDate: dates.departureDate,
             returnDate: dates.returnDate,
-            bedId: 5,
-          },
+            bedId: 321,
+          }
         ];
         const expectedResponse = {
           body: {
             ...editRequestSuccessResponse,
             request: {
               ...editRequestSuccessResponse.request,
-              tripType: 'multi',
+              tripType: 'return',
             },
-            trips,
+            trips: tripsData,
           },
           status: 200,
         };
@@ -1037,9 +1056,9 @@ describe('Requests Controller', () => {
           .put('/api/v1/requests/xDh20cuGz')
           .set('authorization', token)
           .send({
-            ...newRequest,
-            tripType: 'multi',
-            trips,
+            ...newTestRequest,
+            tripType: 'return',
+            tripsData,
           })
           .end((err, res) => {
             expect(res).toMatchObject(expectedResponse);
@@ -1085,6 +1104,7 @@ describe('Requests Controller', () => {
       });
     });
   });
+
   describe('PUT / approvals/:requestId - Update Request Status', () => {
     beforeAll(async (done) => {
       try {
@@ -1334,6 +1354,190 @@ describe('Requests Controller', () => {
             expect(res.status).toBe(404);
             done();
           });
+      });
+      let travelTeamMemberToken;
+      let normalRequesterToken;
+
+      describe('PUT /api/v1/requests/:requestId/verify', () => {
+        beforeAll(async (done) => {
+          travelTeamMemberToken = Utils.generateTestToken(travelTeamMember[1]);
+          normalRequesterToken = Utils.generateTestToken(normalRequester[1]);
+          await models.User.bulkCreate([travelTeamMember[0], normalRequester[0]]);
+          await models.UserRole.bulkCreate(userRoles);
+          await models.Request.bulkCreate(requestsList);
+          await models.Approval.bulkCreate(approvalsList);
+          await models.Trip.bulkCreate(trips);
+          await models.ChecklistItem.bulkCreate(checkListItems);
+          await models.ChecklistSubmission.bulkCreate(checkListSubmissions);
+          done();
+        });
+
+        it('validates that the request status is approved', (done) => {
+          request(app)
+            .put('/api/v1/requests/qw234rb/verify')
+            .set('authorization', travelTeamMemberToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(400);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.message).toBe('This request cannot be updated');
+              done();
+            });
+        });
+
+        it('validates that user is a travel team member or admin', (done) => {
+          request(app)
+            .put('/api/v1/requests/qw234rc/verify')
+            .set('authorization', normalRequesterToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(403);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.error).toBe('You don\'t have access to perform this action');
+              done();
+            });
+        });
+
+        it('validates that user is a travel team member of the request\'s first trip origin', (done) => {
+          request(app)
+            .put('/api/v1/requests/qw234rc/verify')
+            .set('authorization', travelTeamMemberToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(403);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.error).toBe('You don\'t have access to perform this action');
+              done();
+            });
+        });
+
+        it('validates that trips exists for the request', (done) => {
+          request(app)
+            .put('/api/v1/requests/eq23xsd/verify')
+            .set('authorization', travelTeamMemberToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(404);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.error).toBe('No trip exists for this request');
+              done();
+            });
+        });
+
+        it('validates that the departureDate is not passed', (done) => {
+          request(app)
+            .put('/api/v1/requests/qw234rq/verify')
+            .set('authorization', travelTeamMemberToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(400);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.message).toBe('Departure date for a trip in this request has passed');
+              done();
+            });
+        });
+
+        it('validates that the checklist percentage is complete', (done) => {
+          request(app)
+            .put('/api/v1/requests/qw235rp/verify')
+            .set('authorization', travelTeamMemberToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(400);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.message).toBe('The checklist submission is yet to be completed');
+              done();
+            });
+        });
+
+        it('should return not found if request does not exist', (done) => {
+          request(app)
+            .put('/api/v1/requests/abcdefg/verify')
+            .set('authorization', travelTeamMemberToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(404);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.error).toBe('No trip exists for this request');
+              done();
+            });
+        });
+
+        it('updates the status of a request to "Verified"', (done) => {
+          const notifySpy = jest.spyOn(NotificationEngine, 'notify');
+          const sendMailSpy = jest.spyOn(NotificationEngine, 'sendMail');
+          request(app)
+            .put('/api/v1/requests/qw234re/verify')
+            .set('authorization', travelTeamMemberToken)
+            .send({})
+            .end((err, res) => {
+              expect(res.status).toBe(200);
+              expect(res.body.success).toEqual(true);
+              expect(res.body.updatedRequest.request.status).toBe('Verified');
+              expect(notifySpy).toHaveBeenCalled();
+              expect(sendMailSpy).toHaveBeenCalled();
+              done();
+            });
+        });
+      });
+
+      describe('GET /api/v1/approvals - VERIFICATION', () => {
+        it('should require a travel team member', (done) => {
+          request(app)
+            .get('/api/v1/approvals')
+            .set('authorization', normalRequesterToken)
+            .end((err, res) => {
+              expect(res.status).toBe(403);
+              expect(res.body.success).toEqual(false);
+              expect(res.body.error).toBe('You don\'t have access to perform this action');
+              done();
+            });
+        });
+
+        it('should return requests from travel team member\'s origin', (done) => {
+          request(app)
+            .get('/api/v1/approvals?verified=true')
+            .set('authorization', travelTeamMemberToken)
+            .end((err, res) => {
+              expect(res.status).toBe(200);
+              expect(res.body.success).toEqual(true);
+              expect(res.body.approvals[0].id).toBe('qw234rq');
+              expect(res.body.approvals[0].trips[0].origin).toBe('Lagos, Nigeria');
+              expect(res.body.approvals[1].id).toBe('qw235rp');
+              expect(res.body.approvals[1].trips[0].origin).toBe('Lagos, Nigeria');
+              expect(res.body.approvals[2].id).toBe('qw234re');
+              expect(res.body.approvals[2].trips[0].origin).toBe('Lagos, Nigeria');
+              done();
+            });
+        });
+
+        it('should return requests when searching for approved requests', (done) => {
+          request(app)
+            .get('/api/v1/approvals?verified=true&search=Nairobi&status=approved')
+            .set('authorization', travelTeamMemberToken)
+            .end((err, res) => {
+              expect(res.status).toBe(200);
+              expect(res.body.success).toEqual(true);
+              expect(res.body.approvals[0].id).toBe('qw234rq');
+              expect(res.body.approvals[0].trips[0].origin).toBe('Lagos, Nigeria');
+              expect(res.body.approvals[1].id).toBe('qw235rp');
+              expect(res.body.approvals[1].trips[0].origin).toBe('Lagos, Nigeria');
+              done();
+            });
+        });
+
+        it('should return requests when searching for verified requests', (done) => {
+          request(app)
+            .get('/api/v1/approvals?verified=true&search=Nairobi&status=verified')
+            .set('authorization', travelTeamMemberToken)
+            .end((err, res) => {
+              expect(res.status).toBe(200);
+              expect(res.body.success).toEqual(true);
+              expect(res.body.approvals[0].id).toBe('qw234re');
+              expect(res.body.approvals[0].trips[0].origin).toBe('Lagos, Nigeria');
+              done();
+            });
+        });
       });
     });
   });

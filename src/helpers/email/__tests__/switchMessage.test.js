@@ -30,6 +30,16 @@ describe('switchMessage helper', () => {
     done();
   });
 
+  it('should return verified message', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'Verified', senderName: 'Luke Skywalker', requestId: '36Ydgha42e' }
+    );
+
+    expect(receivedMessage.split(' ')).toContain('Luke');
+    expect(receivedMessage.split(' ')[3]).toEqual('<b>#36Ydgha42e</b>');
+    done();
+  });
+
   it('should return posted comment message', (done) => {
     const receivedMessage = switchMessage(
       { type: 'Comments', senderName: 'Tester', comment: { dataValues: { picture: 'fake' } } }

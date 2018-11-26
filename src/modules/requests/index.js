@@ -8,7 +8,7 @@ import RequestsController from './RequestsController';
 
 const RequestsRouter = express.Router();
 
-const { authenticate, Validator } = middleware;
+const { authenticate, Validator, RoleValidator } = middleware;
 
 RequestsRouter.get(
   '/requests',
@@ -47,6 +47,20 @@ RequestsRouter.delete(
   authenticate,
   Validator.validateRequest,
   RequestsController.deleteRequest,
+);
+
+RequestsRouter.put(
+  '/requests/:requestId/verify',
+  authenticate,
+  Validator.validateRequestHasTrips,
+  Validator.checkStatusIsApproved,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  Validator.validateTeamMemberLocation,
+  Validator.validateDepartureDate,
+  Validator.validateCheckListComplete,
+  RequestsController.verifyRequest
 );
 
 export default RequestsRouter;

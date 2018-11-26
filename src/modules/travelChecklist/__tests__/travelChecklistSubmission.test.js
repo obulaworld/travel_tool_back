@@ -39,7 +39,7 @@ describe('Travel Checklist Submission', () => {
             await models.ChecklistSubmission
               .destroy({ force: true, truncate: { cascade: true } });
             await models.ChecklistItem.sync({ force: true });
-            await models.Request.sync({ force: true });
+            await models.Request.destroy({ force: true, truncate: { cascade: true } });
             await models.Trip.sync({ force: true });
             await models.User.sync({ force: true, truncate: { cascade: true } });
 
@@ -61,7 +61,7 @@ describe('Travel Checklist Submission', () => {
             await models.ChecklistSubmission
               .destroy({ force: true, truncate: { cascade: true } });
             await models.ChecklistItem.sync({ force: true });
-            await models.Request.sync({ force: true });
+            await models.Request.destroy({ force: true, truncate: { cascade: true } });
             await models.Trip.sync({ force: true });
             await models.User.destroy({ force: true, truncate: { cascade: true } });
         })
@@ -204,7 +204,7 @@ describe('Travel Checklist Submission', () => {
             await models.ChecklistSubmission
               .destroy({ force: true, truncate: { cascade: true } });
             await models.ChecklistItem.sync({ force: true });
-            await models.Request.sync({ force: true });
+            await models.Request.destroy({ force: true, truncate: { cascade: true } });
             await models.Trip.sync({ force: true });
             await models.User.destroy({ force: true, truncate: { cascade: true } });
 
@@ -230,7 +230,7 @@ describe('Travel Checklist Submission', () => {
             await models.ChecklistSubmission
               .destroy({ force: true, truncate: { cascade: true } });
             await models.ChecklistItem.sync({ force: true });
-            await models.Request.sync({ force: true });
+            await models.Request.destroy({ force: true, truncate: { cascade: true } });
             await models.Trip.sync({ force: true });
             await models.User.destroy({ force: true, truncate: { cascade: true } });
         })

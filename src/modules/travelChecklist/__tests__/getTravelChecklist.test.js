@@ -55,7 +55,7 @@ describe('Travel Checklists Controller', () => {
     await models.ChecklistSubmission
       .destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItem.sync({ force: true });
-    await models.Request.sync({ force: true });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.sync({ force: true });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
@@ -79,7 +79,7 @@ describe('Travel Checklists Controller', () => {
     await models.Room.sync({ force: true });
     await models.GuestHouse
       .destroy({ force: true, truncate: { cascade: true } });
-    await models.Request.sync({ force: true });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.sync({ force: true });
     await models.ChecklistItem.sync({ force: true });
     await models.ChecklistItemResource

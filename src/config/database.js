@@ -11,7 +11,7 @@ const database = {
     ...defaultConfig,
   },
   test: {
-    ...defaultConfig
+    ...defaultConfig,
   },
   staging: {
     ...defaultConfig,

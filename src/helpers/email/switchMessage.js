@@ -46,14 +46,12 @@ const switchMessage = (msgDetail) => {
     case 'Rejected':
       return (`Your travel request <b>#${msgDetail.requestId}</b> was rejected by
         ${msgDetail.senderName}. Login to your travela account for details.`);
-    case 'Comments':
-      return (
-        attachCommentToMail(msgDetail)
-      );
-    case 'Deleted Request':
-      return deleteMessage(msgDetail);
-    case 'Updated Request':
-      return updateMessage(msgDetail);
+    case 'Verified':
+      return (`Your travel request <b>#${msgDetail.requestId}</b> was just verified by
+          ${msgDetail.senderName}. Login to your travela account for details.`);
+    case 'Comments': return (attachCommentToMail(msgDetail));
+    case 'Deleted Request': return deleteMessage(msgDetail);
+    case 'Updated Request': return updateMessage(msgDetail);
     case 'Changed Room':
       return (
         `Your residence record for the travel request 
@@ -66,8 +64,7 @@ const switchMessage = (msgDetail) => {
       return (
         `${msgDetail.senderName[1]} has achieved 100% travel readiness for trip to ${msgDetail.senderName[2]}. Kindly login to your Travela account for details.
         `);
-    default:
-      return '';
+    default: return '';
   }
 };
 export default switchMessage;
