@@ -6,7 +6,7 @@ module.exports = {
       {
         id: '1',
         name: 'Travel Ticket Details',
-        requiresFiles: true,
+        requiresFiles: false,
         deleteReason: null,
         destinationName: 'Default',
         createdAt: '2018-10-05T08:36:11.170Z',
