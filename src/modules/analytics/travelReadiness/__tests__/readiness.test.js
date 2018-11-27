@@ -29,10 +29,21 @@ const adminUser = {
     id: '-HyfghjTUGfghjkIJM',
     fullName: 'Miguna Miguna',
     email: 'travel.admin@andela.com',
-    name: 'Travel Admin',
+    passportName: 'Travel Admin',
+    location: 'Lagos',
     picture: ''
   },
 };
+
+const andelacenter = [{
+  id: 12345,
+  location: 'Lagos, Nigeria'
+},
+{
+  id: 23456,
+  location: 'Nairobi, Kenya'
+}];
+
 const userToken = Utils.generateTestToken(normalUser);
 const adminToken = Utils.generateTestToken(adminUser);
 describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)', () => {
@@ -42,6 +53,7 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
     await models.Bed.destroy({ truncate: true, cascade: true });
     await models.Role.destroy({ truncate: true, cascade: true });
     await models.User.destroy({ truncate: true, cascade: true });
+    await models.Center.destroy({ truncate: true, cascade: true });
     await models.UserRole.destroy({ truncate: true, cascade: true });
     await models.Request.destroy({ truncate: true, cascade: true });
     await models.Trip.destroy({ truncate: true, cascade: true });
@@ -49,6 +61,7 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
     await models.User.create(travelAdmin);
     await models.User.create(travelRequester);
     await models.UserRole.create(userRole);
+    await models.Center.bulkCreate(andelacenter);
     request(app)
       .post('/api/v1/guesthouses')
       .set('Content-Type', 'application/json')
@@ -69,6 +82,7 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
     await models.Role.destroy({ truncate: true, cascade: true });
     await models.User.destroy({ truncate: true, cascade: true });
     await models.UserRole.destroy({ truncate: true, cascade: true });
+    await models.Center.destroy({ truncate: true, cascade: true });
     await models.Request.destroy({ truncate: true, cascade: true });
     await models.Trip.destroy({ truncate: true, cascade: true });
   });
@@ -86,7 +100,7 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
   });
   it('should require user to be a travel Admin', (done) => {
     request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=3&type=json')
+      .get('/api/v1/analytics/readiness?page=1&limit=3&type=json&travelFlow=inflow')
       .set('Content-Type', 'application/json')
       .set('authorization', userToken)
       .end((err, res) => {
@@ -99,7 +113,7 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
   });
   it('should return 200 status, travel readiness and pagination data', (done) => {
     request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=3&type=json')
+      .get('/api/v1/analytics/readiness?page=1&limit=3&type=json&travelFlow=inflow')
       .set('Content-Type', 'application/json')
       .set('authorization', adminToken)
       .end((err, res) => {
@@ -112,7 +126,7 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
   });
   it('should return csv data when type is set to file', (done) => {
     request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=3&type=file')
+      .get('/api/v1/analytics/readiness?page=1&limit=3&type=file&travelFlow=inflow')
       .set('Content-Type', 'application/json')
       .set('authorization', adminToken)
       .end((err, res) => {

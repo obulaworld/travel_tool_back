@@ -4,7 +4,7 @@ import models from '../../../database/models';
 import CustomError from '../../../helpers/Error';
 import TravelCompletion from '../../travelChecklist/TravelChecklistController';
 import Pagination from '../../../helpers/Pagination';
-import TravelChecklistHelper from '../../../helpers/travelChecklist';
+import Centers from '../../../helpers/centers';
 
 class ReadinessController {
   static calcArrivalAndPercentageCompletion(result, req, res) {
@@ -25,8 +25,7 @@ class ReadinessController {
   }
 
   static async getReadiness(req, res) {
-    const { page, limit } = req.query;
-
+    const { page, limit, travelFlow = 'inflow' } = req.query;
     try {
       const currentUserId = req.user.UserInfo.id;
       const location = await models.User.findOne({
@@ -34,13 +33,15 @@ class ReadinessController {
         where: { userId: currentUserId },
         raw: true
       });
-      const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+
+      const andelaCenter = await Centers.getCenter(Object.values(location).toString());
+      
       const offset = (page - 1) * limit;
-      const filterByLocation = Object.values(location).toString();
       const result = await models.Trip.findAndCountAll({
         limit: limit || null,
         offset: offset || null,
-        where: { destination: andelaCenters[`${filterByLocation}`] },
+        where: travelFlow === 'inflow' ? { destination: andelaCenter }
+          : { origin: andelaCenter },
         attributes: ['departureDate'],
         include: [{
           model: models.Request,
