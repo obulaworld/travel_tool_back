@@ -116,9 +116,6 @@ jobs:
       - setup_remote_docker
       - *attach_workspace
       - run:
-          name: Install K8s Deployment Scripts
-          command: npm install -g rok8s-scripts
-      - run:
           name: Install and setup K8s deployment requirements
           command: |
             chmod +x .circleci/setup_k8s.sh
