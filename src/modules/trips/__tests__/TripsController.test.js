@@ -262,6 +262,19 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
+      it('should not update trip record to check in before due date', (done) => {
+        request(app)
+          .put('/api/v1/trips/5')
+          .set('Content-Type', 'application/json')
+          .set('authorization', token)
+          .send(checkInData)
+          .end((err, res) => {
+            expect(res.body.success).toEqual(false);
+            if (err) return done(err);
+            done();
+          });
+      });
+
       it('should update trip record to check in', (done) => {
         request(app)
           .put('/api/v1/trips/2')
@@ -354,7 +367,7 @@ describe('Test Suite for Trips Controller', () => {
           .end((err, res) => {
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
-            expect(res.body.trips.length).toEqual(3);
+            expect(res.body.trips.length).toEqual(4);
             expect(res.body.message).toEqual('Retrieved Successfully');
             if (err) return done(err);
             done();
