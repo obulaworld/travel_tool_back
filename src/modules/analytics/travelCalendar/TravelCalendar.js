@@ -29,14 +29,12 @@ class CalendarController {
   }
 
 
-  static async getRequestDetails(center, dateFrom, dateTo, limit, offset) {
+  static async getRequestDetails(center, dateFrom, dateTo) {
     const dateQuery = await CalendarController.dateQuery(dateFrom, dateTo);
     const query = {
-      limit,
-      offset,
       raw: true,
       where: { status: 'Approved' },
-      attributes: ['name', 'department', 'role', 'picture', 'tripType'],
+      attributes: ['id', 'name', 'department', 'role', 'picture', 'tripType'],
       order: [['id', 'ASC']],
       include: [{
         model: models.Trip,
@@ -91,20 +89,27 @@ class CalendarController {
 
   static async getTravelCalendarAnalytics(req, res) {
     const {
-      type, location, dateFrom, dateTo, page, limit
+      type, location, dateFrom, dateTo, page
     } = req.query;
+    let { limit } = req.query;
+    limit = limit || 3;
+
     const center = await Centers.getCenter(location);
-    const offset = (page - 1) * limit;
     try {
-      const requestDetails = await CalendarController.getRequestDetails(center, dateFrom, dateTo, limit, offset);
-      const data = CalendarController.getTravelDetails(center, requestDetails.rows);
-      const pagination = Pagination.getPaginationData(page, limit, data.length);
+      const requestDetails = await CalendarController.getRequestDetails(center, dateFrom, dateTo);
+      const allData = CalendarController.getTravelDetails(center, requestDetails.rows);
+      const pagination = Pagination.getPaginationData(page, limit, allData.length);
       pagination.limit = limit;
       pagination.nextPage = pagination.currentPage + 1;
       pagination.prevPage = pagination.currentPage - 1;
+      const data = Utils.handlePagination(allData, limit, page);
 
-      const response = { data, pagination };
-      await CalendarController.convertTocsvFile(res, response, type);
+      if (data.length) {
+        const response = { data, pagination };
+        await CalendarController.convertTocsvFile(res, response, type);
+      } else {
+        throw new TravelCalendarError('No records found', 404);
+      }
     } catch (error) {
       if (error instanceof TravelCalendarError) {
         return Error.handleError(error.message, error.status, res);
