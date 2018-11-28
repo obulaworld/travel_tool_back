@@ -53,7 +53,6 @@ start:
 	@ echo " "
 	@ ${INFO} "Starting local development server"
 	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) up
-	@ ${INFO} "Starting local development server"
 
 ## Stop local development server containers
 stop:
@@ -90,7 +89,7 @@ ifeq ($(CONTAINER),)
 	$(call container_err)
 else
 	${INFO} "Open app container terminal"
-	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app bash
+	@ docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app ash
 endif
 
 ## run migrations, the application needs to be running using make start

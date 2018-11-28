@@ -4,11 +4,14 @@
 version: 2
 defaults: &defaults
   docker:
-    - image: circleci/node:carbon
+    - image: gcr.io/apprenticeship-projects/travela-circleci-base-node-image:0.1
+      auth:
+        username: _json_key
+        password: $GCLOUD_SERVICE_KEY
       environment:
         NODE_ENV: test
         DATABASE_URL: postgres://root@localhost/travela_dev_test
-    - image: postgres:9.6
+    - image: postgres:9.6-alpine
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: travela_dev_test
@@ -17,7 +20,7 @@ defaults: &defaults
 install_npm_packages: &install_npm_packages
   run:
     name: Install Npm Dependencies
-    command: sudo npm install -g yarn@1.12.x && rm -rf package-lock.json && yarn install
+    command: yarn install
 
 attach_workspace: &attach_workspace
   attach_workspace:
@@ -114,7 +117,7 @@ jobs:
       - *attach_workspace
       - run:
           name: Install K8s Deployment Scripts
-          command: sudo npm install -g rok8s-scripts
+          command: npm install -g rok8s-scripts
       - run:
           name: Install and setup K8s deployment requirements
           command: |
