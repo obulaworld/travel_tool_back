@@ -16,14 +16,17 @@ Router.get(
   '/analytics/trips/departments',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   analyticsValidator.validateFilterAndType,
   TripsController.getTripsPerMonth,
 );
 
 Router.get('/analytics',
-  authenticate, RoleValidator.checkUserRole(['Super Administrator', 'Travel Administrator']),
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
   AnalyticsController.analytics);
 
 Router.get(
@@ -32,7 +35,7 @@ Router.get(
   travelReadinessValidators,
   Validator.validateRequest,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   ReadinessController.getReadinessCsv
 );
@@ -40,7 +43,7 @@ Router.get(
 Router.get('/analytics/calendar',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   travelCalendarValidator.validateRequestQuery,
   CalendarController.getTravelCalendarAnalytics);
