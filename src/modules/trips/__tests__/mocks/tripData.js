@@ -1,4 +1,6 @@
 const date = new Date();
+const dateToday = new Date(date.setDate(date.getDate()))
+  .toISOString().split('T')[0];
 const dateDeparture = new Date(date.setDate(date.getDate() + 1))
   .toISOString().split('T')[0];
 const dateReturn = new Date(date.setDate(date.getDate() + 3))
@@ -7,6 +9,7 @@ const dateReturn = new Date(date.setDate(date.getDate() + 3))
 export const dates = {
   departureDate: dateDeparture,
   returnDate: dateReturn,
+  dateToday
 };
 
 export const checkInData = {
@@ -84,7 +87,7 @@ export const tripsData = [
     origin: 'New York',
     destination: 'Nairobi',
     bedId: 1,
-    departureDate: dates.departureDate,
+    departureDate: dates.dateToday,
     returnDate: dates.returnDate,
   },
   {
@@ -106,7 +109,16 @@ export const tripsData = [
     returnDate: dates.returnDate,
     checkOutDate: dates.returnDate,
     checkStatus: 'Checked Out'
-  }
+  },
+  {
+    id: 5,
+    requestId: 'xDh20cuGy',
+    origin: 'New York',
+    destination: 'Nairobi',
+    bedId: 1,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  },
 ];
 
 export const tripsResponse = {

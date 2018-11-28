@@ -108,6 +108,14 @@ class TripsController {
           message: checkTypeErrorMessage
         });
       }
+      const checkInDate = returnedTrip.departureDate;
+      const dateToday = (new Date().toISOString()).slice(0, 10);
+      if (dateToday < checkInDate) {
+        return res.status(400).json({
+          success: false,
+          message: `Please try checking in on ${new Date(checkInDate).toDateString()}`
+        });
+      }
       const updatedTrip = await TripsController
         .updateTrip(returnedTrip, checkType);
       TripsController.sendNotification(req, updatedTrip.request, checkType);
