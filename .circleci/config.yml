@@ -118,8 +118,8 @@ jobs:
       - run:
           name: Install and setup K8s deployment requirements
           command: |
-            chmod +x .circleci/setup_k8s.sh
-            .circleci/setup_k8s.sh main
+            chmod +x .circleci/gcloud_login.sh
+            .circleci/gcloud_login.sh main
       - run:
           name: Build and deploy travela Backend Application
           command: |
