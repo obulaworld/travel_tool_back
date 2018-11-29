@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import _ from 'lodash';
 import getRequests from './getRequests.data';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
@@ -7,7 +8,7 @@ import {
   createSubquery,
   includeStatusSubquery,
   asyncWrapper,
-  retrieveParams,
+  retrieveParams, generateRangeQuery,
 } from '../../helpers/requests';
 import {
   countByStatus,
@@ -19,6 +20,7 @@ import UserRoleController from '../userRole/UserRoleController';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
 import TravelChecklistController from '../travelChecklist/TravelChecklistController';
+import BaseException from '../../exceptions/baseException';
 
 dotenv.config();
 
@@ -38,12 +40,48 @@ class RequestsController {
     };
   }
 
+  /**
+   * Validate the trip dates provided in the request by the user
+   * @param userId -> the user's id in the database
+   * @param trips -> the trips sent in the request body
+   * @param requestId -> the request id of the request being updated
+   * @return {Promise<void>}
+   */
+  static async validateTripDates(userId, trips, requestId) {
+    // order the incoming trips by their departure dates then select the first and last trips
+    const orderedTrips = _.orderBy(trips, ['departureDate'], ['asc']);
+    const [firstTrip, lastTrip] = [_.first(orderedTrips), _.last(orderedTrips)];
+
+    const requestsInRange = await models.Request.findAll(
+      {
+        where: {
+          [Op.and]: [
+            { userId }, { id: { [Op.ne]: requestId || '' } }, { status: { [Op.ne]: 'Rejected' } }
+          ]
+        },
+        include: [{
+          model: models.Trip,
+          as: 'trips',
+          where: generateRangeQuery(firstTrip.departureDate, lastTrip.returnDate),
+          attributes: ['departureDate', 'returnDate'],
+        }],
+        attributes: ['id']
+      }
+    );
+
+    if (requestsInRange.length > 0) {
+      throw new BaseException('Sorry, you already have a request for these dates.', 400);
+    }
+  }
+
   static async createRequest(req, res) {
     // eslint-disable-next-line
     let { trips, ...requestDetails } = req.body;
     let request;
     delete requestDetails.status; // requester cannot post status
     try {
+      await RequestsController.validateTripDates(req.user.UserInfo.id, trips);
+
       const requestData = {
         ...requestDetails,
         id: Utils.generateUniqueId(),
@@ -107,7 +145,7 @@ class RequestsController {
       });
     } catch (error) {
       /* istanbul ignore next */
-      return Error.handleError(error.toString(), 500, res);
+      return Error.handleError(error.message || error, error.status || 500, res);
     }
   }
 
@@ -315,6 +353,8 @@ class RequestsController {
     const { requestId } = req.params;
     const { trips, ...requestDetails } = req.body;
     try {
+      await RequestsController.validateTripDates(req.user.UserInfo.id, trips, requestId);
+
       await models.sequelize.transaction(async () => {
         const userId = req.user.UserInfo.id;
         const request = await RequestsController.getRequest(requestId, userId);
@@ -347,7 +387,7 @@ class RequestsController {
       });
     } catch (error) {
       /* istanbul ignore next */
-      return Error.handleError(error, 500, res);
+      return Error.handleError(error.message || error, error.status || 500, res);
     }
   }
 

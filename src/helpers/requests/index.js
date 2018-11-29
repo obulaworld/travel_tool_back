@@ -6,6 +6,40 @@ import Pagination from '../Pagination';
 const { Op } = models.Sequelize;
 const { sequelize } = models;
 
+const oneWayRangeQuery = departureDate => ({
+  [Op.or]: [
+    { departureDate },
+    {
+      [Op.and]: [
+        { departureDate: { [Op.lte]: departureDate } },
+        { returnDate: { [Op.gte]: departureDate } }
+      ]
+    }
+  ]
+});
+
+const multiRangeQuery = (departureDate, returnDate) => ({
+  [Op.or]: [{
+    [Op.and]: [
+      { departureDate: { [Op.lte]: departureDate } },
+      {
+        returnDate: {
+          [Op.or]: [{ [Op.and]: [{ [Op.lte]: returnDate }, { [Op.gte]: departureDate }] },
+            { [Op.gte]: returnDate }]
+        }
+      }
+    ]
+  },
+  { departureDate: { [Op.gte]: departureDate, [Op.lte]: returnDate } }
+  ]
+});
+
+export const generateRangeQuery = (dateFrom, dateTo) => {
+  const [departureDate, returnDate] = [new Date(dateFrom), new Date(dateTo)];
+
+  return !dateTo ? oneWayRangeQuery(departureDate) : multiRangeQuery(departureDate, returnDate);
+};
+
 export const includeStatusSubquery = (subQuery, status, modelName) => {
   let subqueryLogic;
   if (status === 'past') subqueryLogic = { [Op.ne]: 'Open' };
