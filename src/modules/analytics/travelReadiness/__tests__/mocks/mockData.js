@@ -90,6 +90,20 @@ export const tripsData = bedId => (
       requestId: 'ASer78yui9',
       bedId,
     },
+    {
+      id: 'Y67hlnoui',
+      origin: 'Lagos, Nigeria',
+      destination: 'Santorini',
+      departureDate: '2018-10-27',
+      returnDate: '2018-11-30',
+      checkStatus: 'Not Checked In',
+      checkInDate: '2018-10-29',
+      checkOutDate: '2018-11-30',
+      lastNotifyDate: '2018-10-28',
+      notificationCount: 0,
+      requestId: 'BFor098uk0',
+      bedId,
+    },
   ]
 );
 export const requestsData = [
@@ -145,6 +159,18 @@ export const requestsData = [
     userId: '-HyfghjTUGfghjkIJM',
     department: 'TDD'
 
+  },
+  {
+    id: 'BFor098uk0',
+    name: 'Big Man',
+    tripType: 'return',
+    status: 'Approved',
+    manager: 'Samuel kUBAI',
+    gender: 'male',
+    role: 'Software Developer',
+    picture: 'https://anything',
+    userId: '-GyfhjjTUGfgfykMLJ',
+    department: 'TDD'
   },
 ];
 export const readinessResponse = [{
