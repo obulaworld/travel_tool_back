@@ -1,6 +1,7 @@
 import express from 'express';
 import GuestHouseController from './GuestHouseController';
 import middlewares from '../../middlewares';
+import GuestHouseValidator from '../../middlewares/guestHouseValidator';
 
 
 const { authenticate, Validator, RoleValidator } = middlewares;
@@ -69,7 +70,31 @@ Router.post(
     ['Super Administrator', 'Travel Administrator']
   ),
   Validator.validateMaintainanceRecord,
+  GuestHouseValidator.checkRoom,
   GuestHouseController.createMaintainanceRecord,
+);
+
+Router.put(
+  '/room/:id/maintainance',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  Validator.validateMaintainanceRecord,
+  GuestHouseValidator.checkRoom,
+  GuestHouseValidator.checkMaintenanceRecord,
+  GuestHouseController.updateMaintenanceRecord
+);
+
+Router.delete(
+  '/room/:id/maintainance',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  GuestHouseValidator.checkRoom,
+  GuestHouseValidator.checkMaintenanceRecord,
+  GuestHouseController.deleteMaintenanceRecord
 );
 
 export default Router;

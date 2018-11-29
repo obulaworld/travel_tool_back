@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.DATEONLY,
     },
-  });
+  }, { paranoid: true });
   Maintainance.associate = (models) => {
     Maintainance.belongsTo(models.Room, {
       foreignKey: 'roomId',

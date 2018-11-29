@@ -149,6 +149,17 @@ export const GuestHouseEpicRoom = {
   updatedAt: '2018-09-26T15:47:47.576Z',
 };
 
+export const GuestHouseEpicRoom2 = {
+  id: 'cYu7hypT',
+  roomName: 'big cutter 2',
+  roomType: 'ensuited',
+  bedCount: '2',
+  faulty: false,
+  guestHouseId: 'ND56thdW',
+  createdAt: '2018-09-26T15:47:47.576Z',
+  updatedAt: '2018-09-26T15:47:47.576Z',
+};
+
 export const GuestHouseEpicBed = [
   {
     id: 18,

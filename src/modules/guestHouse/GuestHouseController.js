@@ -47,28 +47,59 @@ class GuestHouseController {
   }
 
   static async createMaintainanceRecord(req, res) {
-    const roomId = req.params.id;
-    const room = await models.Room.findOne({
-      where: {
-        id: req.params.id
-      }
-    });
-    if (!room) {
-      return res.status(400).json({
-        success: false,
-        message: 'The room does not exist'
+    try {
+      const newMaintainanceRecord = await models.Maintainance.create({
+        ...req.body,
+        roomId: req.params.id
       });
+      return res.status(201).json({
+        success: true,
+        message: 'Room maintainance record created',
+        maintainance: newMaintainanceRecord,
+      });
+    } catch (error) { /* istanbul ignore next */
+      Error.handleError(error, 500, res);
     }
-    const maintainanceData = {
-      ...req.body,
-      roomId
-    };
-    const newMaintainanceRecord = await models.Maintainance.create(maintainanceData);
-    return res.status(201).json({
-      success: true,
-      message: 'Room maintainance record created',
-      maintainance: newMaintainanceRecord,
-    });
+  }
+
+  static async updateMaintenanceRecord(req, res) {
+    try {
+      const updatedMaintenanceRecord = await models.Maintainance
+        .update({ ...req.body }, {
+          returning: true,
+          where: {
+            roomId: req.params.id
+          }
+        });
+      return updatedMaintenanceRecord[0] === 0
+        ? res.status(404).json({
+          success: false,
+          message: 'The maintenance record does not exist'
+        })
+        : res.status(200).json({
+          success: true,
+          message: 'Room maintenance record updated',
+          maintenance: updatedMaintenanceRecord
+        });
+    } catch (error) { /* istanbul ignore next */
+      Error.handleError(error, 500, res);
+    }
+  }
+
+  static async deleteMaintenanceRecord(req, res) {
+    try {
+      await models.Maintainance.destroy({
+        where: {
+          roomId: req.params.id
+        }
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'Maintenance record deleted successfully'
+      });
+    } catch (error) { /* istanbul ignore next */
+      Error.handleError(error, 500, res);
+    }
   }
 
   static async updateRoomFaultyStatus(req, res) {

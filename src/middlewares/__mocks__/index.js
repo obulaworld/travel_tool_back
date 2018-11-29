@@ -101,6 +101,10 @@ const middleware = {
     validateSubmission: jest.fn(invokeNextMiddleware),
     validateTrip: jest.fn(invokeNextMiddleware),
     getChecklistItem: jest.fn(invokeNextMiddleware),
+  },
+  guestHouseValidator: {
+    checkRoom: jest.fn(invokeNextMiddleware),
+    checkMaintenanceRecord: jest.fn(invokeNextMiddleware)
   }
 };
 
