@@ -11,7 +11,7 @@
     "start": "NODE_ENV=production yarn run build && yarn run serve",
     "start:dev": "NODE_ENV=development  DEBUG=log  nodemon --exec babel-node src/index.js",
     "lint": "node_modules/.bin/eslint ./src",
-    "pretest": "NODE_ENV=test yarn db:rollback && NODE_ENV=test yarn db:migrate",
+    "pretest": "NODE_ENV=test yarn db:migrate",
     "test": "jest --no-cache  --detectOpenHandles --runInBand --forceExit",
     "db:seed": "node_modules/.bin/sequelize db:seed:all",
     "db:migrate": "node_modules/.bin/sequelize db:migrate",

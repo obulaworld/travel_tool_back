@@ -21,6 +21,8 @@ RUN apk update && apk upgrade && \
         openssh-client \
         git \
         gnupg \
+        docker \
+        coreutils \
     && npm install -g yarn@1.12.x && rm -rf package-lock.json && \
     npm install -g rok8s-scripts && \
     curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \

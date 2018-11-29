@@ -90,6 +90,12 @@ jobs:
           name: Wait for postgres to be ready
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
+          name: Checkout to develop and run migrations
+          command: |
+            git checkout develop
+            yarn db:migrate
+            git checkout $CIRCLE_BRANCH
+      - run:
           name: Run travela backend lint test
           command: yarn lint
       - run:
