@@ -181,10 +181,22 @@ describe('Test Suite for Travel Calendar Analytics', () => {
       });
   });
 
-  it('should return a 404 error if no data is found', async (done) => {
+  it('should return a 404 error when no data is available after pagination', (done) => {
+    request(app)
+      .get('/api/v1/analytics/calendar?location=Nairobi&dateFrom=2018-11-21&dateTo=2018-11-21&type=json&limit&page=10')
+      .set('Content-Type', 'application/json')
+      .set('authorization', travelAdminToken)
+      .end((err, res) => {
+        handleNotFound(res);
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return a 404 error when no data is found in the database', async (done) => {
     await models.ChecklistSubmission.destroy({ truncate: true, cascade: true });
     request(app)
-      .get('/api/v1/analytics/calendar?location=Nairobi&dateFrom=2018-11-02&dateTo=2018-11-30&type=file&limit=5&page=1')
+      .get('/api/v1/analytics/calendar?location=Nairobi&dateFrom=2018-11-02&dateTo=2018-11-30&type=json&limit=5&page=1')
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {

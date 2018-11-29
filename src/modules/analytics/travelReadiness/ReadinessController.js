@@ -24,6 +24,17 @@ class ReadinessController {
     return travelReady;
   }
 
+  static handlePagination(req, result) {
+    const pagination = Pagination.getPaginationData(
+      req.query.page, req.query.limit, result.count
+    );
+    pagination.limit = req.query.limit;
+    pagination.nextPage = pagination.currentPage + 1;
+    pagination.prevPage = pagination.currentPage - 1;
+
+    return pagination;
+  }
+
   static async getReadiness(req, res) {
     const { page, limit, travelFlow = 'inflow' } = req.query;
     try {
@@ -35,7 +46,7 @@ class ReadinessController {
       });
 
       const andelaCenter = await Centers.getCenter(Object.values(location).toString());
-      
+
       const offset = (page - 1) * limit;
       const result = await models.Trip.findAndCountAll({
         limit: limit || null,
@@ -51,9 +62,7 @@ class ReadinessController {
         }],
         order: [[{ model: models.Request, as: 'request' }, 'updatedAt', 'DESC']],
       });
-      const pagination = Pagination.getPaginationData(
-        req.query.page, req.query.limit, result.count
-      );
+      const pagination = ReadinessController.handlePagination(req, result);
 
       const travelReady = this.calcArrivalAndPercentageCompletion(result, req, res);
 

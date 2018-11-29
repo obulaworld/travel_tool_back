@@ -52,28 +52,38 @@ class Utils {
     }
   }
 
-  static handleMultiTrips(location, multiTrips) {
-    const uniqTrips = _.uniqBy(multiTrips, 'id');
-    const data = uniqTrips.map((trip) => {
+  static handleMultiTrips(location, multiTrip) {
+    const uniqTrips = _.uniqBy(multiTrip, 'id');
+
+    const data = _.flattenDeep(uniqTrips.map((trip) => {
       const {
         name, department, role, picture
       } = trip;
       const userDetails = {
         name, department, role, picture
       };
-      const filteredMultiTrips = multiTrips.filter(t => (t.id === trip.id));
-      if (filteredMultiTrips.length > 1) {
-        const arrivalTrip = _.filter(filteredMultiTrips, { 'trips.destination': location });
-        const arrivalData = Utils.getItenerary(location, arrivalTrip[0]);
-        const departureTrip = _.filter(filteredMultiTrips, { 'trips.origin': location });
-        const departureData = Utils.getItenerary(location, departureTrip[0]);
-        const flight = { arrival: arrivalData.arrival, departure: departureData.departure };
-        return { ...userDetails, flight };
+
+      const filteredMultiTrip = _.orderBy(multiTrip.filter(t => (t.id === trip.id)), ['trips.departureDate'], ['asc']);
+
+      if (filteredMultiTrip.length > 1) {
+        const arrivalTrip = _.orderBy(_.filter(filteredMultiTrip, { 'trips.destination': location }), ['trips.departureDate'], ['asc']);
+        const departureTrip = _.orderBy(_.filter(filteredMultiTrip, { 'trips.origin': location }), ['trips.departureDate'], ['asc']);
+
+        const trips = [];
+        _.forEach(arrivalTrip, (arrival, index) => {
+          const arrivalData = Utils.getItenerary(location, arrival);
+          const departureData = Utils.getItenerary(location, departureTrip[index]);
+          const flight = { arrival: arrivalData.arrival, departure: departureData.departure };
+
+          trips.push({ ...userDetails, flight });
+        });
+        return trips;
       }
       const ticket = JSON.parse(trip['trips.submissions.value']);
       const flight = Utils.handleDestinations(location, 'multi', trip['trips.origin'], trip['trips.destination'], ticket);
       return { ...userDetails, flight };
-    });
+    }));
+
     return data;
   }
 
@@ -81,6 +91,12 @@ class Utils {
     const ticket = JSON.parse(trip['trips.submissions.value']);
     const data = Utils.handleDestinations(location, 'multi', trip['trips.origin'], trip['trips.destination'], ticket);
     return data;
+  }
+
+  static handlePagination(allData, limit, page) {
+    const offset = (page - 1) * limit;
+    const results = allData.slice(offset, (page * limit));
+    return results;
   }
 }
 
