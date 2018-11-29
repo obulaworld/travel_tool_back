@@ -88,6 +88,7 @@ class RoomsManager {
       attributes: ['bedId'],
       where: {
         destination: location,
+        bedId: { [Op.ne]: null },
         [Op.or]: {
           [Op.and]: {
             departureDate: { [Op.lte]: departureDate },
@@ -154,6 +155,7 @@ class RoomsManager {
         attributes: ['bedId'],
         where: {
           destination: location,
+          bedId: { [Op.ne]: null },
           [Op.or]: {
             ...RoomsManager.getDateRange(departureDate, arrivalDate)
           },
