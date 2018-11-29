@@ -77,20 +77,26 @@ class ReadinessController {
   }
 
   static async getReadinessCsv(req, res) {
-    const { type } = req.query;
+    const { type, travelFlow } = req.query;
     const { readiness, pagination } = await ReadinessController.getReadiness(req, res);
     if (type === 'file') {
       const csvArray = [];
+  
+      const dateValue = (travelFlow === 'inflow')
+        ? 'Expected Arrival Date' : 'Expected Departure Date';
+
       readiness.forEach((value) => {
         csvArray.push({
-          'Departure Date': moment(value.departureDate).format('D MMM, YYYY'),
           Name: value.request.name,
           'Travel Readiness': value.dataValues.travelReadiness,
-          'Arrival Date': moment(value.dataValues.arrivalDate).format('D MMM, YYYY')
+          [dateValue]: moment(value.dataValues.departureDate).format('D MMM, YYYY')
         });
       });
+      
       const Json2csvParser = Json2csv.Parser;
-      const fields = ['Departure Date', 'Name', 'Travel Readiness', 'Arrival Date'];
+      const fields = travelFlow === 'inflow'
+        ? ['Name', 'Travel Readiness', 'Expected Arrival Date']
+        : ['Name', 'Travel Readiness', 'Expected Departure Date'];
       const convertToCsv = new Json2csvParser({ fields });
       const csv = convertToCsv.parse(csvArray);
       return res.attachment('Travel readiness for all travelers').send(csv);

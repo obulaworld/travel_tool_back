@@ -124,9 +124,35 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
         done();
       });
   });
+  it('should return 200 status, travel readiness and pagination data for outflows', (done) => {
+    request(app)
+      .get('/api/v1/analytics/readiness?page=1&limit=1&type=json&travelFlow=outflow')
+      .set('Content-Type', 'application/json')
+      .set('authorization', adminToken)
+      .end((err, res) => {
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        done();
+      });
+  });
   it('should return csv data when type is set to file', (done) => {
     request(app)
       .get('/api/v1/analytics/readiness?page=1&limit=3&type=file&travelFlow=inflow')
+      .set('Content-Type', 'application/json')
+      .set('authorization', adminToken)
+      .end((err, res) => {
+        expect(res.statusCode).toEqual(200);
+        expect(res.header['content-type']).toBe('application/octet-stream; charset=utf-8');
+        expect(res.header['content-disposition']).toBe(
+          'attachment; filename="Travel readiness for all travelers"'
+        );
+        if (err) return done(err);
+        done();
+      });
+  });
+  it('should return csv data when type is set to file and when it travelFlow is outflow', (done) => {
+    request(app)
+      .get('/api/v1/analytics/readiness?page=1&limit=2&type=file&travelFlow=outflow')
       .set('Content-Type', 'application/json')
       .set('authorization', adminToken)
       .end((err, res) => {
