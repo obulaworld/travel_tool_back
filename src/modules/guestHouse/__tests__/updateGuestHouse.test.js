@@ -8,6 +8,7 @@ import {
   GuestHouseEpic,
   GuestHouseEpicRoom,
   GuestHouseEpicBed,
+  GuestHouseDetails,
 } from './mocks/guestHouseData';
 
 const payload = {
@@ -130,6 +131,68 @@ describe('Update the room fault status', () => {
             .end((err, res) => {
               expect(res.body.success).toEqual(false);
               expect(res.body.message).toBe('Room status can only be true or false');
+              if (err) return done(err);
+              done();
+            });
+        });
+      });
+
+      describe('Disable and Restore Guesthouse', () => {
+        beforeAll(async () => {
+          await models.GuestHouse.destroy({ truncate: { cascade: true } });
+          await models.GuestHouse.create(GuestHouseDetails);
+        });
+        afterAll(async () => {
+          await models.GuestHouse.destroy({ truncate: { cascade: true } });
+        });
+
+        it('return error if guesthouse does not exist', (done) => {
+          request(app)
+            .put('/api/v1/guesthouse/iijkn')
+            .set('authorization', token)
+            .expect(404)
+            .end((err, res) => {
+              expect(res.body.success).toEqual(false);
+              expect(res.body.message).toBe('This Guest house does not exist');
+              if (err) return done(err);
+              done();
+            });
+        });
+
+        it('should successfully disable a guesthouse', (done) => {
+          request(app)
+            .put('/api/v1/guesthouse/89uih9ef')
+            .set('authorization', token)
+            .expect(201)
+            .end((err, res) => {
+              expect(res.body.success).toEqual(true);
+              expect(res.body.message).toBe('Guest house has been successfully disabled');
+              if (err) return done(err);
+              done();
+            });
+        });
+
+        it('should get a list of disabled guesthouses', (done) => {
+          request(app)
+            .get('/api/v1/disabledguesthouses')
+            .set('authorization', token)
+            .expect(200)
+            .end((err, res) => {
+              expect(res.body.success).toEqual(true);
+              expect(res.body.message).toBe('Disabled guesthouses retrieved successfully');
+              if (err) return done(err);
+              done();
+            });
+        });
+
+        it('should successfully restore a disabled guest house', (done) => {
+          request(app)
+            .put('/api/v1/guesthouse/89uih9ef')
+            .set('authorization', token)
+            .expect(201)
+            .end((err, res) => {
+              expect(res.body.success).toEqual(true);
+              expect(res.body.message).toBe('Guest house has been successfully restored');
               if (err) return done(err);
               done();
             });

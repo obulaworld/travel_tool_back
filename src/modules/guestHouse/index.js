@@ -97,4 +97,22 @@ Router.delete(
   GuestHouseController.deleteMaintenanceRecord
 );
 
+Router.put(
+  '/guesthouse/:id',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  GuestHouseController.disableOrRestoreGuesthouse
+);
+
+Router.get(
+  '/disabledguesthouses',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  GuestHouseController.getDisabledGuestHouses
+);
+
 export default Router;

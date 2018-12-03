@@ -128,6 +128,7 @@ class GuestHouseController {
   static async getGuestHouses(req, res) {
     try {
       const guestHouses = await models.GuestHouse.findAll({
+        where: { disabled: false },
         include: [{
           as: 'rooms',
           model: models.Room,
@@ -193,7 +194,7 @@ class GuestHouseController {
     const bedTripsWhereClause = makeTripsDateClauseFrom(query);
     const srcRequestWhereClause = { status: 'Approved' };
     const guestHouse = await models.GuestHouse.findOne({
-      where: { id: guestHouseId },
+      where: { id: guestHouseId, disabled: false },
       include: [{
         ...doInclude('Room', 'rooms'),
         where: { isDeleted: false },
@@ -265,7 +266,7 @@ class GuestHouseController {
       await models.sequelize.transaction(async () => {
         const foundGuestHouse = await models.GuestHouse.findOne({
           attributes: ['id'],
-          where: { id: req.params.id }
+          where: { id: req.params.id, disabled: false }
         });
         const guestHouseData = Object.values(foundGuestHouse);
         const guestHouseId = guestHouseData[0].id;
@@ -307,6 +308,58 @@ class GuestHouseController {
       message: 'Available rooms fetched',
       beds,
     });
+  }
+
+  static async disableOrRestoreGuesthouse(req, res) {
+    try {
+      const { id } = req.params;
+  
+      const guestHouse = await models.GuestHouse.findOne({
+        where: {
+          id
+        }
+      });
+  
+      if (!guestHouse) {
+        return res.status(404).json({
+          success: false,
+          message: 'This Guest house does not exist'
+        });
+      }
+      const result = await guestHouse.update({
+        disabled: !(guestHouse.disabled)
+      });
+      return res.status(201).json({
+        success: true,
+        message: result.disabled === true
+          ? 'Guest house has been successfully disabled'
+          : 'Guest house has been successfully restored',
+        result
+      });
+    } catch (error) {
+      /* istanbul ignore next */
+      return Error.handleError('Server Error', 500, res);
+    }
+  }
+
+  static async getDisabledGuestHouses(req, res) {
+    try {
+      const guestHouses = await models.GuestHouse.findAll({
+        where: { disabled: true },
+        include: [{
+          as: 'rooms',
+          model: models.Room,
+          where: { isDeleted: false }
+        }],
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'Disabled guesthouses retrieved successfully',
+        guestHouses
+      });
+    } catch (error) { /* istanbul ignore next */
+      Error.handleError(error, 500, res);
+    }
   }
 }
 
