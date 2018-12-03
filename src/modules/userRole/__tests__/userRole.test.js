@@ -48,6 +48,14 @@ const payload4 = {
   },
 };
 
+const updateRoleData = {
+  id: 10948,
+  roleName: 'Super Administrator',
+  description: 'Can perform all task on travela',
+  createdAt: '2018-08-16 012:11:52.181+01',
+  updatedAt: '2018-08-16 012:11:52.181+01'
+};
+
 const token = Utils.generateTestToken(payload);
 const token2 = Utils.generateTestToken(payload2);
 const token3 = Utils.generateTestToken(payload3);
@@ -438,6 +446,36 @@ describe('User Role Test', () => {
         .end((err, res) => {
           expect(res.body.success).toEqual(true);
           expect(res.body.message).toEqual('Role created successfully');
+          if (err) return done(err);
+          done();
+        });
+    });
+
+    it('should update role when user is super admin', (done) => {
+      request(app)
+        .patch('/api/v1/user/role/10948')
+        .set('Content-Type', 'application/json')
+        .set('authorization', token)
+        .send(updateRoleData)
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body.success).toEqual(true);
+          expect(res.body.message).toEqual('User role updated successfully');
+          if (err) return done(err);
+          done();
+        });
+    });
+
+    it('should return error message when wrong role id is passed', (done) => {
+      request(app)
+        .patch('/api/v1/user/role/1094')
+        .set('Content-Type', 'application/json')
+        .set('authorization', token)
+        .send(updateRoleData)
+        .expect(404)
+        .end((err, res) => {
+          expect(res.body.success).toEqual(false);
+          expect(res.body.message).toEqual('User role with that Id does not exist');
           if (err) return done(err);
           done();
         });

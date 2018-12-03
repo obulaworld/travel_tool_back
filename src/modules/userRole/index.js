@@ -1,6 +1,7 @@
 import express from 'express';
 import middlewares from '../../middlewares';
 import UserRoleController from './UserRoleController';
+import UpdateUserRoleController from './UpdateRoleController';
 
 
 const { authenticate, Validator, RoleValidator } = middlewares;
@@ -39,6 +40,16 @@ Router.post(
     ['Super Administrator']
   ),
   UserRoleController.addRole
+);
+
+Router.patch(
+  '/user/role/:id',
+  authenticate,
+  RoleValidator.validateAddRole,
+  RoleValidator.checkUserRole(
+    ['Super Administrator']
+  ),
+  UpdateUserRoleController.updateRole
 );
 
 Router.put(

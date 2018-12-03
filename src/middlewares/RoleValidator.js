@@ -17,6 +17,7 @@ export default class RoleValidator {
     Validator.validateUserRoleCheck(req, res, next, 'roleName', 'description');
   }
 
+  // To be changed to allow use of id and not roleName
   static checkUserRole(allowedRoles) {
     return async (req, res, next) => {
       const emailAddress = req.user.UserInfo.email;
