@@ -8,7 +8,6 @@ import {
 } from '../../helpers/guestHouse/index';
 
 dotenv.config();
-
 class GuestHouseController {
   static async postGuestHouse(req, res) {
     const { rooms, ...data } = req.body;

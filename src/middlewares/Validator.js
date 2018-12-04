@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { validationResult } from 'express-validator/check';
 import { Op } from 'sequelize';
 import moment from 'moment';
@@ -154,7 +155,7 @@ export default class Validator {
   }
 
 
-  static validateGuestHouse(req, res, next) {
+  static async validateGuestHouse(req, res, next) {
     req.checkBody('houseName', 'House name is required').notEmpty();
     req.checkBody('location', 'Location is required').notEmpty();
     req.checkBody('bathRooms', 'bathRooms is required and must be a Number')
@@ -162,9 +163,7 @@ export default class Validator {
     req.checkBody('imageUrl', 'Image Url is required').notEmpty();
     req.checkBody('rooms.*.roomName', 'Room Name is required').notEmpty();
     req.checkBody('rooms.*.roomType', 'Room Type is required').notEmpty();
-    req.checkBody('rooms.*.bedCount',
-      'Number of beds is required and must be a number')
-      .isInt();
+    req.checkBody('rooms.*.bedCount', 'Number of beds is required and must be a number').isInt();
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
   }
@@ -186,7 +185,6 @@ export default class Validator {
     Validator.errorHandler(res, errors, next);
   }
 
-
   static checkDate(req, res, next) {
     const { startDate, endDate } = req.query;
     if (!startDate && !endDate) return next();
@@ -200,6 +198,48 @@ export default class Validator {
       });
     }
     next();
+  }
+
+  static async validateGuestHouseDataSet(req, res, next) {
+    const { houseName, rooms } = req.body;
+    const houseNameExists = await Validator.getGuestHouseFromDb({ houseName: { [Op.iLike]: `%${houseName}%` } });
+    const availableGuestHouses = JSON.parse(JSON.stringify(houseNameExists));
+
+    if (req.method === 'PUT') {
+      const guestHouseId = req.params.id;
+      const originalGuestHouse = await Validator.getGuestHouseFromDb({ id: guestHouseId });
+      const theOriginalGuestHouse = JSON.parse(JSON.stringify(...originalGuestHouse));
+      if (availableGuestHouses.find(house => house.houseName === theOriginalGuestHouse.houseName)) {
+        availableGuestHouses.splice(availableGuestHouses.indexOf(theOriginalGuestHouse));
+      }
+    }
+    if (availableGuestHouses.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kindly use another name, this guesthouse name already exists'
+      });
+    }
+
+    // rooms validation
+    const roomExists = rooms.find(indexRoom => Validator.ifRoomPresent(indexRoom, rooms));
+    if (roomExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kindly use another name, this room name already exists for this guest house'
+      });
+    }
+    next();
+  }
+
+  static ifRoomPresent(indexRoom, rooms) {
+    const resultRooms = rooms.filter(eachRoom => indexRoom.roomName.toLowerCase() === eachRoom.roomName.toLowerCase());
+    return resultRooms.length > 1;
+  }
+
+  static async getGuestHouseFromDb(condition) {
+    const query = { where: condition };
+    const guestHouse = await models.GuestHouse.findAll(query);
+    return guestHouse;
   }
 
   static async getUserFromDb(query) {
