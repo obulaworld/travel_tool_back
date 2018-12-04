@@ -404,3 +404,15 @@ export const editGuestHouseEpicData4 = {
     ],
   }
 };
+
+export const GuestHouseDetails = {
+  id: '89uih9ef',
+  houseName: 'Continental',
+  location: 'Kigali, Rwanda',
+  bathRooms: '3',
+  disabled: false,
+  imageUrl: 'https://www.ihoui0i.com',
+  userId: '-TJN89injbboihi',
+  createdAt: '2018-09-26T15:47:47.576Z',
+  updatedAt: '2018-09-26T15:47:47.576Z',
+};

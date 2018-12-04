@@ -45,7 +45,8 @@ class RoomsManager {
               as: 'guestHouses',
               model: models.GuestHouse,
               where: {
-                location
+                location,
+                disabled: false
               }
             }
           ]
