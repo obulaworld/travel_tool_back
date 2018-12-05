@@ -122,6 +122,8 @@ export default class TripValidator {
   }
 
   static async checkBedExists(req, res, next) {
+    if (req.body.bedId < 0) return next();
+
     try {
       const bed = await models.Bed.findById(req.body.bedId);
       if (!bed) {
@@ -156,6 +158,8 @@ export default class TripValidator {
   }
 
   static async isBedAvailable(req, res, next) {
+    if (req.body.bedId < 0) return next();
+
     const { tripId } = req.params;
     const { bedId } = req.body;
     try {
@@ -185,6 +189,8 @@ export default class TripValidator {
   }
 
   static async isRoomFaulty(req, res, next) {
+    if (req.body.bedId < 0) return next();
+
     const { bedId } = req.body;
     try {
       const bed = await models.Bed.findById(bedId);
@@ -203,6 +209,8 @@ export default class TripValidator {
   }
 
   static async isGenderAllowed(req, res, next) {
+    if (req.body.bedId < 0) return next();
+
     try {
       const { bedId } = req.body;
       const trip = await models.Trip.findById(req.params.tripId, {
