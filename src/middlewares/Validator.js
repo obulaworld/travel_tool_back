@@ -180,12 +180,12 @@ export default class Validator {
     req.checkBody('start', 'end date should be greater than start date').custom((start) => {
       const dateStart = new Date(start);
       const dateEnd = new Date(req.body.end);
-      return dateEnd > dateStart;
+      return dateEnd >= dateStart;
     });
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
   }
-  
+
 
   static checkDate(req, res, next) {
     const { startDate, endDate } = req.query;
