@@ -384,6 +384,19 @@ class RequestsController {
         delete requestDetails.status; // status cannot be updated by requester
         const updatedRequest = await request.updateAttributes(requestDetails);
         const message = 'edited a travel request';
+
+        const requestToApprove = await models.Approval.findOne({
+          where: {
+            requestId: request.id
+          }
+        });
+        if (!requestToApprove) {
+          const error = 'Approval request not found';
+          return Error.handleError(error, 404, res);
+        }
+        await requestToApprove.update({
+          approverId: req.body.manager
+        });
         RequestsController.sendNotificationToManager(
           req,
           res,
