@@ -172,6 +172,7 @@ class TripsController {
   static async updateTripRoom(req, res) {
     const { tripId } = req.params;
     const { bedId, reason } = req.body;
+    const updatedBedId = bedId > 0 ? bedId : null;
     const userId = req.user.UserInfo.id;
     try {
       const trip = await models.Trip.findById(tripId);
@@ -182,11 +183,11 @@ class TripsController {
       const changedRoom = {
         requestId: trip.requestId,
         tripId: trip.id,
-        bedId,
+        bedId: updatedBedId,
         reason,
         userId
       };
-      trip.bedId = bedId;
+      trip.bedId = updatedBedId;
       await trip.save();
       await models.ChangedRoom.create(changedRoom);
       const message = 'updated your travel residence record.';
