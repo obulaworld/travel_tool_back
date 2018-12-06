@@ -65,6 +65,7 @@ TravelChecklistRouter.post(
   authenticate,
   ChecklistValidator.validateSubmission,
   ChecklistValidator.validateTrip,
+  ChecklistValidator.validateUniqueItem,
   TravelChecklistController.addChecklistItemSubmission
 );
 
