@@ -73,6 +73,18 @@ class RequestsController {
       throw new BaseException('Sorry, you already have a request for these dates.', 400);
     }
   }
+  
+  static async fetchMultiple(roomsData) {
+    const rooms = Promise.all(roomsData.map(
+      async (fetchRoomData) => {
+        const roomsReturned = await RoomsManager.fetchAvailableRooms(
+          fetchRoomData,
+        );
+        return roomsReturned;
+      }
+    ));
+    return rooms;
+  }
 
   static async createRequest(req, res) {
     // eslint-disable-next-line
@@ -88,17 +100,18 @@ class RequestsController {
         userId: req.user.UserInfo.id,
         picture: req.user.UserInfo.picture,
       };
-      const fetchRoomData = {
-        arrivalDate: trips[0].returnDate,
-        departureDate: trips[0].departureDate,
-        location: trips[0].destination,
-        gender: requestDetails.gender,
-      };
 
-      const allAvailableRooms = await RoomsManager.fetchAvailableRooms(
-        fetchRoomData,
-      );
-      const availableBedSpaces = allAvailableRooms.map(bedId => bedId.id);
+      const multipleRoomsData = trips.map(trip => ({
+        arrivalDate: trip.returnDate,
+        departureDate: trip.departureDate,
+        location: trip.destination,
+        gender: requestDetails.gender,
+      }));
+
+      const availableRoomsAndBeds = await RequestsController.fetchMultiple(multipleRoomsData);
+      const allRooms = availableRoomsAndBeds.reduce((room, newList) => newList.concat(room));
+
+      const availableBedSpaces = allRooms.map(bedId => bedId.id);
 
       trips = trips.map((trip) => {
         if (
