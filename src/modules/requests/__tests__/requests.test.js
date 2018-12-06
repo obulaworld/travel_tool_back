@@ -956,7 +956,6 @@ describe('Requests Controller', () => {
       beforeAll(async (done) => {
         await models.Trip.destroy({ force: true, truncate: { cascade: true } });
         await models.Request.destroy({ force: true, truncate: { cascade: true } });
-
         await models.Request.bulkCreate(
           [mockOpenRequest, mockApprovedRequest, mockRejectedRequest]
         );
@@ -967,6 +966,7 @@ describe('Requests Controller', () => {
             ...mockRejectedRequest.trips
           ]
         );
+        await models.Approval.bulkCreate(allMyApprovals);
         done();
       });
 
