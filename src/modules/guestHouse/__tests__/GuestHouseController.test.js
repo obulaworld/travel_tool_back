@@ -210,18 +210,4 @@ describe('Guest Rooms - GET', () => {
         done();
       });
   });
-
-  it('should get beds if all fields are valid', (done) => {
-    request(app)
-      .get('/api/v1/availablerooms?location=Lagos&gender=Male&departureDate=2018-12-12')
-      .set('authorization', token)
-      .expect(200)
-      .end((err, res) => {
-        expect(res.body.success).toEqual(true);
-        expect(res.body.message)
-          .toEqual('Available rooms fetched');
-        if (err) return done(err);
-        done();
-      });
-  });
 });

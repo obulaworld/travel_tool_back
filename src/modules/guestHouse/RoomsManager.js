@@ -13,7 +13,7 @@ class RoomsManager {
       departureDate,
       location
     });
-    const faultyBeds = await RoomsManager.fetchFaultyBeds();
+    const faultyBeds = await RoomsManager.fetchFaultyBeds(departureDate, arrivalDate);
     const oppositeGenderBeds = await RoomsManager.fetchOppositeGenderBeds({
       arrivalDate,
       departureDate,
@@ -108,10 +108,10 @@ class RoomsManager {
    * @return[{ id: int }] - Array of bed ids that are booked by or adjacent
    * to a bed booked by an opposite sex in the alloted timeframe.
    */
-  static async fetchFaultyBeds() {
+
+  static async fetchFaultyBeds(departureDate, arrivalDate) {
     // TODO: Filter beds that are not in faulty rooms
     // Can be changed later if bed is the one marked faulty and not room
-
     const faultyBeds = await models.Bed.findAll({
       attributes: ['id'],
       include: [
@@ -119,12 +119,39 @@ class RoomsManager {
           attributes: [],
           as: 'rooms',
           model: models.Room,
-          where: { faulty: true }
+          required: true,
+          include: [
+            {
+              attributes: ['start', 'end'],
+              as: 'maintainances',
+              model: models.Maintainance,
+              where: {
+                
+                [Op.or]: {
+                  start: {
+                    [Op.and]: {
+                      [Op.gte]: new Date(departureDate),
+                      [Op.lte]: new Date(arrivalDate)
+                    }
+                  },
+                  end: {
+                    [Op.and]: {
+                      [Op.gte]: new Date(departureDate),
+                      [Op.lte]: new Date(arrivalDate)
+                    }
+                  },
+                  [Op.and]: {
+                    start: { [Op.lte]: departureDate },
+                    end: { [Op.gte]: arrivalDate },
+                  }
+                }
+              }
+            }
+          ]
         }
       ],
       raw: true
     });
-
     return faultyBeds;
   }
 
