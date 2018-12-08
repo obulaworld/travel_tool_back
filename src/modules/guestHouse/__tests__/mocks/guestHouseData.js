@@ -239,7 +239,7 @@ export const editGuestHouseEpic = {
         id: 'bEu6thdW',
       },
       {
-        roomName: 'Victoria suite',
+        roomName: 'Victoria suite 2',
         roomType: 'ensuited',
         bedCount: '1',
       },

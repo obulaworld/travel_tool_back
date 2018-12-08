@@ -24,6 +24,7 @@ Router.post(
   ),
   Validator.validateImage,
   Validator.validateGuestHouse,
+  Validator.validateGuestHouseDataSet,
   GuestHouseController.postGuestHouse
 );
 
@@ -51,6 +52,7 @@ Router.put('/guesthouses/:id',
   ),
   Validator.validateImage,
   Validator.validateGuestHouse,
+  Validator.validateGuestHouseDataSet,
   GuestHouseController.editGuestHouse);
 
 Router.get(

@@ -52,7 +52,8 @@ const middleware = {
     validateRequestHasTrips: jest.fn(invokeNextMiddleware),
     validateTeamMemberLocation: jest.fn(invokeNextMiddleware),
     validateDepartureDate: jest.fn(invokeNextMiddleware),
-    validateCheckListComplete: jest.fn(invokeNextMiddleware)
+    validateCheckListComplete: jest.fn(invokeNextMiddleware),
+    validateGuestHouseDataSet: jest.fn(invokeNextMiddleware)
 
   },
   RoleValidator: {
@@ -105,7 +106,8 @@ const middleware = {
   },
   guestHouseValidator: {
     checkRoom: jest.fn(invokeNextMiddleware),
-    checkMaintenanceRecord: jest.fn(invokeNextMiddleware)
+    checkMaintenanceRecord: jest.fn(invokeNextMiddleware),
+
   }
 };
 
