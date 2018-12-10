@@ -107,8 +107,26 @@ seed:
 ifeq ($(CONTAINER),)
 	$(call container_err)
 else
-	${INFO} "Running travela seeders"
+	${INFO} "Running default travela seeders"
 	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:seed
+	${SUCCESS} "Seeds executed successfully"
+endif
+
+seed-unittest:
+ifeq ($(CONTAINER),)
+	$(call container_err)
+else
+	${INFO} "Running unit testing travela seeders"
+	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:seed:unittest
+	${SUCCESS} "Seeds executed successfully"
+endif
+
+seed-e2e:
+ifeq ($(CONTAINER),)
+	$(call container_err)
+else
+	${INFO} "Running end to end testing travela seeders"
+	@docker-compose -f $(DOCKER_DEV_COMPOSE_FILE) exec app yarn db:seed:e2e
 	${SUCCESS} "Seeds executed successfully"
 endif
 
