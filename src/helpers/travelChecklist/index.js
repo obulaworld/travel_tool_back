@@ -44,7 +44,7 @@ class TravelChecklistHelper {
     const checkList = checklists.filter(
       checklist => !checklist.destinationName.toLowerCase().match('default')
     );
-    
+
     if (!travelTicket || !checkList.length) return checklists;
     const checklistWithDefaultItem = checkList.map(
       checklist => ({
@@ -59,7 +59,7 @@ class TravelChecklistHelper {
     const uniqueDestinations = [...new Set(tripsDestinations)];
     const destinationsWithChecklists = groupedChecklists
       .map(checklist => checklist.destinationName);
-    
+
     const destinationsWithNoChecklist = [];
     uniqueDestinations.forEach((destination) => {
       if (!destinationsWithChecklists.includes(destination)) {
@@ -96,7 +96,7 @@ class TravelChecklistHelper {
     return modifiedChecklist;
   }
 
-  static async getChecklists(req, res, requestID = null) {
+  static async getChecklists(req, res, requestID = null, location = null) {
     try {
       const { requestId, destinationName } = req.query;
       let where = {};
@@ -124,9 +124,10 @@ class TravelChecklistHelper {
         }]
       };
       const groupedChecklists = await TravelChecklistHelper.getChecklistFromDb(query, res);
+      const filteredGroupedChecklists = groupedChecklists.filter(item => item.destinationName !== location);
       const checklists = groupedChecklists.length
         ? TravelChecklistHelper.modifyChecklistStructure(
-          groupedChecklists, tripsDestination, tripsDestinationsWithId
+          filteredGroupedChecklists, tripsDestination, tripsDestinationsWithId
         ) : [];
       return checklists;
     } catch (error) { /* istanbul ignore next */

@@ -8,7 +8,8 @@ class Centers {
       raw: true,
       attributes: ['location']
     });
-    const center = centers.find(data => cityRegex.test(data.location));
+    let center = centers.find(data => cityRegex.test(data.location));
+    if (!center) center = { location: '' };
     return center.location;
   }
 }

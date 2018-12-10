@@ -4,7 +4,7 @@ import models from '../../../database/models';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import path from 'path';
-import { 
+import {
     checklistSubmission, checklist, requestMock,
     tripsMock, bedData, roomData, guestHouse, userData
 } from './mocks/mockData';
@@ -43,7 +43,7 @@ describe('Travel Checklist Submission', () => {
             await models.Trip.sync({ force: true });
             await models.User.sync({ force: true, truncate: { cascade: true } });
 
-            await models.User.create(userData) 
+            await models.User.create(userData)
             await models.GuestHouse.create(guestHouse)
             await models.Request.bulkCreate(requestMock);
             await models.Room.create(roomData)
@@ -66,7 +66,7 @@ describe('Travel Checklist Submission', () => {
             await models.User.destroy({ force: true, truncate: { cascade: true } });
         })
 
-        it ('should return 400 error if no tripId or file', 
+        it ('should return 400 error if no tripId or file',
         (done) => {
             request
             .post('/api/v1/checklists/35678/submissions/46664')
@@ -83,7 +83,7 @@ describe('Travel Checklist Submission', () => {
             });
         });
 
-        it ('should return 400 error if no tripId', 
+        it ('should return 400 error if no tripId',
         (done) => {
             request
             .post('/api/v1/checklists/35678/submissions/46664')
@@ -116,7 +116,7 @@ describe('Travel Checklist Submission', () => {
             });
         });
 
-        it ('should return 404 error if trip do not belong to the request', 
+        it ('should return 404 error if trip do not belong to the request',
         (done) => {
             request
             .post('/api/v1/checklists/35678/submissions/46664')
@@ -155,7 +155,7 @@ describe('Travel Checklist Submission', () => {
             });
         });
 
-        it(`should return 404 error if checklist item do not exist 
+        it(`should return 404 error if checklist item do not exist
             for the trip's destination`, (done) => {
             request
             .post('/api/v1/checklists/35678/submissions/111')
@@ -208,7 +208,7 @@ describe('Travel Checklist Submission', () => {
             await models.Trip.sync({ force: true });
             await models.User.destroy({ force: true, truncate: { cascade: true } });
 
-            await models.User.create(userData) 
+            await models.User.create(userData)
             await models.GuestHouse.create(guestHouse)
             await models.Request.bulkCreate(requestMock);
             await models.Room.create(roomData)

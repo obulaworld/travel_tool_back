@@ -4,6 +4,7 @@ import models from '../../database/models';
 import TravelChecklistHelper from '../../helpers/travelChecklist';
 import TripsController from '../trips/TripsController';
 import CustomError from '../../helpers/Error';
+import Centers from '../../helpers/centers';
 
 const { Op } = models.Sequelize;
 
@@ -292,8 +293,12 @@ export default class TravelChecklistController {
   static async getCheckListItemSubmission(req, res) {
     try {
       const { requestId } = req.params;
+      const userId = await models.Request.findOne({ raw: true, where: { id: requestId }, attributes: ['userId'] });
+      const [userLocation] = await models.User.findAll({ raw: true, where: { ...userId }, attributes: ['location'] });
+      const location = await Centers.getCenter(userLocation.location);
+
       let checklists = await TravelChecklistHelper
-        .getChecklists(req, res, requestId);
+        .getChecklists(req, res, requestId, location);
       let submissions = await TravelChecklistController
         .getSubmissions(requestId, res);
 
