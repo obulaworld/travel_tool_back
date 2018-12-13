@@ -73,7 +73,6 @@ jobs:
           name: Run npm packages security vulnerabilty check
           command: |
             yarn check --integrity
-            npx nsp check
       - *send_failure_notification
 
   test_and_report:
