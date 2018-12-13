@@ -16,6 +16,11 @@ export default class TravelChecklistController {
       const andelaCenters = TravelChecklistHelper.getAndelaCenters();
 
       await models.sequelize.transaction(async () => {
+        if (await TravelChecklistController.checklistItemExists(rest.name, req, res)) {
+          return CustomError.handleError(
+            'Travel checklist items are unique, kindly check your input', 400, res
+          );
+        }
         const createdChecklistItem = await models.ChecklistItem.create({
           ...rest,
           id: Utils.generateUniqueId(),
@@ -23,8 +28,9 @@ export default class TravelChecklistController {
         });
         let createdResources = [];
         if (resources.length) {
-          const modifiedResources = TravelChecklistController
-            .addChecklistItemId(createdChecklistItem.id, resources);
+          const modifiedResources = TravelChecklistController.addChecklistItemId(
+            createdChecklistItem.id, resources
+          );
 
           createdResources = await models.ChecklistItemResource.bulkCreate(
             modifiedResources
@@ -40,6 +46,24 @@ export default class TravelChecklistController {
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
+  }
+
+  static async checklistItemExists(checklistName, req, res, currentName = '') {
+    const { requestId } = req.query;
+    const checklists = await TravelChecklistHelper
+      .getChecklists(req, res, requestId);
+
+    const checklistNames = checklists.length ? checklists[0].checklist.map(
+      checklist => checklist
+        .get({ plain: true }).name.toLowerCase()
+        .replace(/\s/g, '')
+    ) : [];
+
+    return checklistNames.filter(name => (
+      checklistName.toLowerCase().replace(/\s/g, '') === name
+    )).length !== 0
+      && (currentName.toLowerCase().replace(/\s/g, '') !== checklistName.toLowerCase()
+        .replace(/\s/g, ''));
   }
 
   static addChecklistItemId(checklistItemId, resources) {
@@ -194,28 +218,42 @@ export default class TravelChecklistController {
         where: { id: checklistItemId, destinationName: andelaCenters[`${location}`] }
       });
       if (checklistItem) {
-        const responseMessage = checklistItem.dataValues.deletedAt === null
-          ? 'Checklist item sucessfully updated' : 'Checklist item sucessfully restored';
-        const updatedChecklistItem = await checklistItem.update({
-          name, requiresFiles, deletedAt: null, deleteReason: null
-        });
-        checklistItem.setDataValue('deletedAt', null);
-        checklistItem.save();
-        const updatedResources = await TravelChecklistController.updateResources(checklistItemId, resources); // eslint-disable-line
-        return res.status(200).json({
-          success: true,
-          message: responseMessage,
-          updatedChecklistItem: {
-            name: updatedChecklistItem.name, resources: updatedResources,
-            destinationName: updatedChecklistItem.destinationName,
-            deletedAt: updatedChecklistItem.deletedAt, requiresFiles: updatedChecklistItem.requiresFiles, // eslint-disable-line
-          }
-        });
+        if (await TravelChecklistController.checklistItemExists(
+          name, req, res, checklistItem.get({ plain: true }).name
+        )) {
+          return CustomError.handleError(
+            'Travel checklist items are unique, kindly check your input', 400, res
+          );
+        }
+        return TravelChecklistController.completeChecklistItemUpdate(
+          checklistItem, name, requiresFiles, checklistItemId, resources, res
+        );
       }
       return CustomError.handleError('Checklist item cannot be found', 404, res);
     } catch (error) { /* istanbul ignore next */
       return CustomError.handleError('Server Error', 500, res);
     }
+  }
+
+  static async completeChecklistItemUpdate(checklistItem,
+    name, requiresFiles, checklistItemId, resources, res) {
+    const responseMessage = checklistItem.dataValues.deletedAt === null
+      ? 'Checklist item successfully updated' : 'Checklist item successfully restored';
+    const updatedChecklistItem = await checklistItem.update({
+      name, requiresFiles, deletedAt: null, deleteReason: null
+    });
+    checklistItem.setDataValue('deletedAt', null);
+    checklistItem.save();
+    const updatedResources = await TravelChecklistController.updateResources(checklistItemId, resources); // eslint-disable-line
+    return res.status(200).json({
+      success: true,
+      message: responseMessage,
+      updatedChecklistItem: {
+        name: updatedChecklistItem.name, resources: updatedResources,
+        destinationName: updatedChecklistItem.destinationName,
+        deletedAt: updatedChecklistItem.deletedAt, requiresFiles: updatedChecklistItem.requiresFiles, // eslint-disable-line
+      }
+    });
   }
 
   static async fetchChecklistItemAndResources(req, checklistId) {

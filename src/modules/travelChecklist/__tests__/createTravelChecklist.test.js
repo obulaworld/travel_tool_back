@@ -194,7 +194,7 @@ describe('Travel ChecklistController', () => {
           success: true,
           message: 'Check list item created successfully',
           checklistItem: {
-            name: 'Visa application',
+            name: 'Visa applications',
             requiresFiles: true,
             destinationName: 'Lagos, Nigeria',
             resources: []
@@ -205,13 +205,51 @@ describe('Travel ChecklistController', () => {
         .post('/api/v1/checklists')
         .set('Authorization', token)
         .send({
-          name: 'Visa application',
+          name: 'Visa applications',
           requiresFiles: true,
           destinationName: 'Nairobi, Kenya',
           resources: []
         });
       expect(res.statusCode).toEqual(expectedResponse.status);
       expect(res.body).toMatchObject(expectedResponse.body);
+    });
+
+    it('should not create a duplicate travel checklist item', async () => {
+      const expectedResponse = {
+        status: 400,
+        body: {
+          success: false,
+          error: 'Travel checklist items are unique, kindly check your input',
+        },
+      };
+      const checklistNames = [
+        'Passport',
+        'passport',
+        'Pass port',
+        'PASSPORT',
+        'pass port  '];
+
+      const requestBody = {
+        name: 'passport',
+        requiresFiles: true,
+        destinationName: 'Nairobi, Kenya',
+        resources: []
+      };
+
+      await request(app)
+        .post('/api/v1/checklists')
+        .set('Authorization', token)
+        .send(requestBody);
+
+      await Promise.all(checklistNames.map(async (checklist) => {
+        const res = await request(app)
+          .post('/api/v1/checklists')
+          .set('Authorization', token)
+          .send({ ...requestBody, name: checklist });
+
+        expect(res.statusCode).toEqual(expectedResponse.status);
+        expect(res.body).toMatchObject(expectedResponse.body);
+      }));
     });
   });
 });

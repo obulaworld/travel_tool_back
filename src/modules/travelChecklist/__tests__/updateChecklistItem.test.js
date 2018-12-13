@@ -95,7 +95,7 @@ describe('Travel ChecklistController', () => {
     it('should update a checklist item if the user is a travel or super admin', (done) => {
       const expectedResponse = {
         success: true,
-        message: "Checklist item sucessfully updated",
+        message: "Checklist item successfully updated",
         updatedChecklistItem: {
             name: "Expenditure",
             requiresFiles: false,
@@ -153,11 +153,10 @@ describe('Travel ChecklistController', () => {
         done();
       });
     });
-
     it('should restore a deleted checklist item', (done) => {
       const expectedResponse = {
         success: true,
-        message: 'Checklist item sucessfully restored',
+        message: 'Checklist item successfully restored',
         updatedChecklistItem: {
           name: 'Green card',
           destinationName: 'Lagos, Nigeria',
@@ -191,6 +190,25 @@ describe('Travel ChecklistController', () => {
         if (err) done(err);
         expect(res.body.message).toEqual(expectedResponse.message);
         expect(res.body.deletedAt).toEqual(expectedResponse.deletedAt);
+        done();
+      });
+    });
+
+    it('should ensure the name is unique even after update', (done) => {
+      const expectedResponse = {
+        success: false,
+        error: 'Travel checklist items are unique, kindly check your input',
+      };
+      request(app).put('/api/v1/checklists/101')
+      .set('authorization', token)
+      .send({
+        name: 'Visa Application',
+        requiresFiles: true,
+        resources: [],
+      })
+      .end((err, res) => {
+        if (err) done(err);
+        expect(res.body.message).toEqual(expectedResponse.message);
         done();
       });
     });
