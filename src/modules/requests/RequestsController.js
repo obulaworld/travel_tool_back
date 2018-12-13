@@ -73,7 +73,7 @@ class RequestsController {
       throw new BaseException('Sorry, you already have a request for these dates.', 400);
     }
   }
-  
+
   static async fetchMultiple(roomsData) {
     const rooms = Promise.all(roomsData.map(
       async (fetchRoomData) => {
@@ -102,7 +102,7 @@ class RequestsController {
       };
 
       const multipleRoomsData = trips.map(trip => ({
-        arrivalDate: trip.returnDate,
+        arrivalDate: requestData.tripType === 'oneWay' ? trip.departureDate : trip.returnDate,
         departureDate: trip.departureDate,
         location: trip.destination,
         gender: requestDetails.gender,
