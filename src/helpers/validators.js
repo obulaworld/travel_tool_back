@@ -59,9 +59,6 @@ export const editAndCreateRequestValidators = [
           .isValid()) {
         throw new Error('Please specify a valid ISO return date');
       }
-      if (req.body.tripType === 'oneWay' && value) {
-        throw new Error('A oneWay trip cannot have a returnDate');
-      }
       return true;
     }),
   body('trips.*.bedId', 'bed id is an integer and optional').optional(),

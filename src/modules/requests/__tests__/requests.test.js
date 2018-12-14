@@ -1018,20 +1018,49 @@ describe('Requests Controller', () => {
           });
       });
 
-      it('should return 422 error if a user tries to update a oneWay request with a returnDate',
+      it('should return 409 error if the request has been approved or rejected', (done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            error: 'Request could not be updated because it has been approved',
+          },
+          status: 409,
+        };
+        request(app)
+          .put(`/api/v1/requests/${mockApprovedRequest.id}`)
+          .set('authorization', requesterToken)
+          .send(updateDetails)
+          .end((err, res) => {
+            expect(res).toMatchObject(expectedResponse);
+            done();
+          });
+      });
+
+      it('should return 404 error if the request does not exist', (done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            error: 'Request was not found',
+          },
+          status: 404,
+        };
+        request(app)
+          .put('/api/v1/requests/abcdef')
+          .set('authorization', requesterToken)
+          .send(updateDetails)
+          .end((err, res) => {
+            expect(res).toMatchObject(expectedResponse);
+            done();
+          });
+      });
+
+      it('should return 200 if a user tries to update a oneWay request with a returnDate',
         (done) => {
           const expectedResponse = {
             body: {
-              success: false,
-              errors: [
-                {
-                  location: 'body',
-                  param: 'trips[0].returnDate',
-                  msg: 'A oneWay trip cannot have a returnDate',
-                },
-              ],
+              success: true,
             },
-            status: 422,
+            status: 200,
           };
           request(app)
             .put(`/api/v1/requests/${mockOpenRequest.id}`)
@@ -1080,42 +1109,6 @@ describe('Requests Controller', () => {
               }
             ]
           })
-          .end((err, res) => {
-            expect(res).toMatchObject(expectedResponse);
-            done();
-          });
-      });
-
-      it('should return 409 error if the request has been approved or rejected', (done) => {
-        const expectedResponse = {
-          body: {
-            success: false,
-            error: 'Request could not be updated because it has been approved',
-          },
-          status: 409,
-        };
-        request(app)
-          .put(`/api/v1/requests/${mockApprovedRequest.id}`)
-          .set('authorization', requesterToken)
-          .send(updateDetails)
-          .end((err, res) => {
-            expect(res).toMatchObject(expectedResponse);
-            done();
-          });
-      });
-
-      it('should return 404 error if the request does not exist', (done) => {
-        const expectedResponse = {
-          body: {
-            success: false,
-            error: 'Request was not found',
-          },
-          status: 404,
-        };
-        request(app)
-          .put('/api/v1/requests/abcdef')
-          .set('authorization', requesterToken)
-          .send(updateDetails)
           .end((err, res) => {
             expect(res).toMatchObject(expectedResponse);
             done();
