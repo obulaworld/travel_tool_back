@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import _ from 'lodash';
 import getRequests from './getRequests.data';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
@@ -8,23 +7,21 @@ import {
   createSubquery,
   includeStatusSubquery,
   asyncWrapper,
-  retrieveParams, generateRangeQuery,
+  retrieveParams,
 } from '../../helpers/requests';
 import {
   countByStatus,
   getTotalCount,
 } from '../../helpers/requests/paginationHelper';
-import ApprovalsController from '../approvals/ApprovalsController';
-import RoomsManager from '../guestHouse/RoomsManager';
 import UserRoleController from '../userRole/UserRoleController';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
 import TravelChecklistController from '../travelChecklist/TravelChecklistController';
-import BaseException from '../../exceptions/baseException';
+import RequestTransactions from './RequestTransactions';
+import RequestUtils from './RequestUtils';
 
 dotenv.config();
 
-const { Op } = models.Sequelize;
 const noResult = 'No records found';
 let params = {};
 class RequestsController {
@@ -40,59 +37,12 @@ class RequestsController {
     };
   }
 
-  /**
-   * Validate the trip dates provided in the request by the user
-   * @param userId -> the user's id in the database
-   * @param trips -> the trips sent in the request body
-   * @param requestId -> the request id of the request being updated
-   * @return {Promise<void>}
-   */
-  static async validateTripDates(userId, trips, requestId) {
-    // order the incoming trips by their departure dates then select the first and last trips
-    const orderedTrips = _.orderBy(trips, ['departureDate'], ['asc']);
-    const [firstTrip, lastTrip] = [_.first(orderedTrips), _.last(orderedTrips)];
-
-    const requestsInRange = await models.Request.findAll(
-      {
-        where: {
-          [Op.and]: [
-            { userId }, { id: { [Op.ne]: requestId || '' } }, { status: { [Op.ne]: 'Rejected' } }
-          ]
-        },
-        include: [{
-          model: models.Trip,
-          as: 'trips',
-          where: generateRangeQuery(firstTrip.departureDate, lastTrip.returnDate),
-          attributes: ['departureDate', 'returnDate'],
-        }],
-        attributes: ['id']
-      }
-    );
-
-    if (requestsInRange.length > 0) {
-      throw new BaseException('Sorry, you already have a request for these dates.', 400);
-    }
-  }
-
-  static async fetchMultiple(roomsData) {
-    const rooms = Promise.all(roomsData.map(
-      async (fetchRoomData) => {
-        const roomsReturned = await RoomsManager.fetchAvailableRooms(
-          fetchRoomData,
-        );
-        return roomsReturned;
-      }
-    ));
-    return rooms;
-  }
-
   static async createRequest(req, res) {
     // eslint-disable-next-line
     let { trips, ...requestDetails } = req.body;
-    let request;
     delete requestDetails.status; // requester cannot post status
     try {
-      await RequestsController.validateTripDates(req.user.UserInfo.id, trips);
+      await RequestUtils.validateTripDates(req.user.UserInfo.id, trips);
 
       const requestData = {
         ...requestDetails,
@@ -108,7 +58,7 @@ class RequestsController {
         gender: requestDetails.gender,
       }));
 
-      const availableRoomsAndBeds = await RequestsController.fetchMultiple(multipleRoomsData);
+      const availableRoomsAndBeds = await RequestUtils.fetchMultiple(multipleRoomsData);
       const allRooms = availableRoomsAndBeds.reduce((room, newList) => newList.concat(room));
 
       const availableBedSpaces = allRooms.map(bedId => bedId.id);
@@ -126,36 +76,7 @@ class RequestsController {
         return trip;
       });
 
-      await models.sequelize.transaction(async () => {
-        request = await models.Request.create(requestData);
-        const requestTrips = await models.Trip.bulkCreate(
-          trips.map(trip => ({
-            ...trip,
-            requestId: request.id,
-            id: Utils.generateUniqueId(),
-          })),
-        );
-
-        const approval = await ApprovalsController.createApproval(request);
-        request.dataValues.trips = requestTrips;
-
-        const message = 'created a new travel request';
-        RequestsController.sendNotificationToManager(
-          req,
-          res,
-          request,
-          message,
-          'New Travel Request',
-          'New Request',
-        );
-
-        return res.status(201).json({
-          success: true,
-          message: 'Request created successfully',
-          request,
-          approval,
-        });
-      });
+      await RequestTransactions.createRequestTransaction(req, res, requestData, trips);
     } catch (error) {
       /* istanbul ignore next */
       return Error.handleError(error.message || error, error.status || 500, res);
@@ -190,20 +111,8 @@ class RequestsController {
       senderImage: req.user.UserInfo.picture,
     };
     NotificationEngine.notify(notificationData);
-    return NotificationEngine.sendMail(RequestsController
+    return NotificationEngine.sendMail(RequestUtils
       .getMailData(request, recipient, mailTopic, mailType));
-  }
-
-  static getMailData(request, recipient, topic, type, redirectPath) {
-    const redirect = redirectPath || '/redirect/requests/my-approvals/';
-    return {
-      recipient: { name: request.manager, email: recipient.email },
-      sender: request.name,
-      requestId: request.id,
-      topic,
-      type,
-      redirectLink: `${process.env.REDIRECT_URL}${redirect}${request.id}`,
-    };
   }
 
   static removeTripWhere(subquery) {
@@ -244,13 +153,6 @@ class RequestsController {
   static async getRequestsFromDb(subquery) {
     const requests = await models.Request.findAndCountAll(subquery);
     return requests;
-  }
-
-  static async getRequest(requestId, userId) {
-    const request = await models.Request.find({
-      where: { userId, id: requestId },
-    });
-    return request;
   }
 
   static async returnRequests(req, res, requests) {
@@ -335,82 +237,13 @@ class RequestsController {
     }
   }
 
-  static async updateRequestTrips(trips, tripData, requestId) {
-    const alteredTripData = { ...tripData };
-    // Delete trips with ids not included in the update field
-    const tripIds = trips
-      .filter(trip => trip.id !== undefined)
-      .map(trip => trip.id);
-    await models.Trip.destroy({
-      where: {
-        requestId,
-        id: { [Op.notIn]: tripIds },
-      },
-    });
-    alteredTripData.bedId = (tripData.bedId < 1) ? null : tripData.bedId;
-    const trip = await models.Trip.findById(alteredTripData.id);
-    let requestTrip;
-    if (trip) {
-      requestTrip = await trip.updateAttributes(alteredTripData);
-    } else {
-      requestTrip = await models.Trip.create({
-        requestId,
-        ...alteredTripData,
-        id: Utils.generateUniqueId(),
-      });
-    }
-    return requestTrip;
-  }
-
   static async updateRequest(req, res) {
     const { requestId } = req.params;
-    const { trips, ...requestDetails } = req.body;
+    const { trips } = req.body;
     try {
-      await RequestsController.validateTripDates(req.user.UserInfo.id, trips, requestId);
+      await RequestUtils.validateTripDates(req.user.UserInfo.id, trips, requestId);
 
-      await models.sequelize.transaction(async () => {
-        const userId = req.user.UserInfo.id;
-        const request = await RequestsController.getRequest(requestId, userId);
-        if (!request) {
-          return Error.handleError('Request was not found', 404, res);
-        }
-        if (request.status !== 'Open') {
-          const error = `Request could not be updated because it has been ${request.status.toLowerCase()}`;
-          return Error.handleError(error, 409, res);
-        }
-        const requestTrips = await Promise.all(
-          trips.map(trip => RequestsController.updateRequestTrips(trips, trip, request.id)),
-        );
-        delete requestDetails.status; // status cannot be updated by requester
-        const updatedRequest = await request.updateAttributes(requestDetails);
-        const message = 'edited a travel request';
-
-        const requestToApprove = await models.Approval.findOne({
-          where: {
-            requestId: request.id
-          }
-        });
-        if (!requestToApprove) {
-          const error = 'Approval request not found';
-          return Error.handleError(error, 404, res);
-        }
-        await requestToApprove.update({
-          approverId: req.body.manager
-        });
-        RequestsController.sendNotificationToManager(
-          req,
-          res,
-          request,
-          message,
-          'Updated Travel Request',
-          'Updated Request',
-        );
-        return res.status(200).json({
-          success: true,
-          request: updatedRequest,
-          trips: requestTrips,
-        });
-      });
+      await RequestTransactions.updateRequestTransaction(req, res, trips);
     } catch (error) {
       /* istanbul ignore next */
       return Error.handleError(error.message || error, error.status || 500, res);
@@ -425,36 +258,8 @@ class RequestsController {
   }
 
   static async deleteRequest(req, res) {
-    const { requestId } = req.params;
-    const userId = req.user.UserInfo.id;
     try {
-      await models.sequelize.transaction(async () => {
-        const request = await RequestsController.getRequest(requestId, userId);
-        if (!request) {
-          return Error.handleError('Request was not found', 404, res);
-        }
-        if (request.status !== 'Open') {
-          return Error.handleError(`Request is already ${request.status.toLowerCase()}`, 409, res);
-        }
-        request.destroy();
-        RequestsController.handleDestroyTripComments(req);
-
-        const notificationMessage = 'deleted a travel request';
-
-        RequestsController.sendNotificationToManager(
-          req,
-          res,
-          request,
-          notificationMessage,
-          'Deleted Travel Request',
-          'Deleted Request',
-        );
-        const message = `Request ${request.id} has been successfully deleted`;
-        return res.status(200).json({
-          success: true,
-          message
-        });
-      });
+      await RequestTransactions.deleteRequestTransaction(req, res);
     } catch (error) {
       /* istanbul ignore next */
       return Error.handleError(error, 500, res);
@@ -484,7 +289,7 @@ class RequestsController {
         notificationLink: `/requests/${id}`
       };
       const emailRequest = { name: request.name, manager: request.name, id: request.id };
-      const emailData = RequestsController.getMailData(
+      const emailData = RequestUtils.getMailData(
         emailRequest, recipient, 'Travel Request Verified', 'Verified', '/redirect/requests/'
       );
       NotificationEngine.notify(notificationData);

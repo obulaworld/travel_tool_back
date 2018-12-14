@@ -23,37 +23,22 @@ const middleware = {
   Validator: {
     validateRequest: jest.fn(invokeNextMiddleware),
     validateCreateRequests: jest.fn(invokeNextMiddleware),
-    validateUser: jest.fn(invokeNextMiddleware),
     checkEmail: jest.fn(invokeNextMiddleware),
     checkGender: jest.fn(invokeNextMiddleware),
     validateStatus: jest.fn(invokeNextMiddleware),
-    validatePersonalInformation: jest.fn(invokeNextMiddleware),
     validateWorkInformation: jest.fn(invokeNextMiddleware),
     validateManager: jest.fn(invokeNextMiddleware),
     validateComment: jest.fn(invokeNextMiddleware),
     validateNotificationStatus: jest.fn(invokeNextMiddleware),
     validateCreateGuestHouse: jest.fn(invokeNextMiddleware),
-    checkDate: jest.fn(invokeNextMiddleware),
-    checkFaultRoomStatus: jest.fn(invokeNextMiddleware),
     checkUrl: jest.fn(invokeNextMiddleware),
-    validateGuestHouse: jest.fn(invokeNextMiddleware),
-    validateMaintainanceRecord: jest.fn(invokeNextMiddleware),
-    validateImage: jest.fn(invokeNextMiddleware),
     getUserId: jest.fn(mockGetUserId),
     centerExists: jest.fn(invokeNextMiddleware),
     validateChecklistQuery: jest.fn(invokeNextMiddleware),
     getUserFromDb: jest.fn(invokeNextMiddleware),
-    validateAvailableRooms: jest.fn(invokeNextMiddleware),
     checkSignedInUser: jest.fn(invokeNextMiddleware),
     validateNewCentre: jest.fn(invokeNextMiddleware),
-    validateTripBeds: jest.fn(invokeNextMiddleware),
-    checkTripBeds: jest.fn(invokeNextMiddleware),
-    checkStatusIsApproved: jest.fn(invokeNextMiddleware),
-    validateRequestHasTrips: jest.fn(invokeNextMiddleware),
     validateTeamMemberLocation: jest.fn(invokeNextMiddleware),
-    validateDepartureDate: jest.fn(invokeNextMiddleware),
-    validateCheckListComplete: jest.fn(invokeNextMiddleware),
-    validateGuestHouseDataSet: jest.fn(invokeNextMiddleware)
 
   },
   RoleValidator: {
@@ -69,7 +54,9 @@ const middleware = {
     validateChecklistQuery: jest.fn(invokeNextMiddleware),
     validateRequestIdQuery: jest.fn(invokeNextMiddleware),
     validateDestinationNameQuery: jest.fn(invokeNextMiddleware),
-    validateMaintainanceRecord: jest.fn(invokeNextMiddleware)
+    validateMaintainanceRecord: jest.fn(invokeNextMiddleware),
+    validateUser: jest.fn(invokeNextMiddleware),
+    validatePersonalInformation: jest.fn(invokeNextMiddleware),
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),
@@ -107,7 +94,21 @@ const middleware = {
   guestHouseValidator: {
     checkRoom: jest.fn(invokeNextMiddleware),
     checkMaintenanceRecord: jest.fn(invokeNextMiddleware),
-
+    checkFaultRoomStatus: jest.fn(invokeNextMiddleware),
+    validateGuestHouse: jest.fn(invokeNextMiddleware),
+    validateMaintainanceRecord: jest.fn(invokeNextMiddleware),
+    checkDate: jest.fn(invokeNextMiddleware),
+    validateGuestHouseDataSet: jest.fn(invokeNextMiddleware),
+    validateAvailableRooms: jest.fn(invokeNextMiddleware),
+    validateImage: jest.fn(invokeNextMiddleware),
+  },
+  RequestValidator: {
+    checkTripBeds: jest.fn(invokeNextMiddleware),
+    validateTripBeds: jest.fn(invokeNextMiddleware),
+    checkStatusIsApproved: jest.fn(invokeNextMiddleware),
+    validateRequestHasTrips: jest.fn(invokeNextMiddleware),
+    validateDepartureDate: jest.fn(invokeNextMiddleware),
+    validateCheckListComplete: jest.fn(invokeNextMiddleware),
   }
 };
 

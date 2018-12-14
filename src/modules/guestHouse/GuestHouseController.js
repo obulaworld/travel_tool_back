@@ -4,8 +4,9 @@ import models from '../../database/models';
 import Error from '../../helpers/Error';
 import RoomsManager from './RoomsManager';
 import {
-  BedName, GuestHouseIncludeHelper, EditGuestHouseHelper
+  BedName, GuestHouseIncludeHelper
 } from '../../helpers/guestHouse/index';
+import GuestHouseTransactions from './GuestHouseTransactions';
 
 dotenv.config();
 class GuestHouseController {
@@ -13,36 +14,8 @@ class GuestHouseController {
     const { rooms, ...data } = req.body;
     const generateId = Utils.generateUniqueId();
     const user = req.user.UserInfo.id;
-    let createdRooms;
     const guestHouse = { ...data, userId: user, id: generateId };
-    await models.sequelize.transaction(async () => {
-      const house = await models.GuestHouse.create(guestHouse);
-      createdRooms = await models.Room.bulkCreate(rooms.map(room => ({
-        ...room, id: Utils.generateUniqueId(), guestHouseId: house.id
-      })));
-      const makeBed = await Promise.all(
-        createdRooms.map(async (roomId) => {
-          const bedNumber = roomId.bedCount;
-          const createdBed = Promise.all(
-            new Array(+bedNumber).fill(1).map((__, i) => {
-              const newBed = models.Bed.create({
-                roomId: roomId.id,
-                bedName: `bed ${i + 1}`
-              });
-              return newBed;
-            })
-          );
-          return createdBed;
-        })
-      );
-      res.status(201).json({
-        success: true,
-        message: 'Guest House created successfully',
-        guestHouse: house,
-        rooms: createdRooms,
-        bed: makeBed
-      });
-    });
+    await GuestHouseTransactions.postGuestHouseTransaction(req, res, guestHouse, rooms);
   }
 
   static async createMaintainanceRecord(req, res) {
@@ -88,9 +61,7 @@ class GuestHouseController {
   static async deleteMaintenanceRecord(req, res) {
     try {
       await models.Maintainance.destroy({
-        where: {
-          roomId: req.params.id
-        }
+        where: { roomId: req.params.id }
       });
       return res.status(200).json({
         success: true,
@@ -104,9 +75,7 @@ class GuestHouseController {
   static async updateRoomFaultyStatus(req, res) {
     const guestRoomId = req.params.id;
     const room = await models.Room.findOne({
-      where: {
-        id: guestRoomId
-      }
+      where: { id: guestRoomId }
     });
     if (!room) {
       return res.status(400).json({
@@ -148,42 +117,6 @@ class GuestHouseController {
     } catch (error) { /* istanbul ignore next */
       Error.handleError(error, 500, res);
     }
-  }
-
-  static makeTripsWhereClauseFor(column, operatorType, startDate, endDate) {
-    const { Op } = models.Sequelize;
-    const { sequelize } = models;
-    const operator = Op[operatorType]; // Op.between, Op.lt ...
-    const opValue = operatorType === 'between'
-      ? [startDate, endDate]
-      : startDate;
-    return sequelize.where(sequelize.col(column), { [operator]: opValue });
-  }
-
-  static makeTripsDateClauseFrom(reqQuery) {
-    const { startDate, endDate } = reqQuery;
-    const { makeTripsWhereClauseFor } = GuestHouseController;
-
-    return models.sequelize.or(
-      // pick a trip if its departureDate is between dates
-      makeTripsWhereClauseFor('departureDate', 'between', startDate, endDate),
-      /*  also include trips whose departureDate is less than startDate but
-        touch into or span across the date range
-      */
-      models.sequelize.and(
-        makeTripsWhereClauseFor('departureDate', 'lt', startDate),
-        makeTripsWhereClauseFor('returnDate', 'gte', startDate)
-      )
-    );
-  }
-
-  static doInclude(modelName, alias, where = {}, required = true) {
-    return {
-      model: models[modelName],
-      as: alias,
-      where,
-      required // set false to enforce a LEFT OUTER JOIN
-    };
   }
 
   static async getGuestHouseDetails(req, res) {
@@ -262,31 +195,9 @@ class GuestHouseController {
       const {
         houseName, location, bathRooms, imageUrl, rooms
       } = req.body;
-      await models.sequelize.transaction(async () => {
-        const foundGuestHouse = await models.GuestHouse.findOne({
-          attributes: ['id'],
-          where: { id: req.params.id, disabled: false }
-        });
-        const guestHouseData = Object.values(foundGuestHouse);
-        const guestHouseId = guestHouseData[0].id;
-        if (!guestHouseId) {
-          return Error.handleError('Guest house does not exist', 404, res);
-        }
-        const updatedGuestHouse = await foundGuestHouse.update({
-          houseName, location, bathRooms, imageUrl
-        });
-        const updatedRooms = await EditGuestHouseHelper.updateRooms(rooms, guestHouseId);
-        const newUpdatedRoomsId = updatedRooms.map(updatedRoom => (updatedRoom.id));
-        await EditGuestHouseHelper.deleteRoomsRemoved(guestHouseId, newUpdatedRoomsId);
-        const updatedBeds = await GuestHouseController.updateBeds(updatedRooms, res);
-        return res.status(200).json({
-          success: true,
-          message: 'Guest house updated successfully',
-          guestHouse: updatedGuestHouse,
-          rooms: updatedRooms,
-          bed: updatedBeds
-        });
-      });
+      await GuestHouseTransactions.editGustHouseTransaction(
+        req, res, houseName, location, bathRooms, imageUrl, rooms
+      );
     } catch (error) {
       /* istanbul ignore next */
       return Error.handleError('Server Error', 500, res);
