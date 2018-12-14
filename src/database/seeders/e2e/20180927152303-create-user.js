@@ -18,7 +18,22 @@ module.exports = {
         createdAt: '2018-08-15 012:11:53.181+01',
         updatedAt: '2018-08-15 012:11:53.181+01',
         picture: 'https://lh5.googleusercontent.com/-PbuF53uxx4U/AAAAAAAAAAI/AAAAAAAAAAA/AGDgw-i0-XeoeYYk7TpfNBvulhV0oFM6eg/mo/photo.jpg?sz=50'
-      }
+      },
+      {
+        id: 2,
+        fullName: 'John Doe',
+        email: 'john.doe@andela.com',
+        userId: '-LMgZQKq6MXAj_41iRWi',
+        passportName: 'John Doe',
+        department: 'Talent & Development',
+        occupation: 'Software developer',
+        manager: 'Travela Test',
+        gender: 'Male',
+        location: 'Lagos',
+        createdAt: '2018-08-15 012:11:53.181+01',
+        updatedAt: '2018-08-15 012:11:53.181+01',
+        picture: 'https://lh5.googleusercontent.com/-PbuF53uxx4U/AAAAAAAAAAI/AAAAAAAAAAA/AGDgw-i0-XeoeYYk7TpfNBvulhV0oFM6eg/mo/photo.jpg?sz=50'
+      },
     ],
     {},
   ),
