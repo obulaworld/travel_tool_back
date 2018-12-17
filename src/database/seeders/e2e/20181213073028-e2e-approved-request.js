@@ -2,7 +2,6 @@ module.exports = {
   up: queryInterface => queryInterface.bulkInsert('Approvals',
     [
       {
-        id: '1',
         requestId: '3451',
         status: 'Approved',
         approverId: 'Travela Test',
@@ -11,7 +10,6 @@ module.exports = {
         deletedAt: null
       },
       {
-        id: '2',
         requestId: '3459',
         status: 'Open',
         approverId: 'Travela Test',
@@ -20,7 +18,6 @@ module.exports = {
         deletedAt: null
       },
       {
-        id: '3',
         requestId: '3458',
         status: 'Open',
         approverId: 'Travela Test',
@@ -29,7 +26,6 @@ module.exports = {
         deletedAt: null
       },
       {
-        id: '4',
         requestId: '34510',
         status: 'Open',
         approverId: 'Travela Test',
@@ -38,7 +34,6 @@ module.exports = {
         deletedAt: null
       },
       {
-        id: '5',
         requestId: '3452',
         status: 'Rejected',
         approverId: 'Travela Test',

@@ -5,7 +5,6 @@ module.exports = {
     'Users',
     [
       {
-        id: 1,
         fullName: 'Travela Test',
         email: 'travela-test@andela.com',
         userId: '-LSsFyueC086niFc9rrz',
@@ -20,7 +19,6 @@ module.exports = {
         picture: 'https://lh5.googleusercontent.com/-PbuF53uxx4U/AAAAAAAAAAI/AAAAAAAAAAA/AGDgw-i0-XeoeYYk7TpfNBvulhV0oFM6eg/mo/photo.jpg?sz=50'
       },
       {
-        id: 2,
         fullName: 'John Doe',
         email: 'john.doe@andela.com',
         userId: '-LMgZQKq6MXAj_41iRWi',
