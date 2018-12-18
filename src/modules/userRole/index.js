@@ -18,7 +18,7 @@ Router.get('/user/:id',
 Router.put(
   '/user/:id/profile',
   authenticate,
-  Validator.validatePersonalInformation,
+  RoleValidator.validatePersonalInformation,
   Validator.checkGender,
   Validator.checkSignedInUser,
   UserRoleController.updateUserProfile
@@ -27,7 +27,7 @@ Router.put(
 Router.post(
   '/user',
   authenticate,
-  Validator.validateUser,
+  RoleValidator.validateUser,
   Validator.checkEmail,
   UserRoleController.addUser
 );

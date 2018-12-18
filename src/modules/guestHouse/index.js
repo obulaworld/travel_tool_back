@@ -4,7 +4,7 @@ import middlewares from '../../middlewares';
 import GuestHouseValidator from '../../middlewares/guestHouseValidator';
 
 
-const { authenticate, Validator, RoleValidator } = middlewares;
+const { authenticate, RoleValidator } = middlewares;
 const Router = express.Router();
 
 Router.get(
@@ -22,16 +22,16 @@ Router.post(
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
-  Validator.validateImage,
-  Validator.validateGuestHouse,
-  Validator.validateGuestHouseDataSet,
+  GuestHouseValidator.validateImage,
+  GuestHouseValidator.validateGuestHouse,
+  GuestHouseValidator.validateGuestHouseDataSet,
   GuestHouseController.postGuestHouse
 );
 
 Router.get(
   '/availablerooms',
   authenticate,
-  Validator.validateAvailableRooms,
+  GuestHouseValidator.validateAvailableRooms,
   GuestHouseController.getAvailableRooms
 );
 
@@ -41,7 +41,7 @@ Router.put(
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
-  Validator.checkFaultRoomStatus,
+  GuestHouseValidator.checkFaultRoomStatus,
   GuestHouseController.updateRoomFaultyStatus
 );
 
@@ -50,15 +50,15 @@ Router.put('/guesthouses/:id',
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
-  Validator.validateImage,
-  Validator.validateGuestHouse,
-  Validator.validateGuestHouseDataSet,
+  GuestHouseValidator.validateImage,
+  GuestHouseValidator.validateGuestHouse,
+  GuestHouseValidator.validateGuestHouseDataSet,
   GuestHouseController.editGuestHouse);
 
 Router.get(
   '/guesthouses/:guestHouseId',
   authenticate,
-  Validator.checkDate,
+  GuestHouseValidator.checkDate,
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
@@ -71,7 +71,7 @@ Router.post(
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
-  Validator.validateMaintainanceRecord,
+  GuestHouseValidator.validateMaintainanceRecord,
   GuestHouseValidator.checkRoom,
   GuestHouseController.createMaintainanceRecord,
 );
@@ -82,7 +82,7 @@ Router.put(
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
-  Validator.validateMaintainanceRecord,
+  GuestHouseValidator.validateMaintainanceRecord,
   GuestHouseValidator.checkRoom,
   GuestHouseValidator.checkMaintenanceRecord,
   GuestHouseController.updateMaintenanceRecord

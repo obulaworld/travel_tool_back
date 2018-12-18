@@ -8,7 +8,9 @@ import RequestsController from './RequestsController';
 
 const RequestsRouter = express.Router();
 
-const { authenticate, Validator, RoleValidator } = middleware;
+const {
+  authenticate, Validator, RoleValidator, RequestValidator
+} = middleware;
 
 RequestsRouter.get(
   '/requests',
@@ -29,7 +31,7 @@ RequestsRouter.post(
   authenticate,
   editAndCreateRequestValidators,
   Validator.validateRequest, // check req.body
-  Validator.validateTripBeds,
+  RequestValidator.validateTripBeds,
   RequestsController.createRequest,
 );
 
@@ -38,7 +40,7 @@ RequestsRouter.put(
   authenticate,
   editAndCreateRequestValidators,
   Validator.validateRequest,
-  Validator.validateTripBeds,
+  RequestValidator.validateTripBeds,
   RequestsController.updateRequest,
 );
 
@@ -52,14 +54,14 @@ RequestsRouter.delete(
 RequestsRouter.put(
   '/requests/:requestId/verify',
   authenticate,
-  Validator.validateRequestHasTrips,
-  Validator.checkStatusIsApproved,
+  RequestValidator.validateRequestHasTrips,
+  RequestValidator.checkStatusIsApproved,
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   Validator.validateTeamMemberLocation,
-  Validator.validateDepartureDate,
-  Validator.validateCheckListComplete,
+  RequestValidator.validateDepartureDate,
+  RequestValidator.validateCheckListComplete,
   RequestsController.verifyRequest
 );
 

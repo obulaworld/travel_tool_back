@@ -174,4 +174,25 @@ export default class RoleValidator {
     }
     next();
   }
+
+  static validateUser(req, res, next) {
+    Validator.validateUserRoleCheck(req, res, next, 'fullName', 'email', 'picture');
+  }
+
+  static validateUserRole(req, res, next) { /* istanbul ignore next */
+    Validator.validateUserRoleCheck(req, res, next, 'email', 'roleName');
+  }
+
+  static validatePersonalInformation(req, res, next) {
+    Validator.validateUserRoleCheck(
+      req,
+      res,
+      next,
+      'passportName',
+      'gender',
+      'department',
+      'occupation',
+      'manager'
+    );
+  }
 }
