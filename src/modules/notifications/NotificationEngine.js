@@ -35,7 +35,17 @@ export default class NotificationEngine {
   }
 
   static sendMail({
-    recipient, sender, topic, type, redirectLink, requestId, comment
+    recipient,
+    sender,
+    topic,
+    type,
+    redirectLink,
+    requestId,
+    comment,
+    guesthouseName,
+    checkInTime,
+    durationOfStay,
+    destination
   }) {
     const mailgun = mail({
       apiKey: process.env.MAILGUN_API_KEY,
@@ -52,7 +62,11 @@ export default class NotificationEngine {
         type,
         redirectLink,
         requestId,
-        comment
+        comment,
+        guesthouseName,
+        checkInTime,
+        durationOfStay,
+        destination,
       )
     };
     /* istanbul ignore next */

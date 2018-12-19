@@ -10,7 +10,7 @@ describe('Switch Button helper', () => {
     done();
   });
   it('should show Fill Survey in case of Trip Survey', (done) => {
-    expect(switchButtonText('Trip Survey')).toEqual('Fill Survey');
+    expect(switchButtonText('Trip Survey')).toEqual('Start Survey');
     done();
   });
   it('should show View Dashboard in case of Travel Readiness', (done) => {
