@@ -60,4 +60,45 @@ export default class NotificationEngine {
       mailgun.messages().send(data);
     }
   }
+
+  static getReciepientVariables(records) {
+    const recipientVars = {};
+    records.forEach((recipient) => {
+      recipientVars[recipient.email] = {
+        name: recipient.name,
+      };
+    });
+    return { recipientVars };
+  }
+
+  static sendMailToMany({
+    recipient, sender, topic, type, redirectLink, requestId, comment, guesthouseName, checkInTime, durationOfStay, recipientVars
+  }) {
+    const mailgun = mail({
+      apiKey: process.env.MAILGUN_API_KEY,
+      domain: process.env.MAILGUN_DOMAIN_NAME
+    });
+    const emails = recipient.map(value => value.email);
+    const data = {
+      from: `Travela <${process.env.MAIL_SENDER}>`,
+      to: emails.join(','),
+      subject: topic,
+      html: mailTemplate(
+        recipient.name,
+        sender,
+        type,
+        redirectLink,
+        requestId,
+        comment,
+        guesthouseName,
+        checkInTime,
+        durationOfStay
+      ),
+      'recipient-variables': JSON.stringify(recipientVars),
+    };
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'test') {
+      mailgun.messages().send(data);
+    }
+  }
 }

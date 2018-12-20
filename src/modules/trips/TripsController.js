@@ -1,6 +1,7 @@
 import models from '../../database/models';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
+import TripUtils from './TripUtils';
 
 const { Op } = models.Sequelize;
 let checkTypeErrorMessage = '';
@@ -84,6 +85,30 @@ class TripsController {
     } catch (error) { /* istanbul ignore next */ }
   }
 
+  static async sendMailToTravelAdmin(requestId, req, tripId) {
+    try {
+      const request = await models.Request.findById(requestId);
+      const user = await models.User.findOne({
+        where: { userId: request.userId }
+      });
+      const theRecipients = await TripUtils.getRecipients(req);
+
+      const recipients = theRecipients.map(theRecipient => ({
+        email: theRecipient.email,
+        name: theRecipient.fullName
+      }));
+      const { recipientVars } = await NotificationEngine.getReciepientVariables(recipients);
+
+      const sender = user.fullName;
+      const topic = 'Guesthouse Check In';
+      const type = 'Guesthouse Check-In';
+      const mailData = await TripUtils.getCheckInMailData(
+        tripId, recipients, sender, topic, type, recipientVars
+      );
+      NotificationEngine.sendMailToMany(mailData);
+    } catch (error) { /* istanbul ignore next */ }
+  }
+
   static getSurveyMailData(recipient, sender, topic, type) {
     const mailBody = {
       recipient,
@@ -119,6 +144,7 @@ class TripsController {
       const updatedTrip = await TripsController
         .updateTrip(returnedTrip, checkType);
       TripsController.sendNotification(req, updatedTrip.request, checkType);
+      TripsController.sendMailToTravelAdmin(returnedTrip.requestId, req, tripId);
       if (checkType === 'checkOut') {
         TripsController.sendSurveyEmail(returnedTrip.requestId);
       }
@@ -217,22 +243,9 @@ class TripsController {
       senderImage: travelAdmin.picture,
     };
     NotificationEngine.notify(notificationData);
-    const mailData = TripsController.getMailData(request, user,
+    const mailData = TripUtils.getMailData(request, user,
       'Travel Request Residence', 'Changed Room', travelAdmin);
     NotificationEngine.sendMail(mailData);
-  }
-
-  static getMailData(request, user, topic, type, travelAdmin) {
-    const mailBody = {
-      recipient: { name: user.fullName, email: user.email },
-      sender: travelAdmin.name,
-      topic,
-      type,
-      requestId: request.id,
-      redirectLink:
-        `${process.env.REDIRECT_URL}/requests/${request.id}`
-    };
-    return mailBody;
   }
 
   static async getTripsByRequestId(requestId, res) {
