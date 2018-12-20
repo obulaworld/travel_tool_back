@@ -276,6 +276,7 @@ describe('Test Suite for Trips Controller', () => {
       });
 
       it('should update trip record to check in', (done) => {
+        const sendMailToTravelAdmin = jest.spyOn(TripsController, 'sendMailToTravelAdmin');
         request(app)
           .put('/api/v1/trips/2')
           .set('Content-Type', 'application/json')
@@ -286,6 +287,7 @@ describe('Test Suite for Trips Controller', () => {
             expect(res.body.success).toEqual(true);
             expect(res.body.trip.id).toEqual('2');
             expect(res.body.trip.checkStatus).toEqual('Checked In');
+            expect(sendMailToTravelAdmin).toHaveBeenCalled();
             if (err) return done(err);
             done();
           });

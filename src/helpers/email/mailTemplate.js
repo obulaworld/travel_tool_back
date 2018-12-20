@@ -30,7 +30,10 @@ const mailTemplate = (
   type,
   redirectLink,
   requestId,
-  comment
+  comment,
+  guesthouseName,
+  checkInTime,
+  durationOfStay
 ) => (
 
   `
@@ -68,7 +71,7 @@ const mailTemplate = (
       margin-bottom: 30px;
       color: #333E44;"
     >
-      <b>Hi ${recipientName}!</b>
+      <b>Hi ${recipientName || '%recipient.name%!'}!</b>
     </h2>
     <p
       style="width: 406px;
@@ -80,7 +83,7 @@ const mailTemplate = (
         margin: 0 auto 50px auto;"
     >
       ${switchMessage({
-    type, senderName, recipientName, requestId, comment
+    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay
   })}
     </p>
     ${returnButton(type, redirectLink)}
