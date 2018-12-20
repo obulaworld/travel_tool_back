@@ -62,7 +62,7 @@ const middleware = {
     validateCheckType: jest.fn(invokeNextMiddleware),
     checkTripExists: jest.fn(invokeNextMiddleware),
     checkTripOwner: jest.fn(invokeNextMiddleware),
-    checkTripApproved: jest.fn(invokeNextMiddleware),
+    checkTripVerified: jest.fn(invokeNextMiddleware),
     checkTravelAdmin: jest.fn(invokeNextMiddleware),
     validateBed: jest.fn(invokeNextMiddleware),
     checkBedExists: jest.fn(invokeNextMiddleware),

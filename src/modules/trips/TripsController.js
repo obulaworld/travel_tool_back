@@ -12,7 +12,7 @@ const getReturnedTrip = (where, userId) => models.Trip.findOne({
     model: models.Request,
     as: 'request',
     where: {
-      status: 'Approved',
+      status: 'Verified',
       userId,
     },
   }]
@@ -166,7 +166,7 @@ class TripsController {
         model: models.Request,
         as: 'request',
         where: {
-          status: 'Approved',
+          status: 'Verified',
           userId
         },
       }, {

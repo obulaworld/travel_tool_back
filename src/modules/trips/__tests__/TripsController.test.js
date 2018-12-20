@@ -151,11 +151,12 @@ describe('Test Suite for Trips Controller', () => {
       done();
     });
     describe('Test Suite for Trips Check In / Out API: PUT ', () => {
-      it('should return error message for an unauthenticated user', (done) => {
+      it('should return error message for an unauthenticated user', async (done) => {
         request(app)
-          .put('/api/v1/trips/1')
+          .put('/api/v1/trips/4')
           .send({})
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(401);
             expect(res.body.success).toEqual(false);
             expect(res.body.error).toEqual('Please provide a token');
@@ -165,13 +166,14 @@ describe('Test Suite for Trips Controller', () => {
       });
 
       it('should return error message if user is not owner of the request',
-        (done) => {
+        async (done) => {
           request(app)
             .put('/api/v1/trips/1')
             .send(checkInData)
             .set('Content-Type', 'application/json')
             .set('authorization', requesterToken)
-            .end((err, res) => {
+            .end(async (err, res) => {
+              await res;
               expect(res.statusCode).toEqual(403);
               expect(res.body.success).toEqual(false);
               expect(res.body.message)
@@ -181,13 +183,14 @@ describe('Test Suite for Trips Controller', () => {
             });
         });
 
-      it('should return error if trip does not exist', (done) => {
+      it('should return error if trip does not exist', async (done) => {
         request(app)
           .put('/api/v1/trips/904')
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send(checkInData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message).toEqual('Trip does not exist');
@@ -196,13 +199,14 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should return error if checktype is not provided', (done) => {
+      it('should return error if checktype is not provided', async (done) => {
         request(app)
           .put('/api/v1/trips/1')
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send({})
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body.errors[0].message)
@@ -212,7 +216,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should return error if check type is invalid', (done) => {
+      it('should return error if check type is invalid', async (done) => {
         request(app)
           .put('/api/v1/trips/1')
           .set('Content-Type', 'application/json')
@@ -220,7 +224,8 @@ describe('Test Suite for Trips Controller', () => {
           .send({
             checkType: 'notValid'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body.errors[0].message)
@@ -230,29 +235,31 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not allow checkin if request is not approved', (done) => {
+      it('should not allow checkin if request is not verified', async (done) => {
         request(app)
           .put('/api/v1/trips/1')
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send(checkInData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
-              .toEqual('This trip is not approved');
+              .toEqual('This trip is not verified');
             if (err) return done(err);
             done();
           });
       });
 
       it(`should not update trip record to check out if user has not been
-        checked in`, (done) => {
+        checked in`, async (done) => {
         request(app)
           .put('/api/v1/trips/2')
           .set('authorization', token)
           .send(checkOutData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -262,27 +269,29 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not update trip record to check in before due date', (done) => {
+      it('should not update trip record to check in before due date', async (done) => {
         request(app)
           .put('/api/v1/trips/5')
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send(checkInData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.body.success).toEqual(false);
             if (err) return done(err);
             done();
           });
       });
 
-      it('should update trip record to check in', (done) => {
+      it('should update trip record to check in', async (done) => {
         const sendMailToTravelAdmin = jest.spyOn(TripsController, 'sendMailToTravelAdmin');
         request(app)
           .put('/api/v1/trips/2')
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send(checkInData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body.trip.id).toEqual('2');
@@ -295,12 +304,13 @@ describe('Test Suite for Trips Controller', () => {
 
       it(`should not update trip record to check in if user
         has been checked in`,
-      (done) => {
+      async (done) => {
         request(app)
           .put('/api/v1/trips/2')
           .set('authorization', token)
           .send(checkInData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message).toEqual('User has already checked in');
@@ -309,13 +319,14 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should update trip record to check out successfully', (done) => {
+      it('should update trip record to check out successfully', async (done) => {
         const sendSurveyEmail = jest.spyOn(TripsController, 'sendSurveyEmail');
         request(app)
           .put('/api/v1/trips/2')
           .set('authorization', token)
           .send(checkOutData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body.trip.id).toEqual('2');
@@ -327,12 +338,13 @@ describe('Test Suite for Trips Controller', () => {
       });
 
       it(`should not update trip record to check out if user has been
-       checked out`, (done) => {
+       checked out`, async (done) => {
         request(app)
           .put('/api/v1/trips/2')
           .set('authorization', token)
           .send(checkOutData)
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -344,14 +356,15 @@ describe('Test Suite for Trips Controller', () => {
     });
 
     describe('Test Suite for Trips API: GET', () => {
-      it('should not return anything for a user with no approved request',
-        (done) => {
+      it('should not return anything for a user with no verified request',
+        async (done) => {
           request(app)
             .get('/api/v1/trips')
             .set('Content-Type', 'application/json')
             .set('authorization', requesterToken)
             .send({})
-            .end((err, res) => {
+            .end(async (err, res) => {
+              await res;
               expect(res.statusCode).toEqual(200);
               expect(res.body.success).toEqual(true);
               expect(res.body.trips).toEqual([]);
@@ -360,16 +373,17 @@ describe('Test Suite for Trips Controller', () => {
             });
         });
 
-      it('should return data for a user with approved requests', (done) => {
+      it('should return data for a user with verified requests', async (done) => {
         request(app)
           .get('/api/v1/trips')
           .set('Content-Type', 'application/json')
           .set('authorization', token)
           .send({})
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
-            expect(res.body.trips.length).toEqual(4);
+            expect(res.body.trips.length).toEqual(2);
             expect(res.body.message).toEqual('Retrieved Successfully');
             if (err) return done(err);
             done();
@@ -392,11 +406,12 @@ describe('Test Suite for Trips Controller', () => {
         }
       });
 
-      it('should require a user token', (done) => {
+      it('should require a user token', async (done) => {
         request(app)
           .put('/api/v1/trips/1/room')
           .send({})
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(401);
             expect(res.body.success).toEqual(false);
             expect(res.body.error).toEqual('Please provide a token');
@@ -405,7 +420,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not update if user is not a travel admin', (done) => {
+      it('should not update if user is not a travel admin', async (done) => {
         request(app)
           .put('/api/v1/trips/1/room')
           .set('Content-Type', 'application/json')
@@ -413,7 +428,8 @@ describe('Test Suite for Trips Controller', () => {
           .send({
             bedId: 1
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(403);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -423,13 +439,14 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should require bed id', (done) => {
+      it('should require bed id', async (done) => {
         request(app)
           .put('/api/v1/trips/99/room')
           .set('Content-Type', 'application/json')
           .set('authorization', travelAdminToken)
           .send({})
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body.errors[0].message)
@@ -439,7 +456,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should require bed id to be a number', (done) => {
+      it('should require bed id to be a number', async (done) => {
         request(app)
           .put('/api/v1/trips/99/room')
           .set('Content-Type', 'application/json')
@@ -447,7 +464,8 @@ describe('Test Suite for Trips Controller', () => {
           .send({
             bedId: 'abc'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body.errors[0].message)
@@ -457,7 +475,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should require reason', (done) => {
+      it('should require reason', async (done) => {
         request(app)
           .put('/api/v1/trips/99/room')
           .set('Content-Type', 'application/json')
@@ -465,7 +483,8 @@ describe('Test Suite for Trips Controller', () => {
           .send({
             bedId: 1
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(422);
             expect(res.body.success).toEqual(false);
             expect(res.body.errors[0].message)
@@ -475,7 +494,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not update if trip id does not exist', (done) => {
+      it('should not update if trip id does not exist', async (done) => {
         request(app)
           .put('/api/v1/trips/99/room')
           .set('Content-Type', 'application/json')
@@ -484,7 +503,8 @@ describe('Test Suite for Trips Controller', () => {
             bedId: 1,
             reason: 'reason'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -494,7 +514,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not update if bed id does not exist', (done) => {
+      it('should not update if bed id does not exist', async (done) => {
         request(app)
           .put('/api/v1/trips/1/room')
           .set('Content-Type', 'application/json')
@@ -503,7 +523,8 @@ describe('Test Suite for Trips Controller', () => {
             bedId: 24,
             reason: 'reason'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -513,7 +534,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not update if bed is not available', (done) => {
+      it('should not update if bed is not available', async (done) => {
         request(app)
           .put('/api/v1/trips/1/room')
           .set('Content-Type', 'application/json')
@@ -522,7 +543,8 @@ describe('Test Suite for Trips Controller', () => {
             bedId: 1,
             reason: 'reason'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -532,7 +554,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not update if trip is checked out', (done) => {
+      it('should not update if trip is checked out', async (done) => {
         request(app)
           .put('/api/v1/trips/4/room')
           .set('Content-Type', 'application/json')
@@ -541,7 +563,8 @@ describe('Test Suite for Trips Controller', () => {
             bedId: 2,
             reason: 'reason'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -566,6 +589,7 @@ describe('Test Suite for Trips Controller', () => {
             reason: 'reason'
           })
           .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(400);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -577,7 +601,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should not update room if occupied by opposite sex', (done) => {
+      it('should not update room if occupied by opposite sex', async (done) => {
         request(app)
           .put('/api/v1/trips/1/room')
           .set('Content-Type', 'application/json')
@@ -586,7 +610,8 @@ describe('Test Suite for Trips Controller', () => {
             bedId: 5,
             reason: 'reason'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(409);
             expect(res.body.success).toEqual(false);
             expect(res.body.message)
@@ -596,7 +621,7 @@ describe('Test Suite for Trips Controller', () => {
           });
       });
 
-      it('should update room/bed record for a trip', (done) => {
+      it('should update room/bed record for a trip', async (done) => {
         const notifySpy = jest.spyOn(NotificationEngine, 'notify');
         const sendMailSpy = jest.spyOn(NotificationEngine, 'sendMail');
         request(app)
@@ -607,7 +632,8 @@ describe('Test Suite for Trips Controller', () => {
             bedId: 2,
             reason: 'reason'
           })
-          .end((err, res) => {
+          .end(async (err, res) => {
+            await res;
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
             expect(res.body.message)
@@ -630,7 +656,7 @@ describe('Test Suite for Trips Controller', () => {
         });
         expect(changedRoom.reason).toBe('reason');
         done();
-      });
+      }, 10000);
     });
   });
 });

@@ -54,7 +54,7 @@ export default class TripValidator {
     }
   }
 
-  static async checkTripApproved(req, res, next) {
+  static async checkTripVerified(req, res, next) {
     const { tripId } = req.params;
     const userId = req.user.UserInfo.id;
     try {
@@ -64,12 +64,12 @@ export default class TripValidator {
           required: true,
           model: models.Request,
           as: 'request',
-          where: { userId, status: 'Approved' },
+          where: { userId, status: 'Verified' },
         }]
       });
       if (!trip) {
         return res.status(400).json({
-          success: false, message: 'This trip is not approved'
+          success: false, message: 'This trip is not verified'
         });
       }
       next();
