@@ -3,13 +3,13 @@ import models from '../../database/models';
 import UserRoleController from '../userRole/UserRoleController';
 
 
-export default class TripUtils {
+class TripUtils {
   static async fetchTripsOriginAndDestination(tripId) {
     const tripsOriginAndDestination = await models.Trip.findOne({
       where: {
         id: tripId,
       },
-      attributes: ['origin', 'destination', 'returnDate', 'checkInDate'],
+      attributes: ['origin', 'destination', 'returnDate', 'checkInDate', 'checkOutDate'],
       include: [{
         as: 'beds',
         model: models.Bed,
@@ -27,45 +27,6 @@ export default class TripUtils {
     return tripsOriginAndDestination;
   }
 
-  static async getRecipients(req) {
-    const { tripId } = req.params;
-    const roleId = 29187;
-    const tripDetails = await TripUtils.fetchTripsOriginAndDestination(tripId);
-    const admins = await UserRoleController.calculateUserRole(roleId);
-    const centers = admins.users.map(user => ({
-      email: user.email,
-      fullName: user.fullName,
-      center: user.centers[0]
-    }));
-    const recipients = centers.filter(list => list.center.location === tripDetails.origin
-       || list.center.location === tripDetails.destination);
-    return recipients;
-  }
-
-  static async getCheckInMailData(
-    tripId, recipient, sender, topic, type, recipientVars
-  ) {
-    const redirect = '/redirect/residence/manage/guest-houses/';
-    const checkInDetails = await TripUtils.fetchTripsOriginAndDestination(tripId);
-
-    // Calculate duration of stay
-    const checkIn = moment(checkInDetails.checkInDate);
-    const checkOut = moment(checkInDetails.returnDate);
-    const days = checkOut.diff(checkIn, 'days') + 1;
-
-    const mailContent = {
-      recipient,
-      sender,
-      topic,
-      type,
-      redirectLink: `${process.env.REDIRECT_URL}${redirect}${checkInDetails.beds.rooms.guestHouses.id}`,
-      guesthouseName: checkInDetails.beds.rooms.guestHouses.houseName,
-      checkInTime: moment(checkInDetails.checkInDate).format('hh:mm:ss a'),
-      durationOfStay: days,
-      recipientVars
-    };
-    return mailContent;
-  }
 
   static getMailData(request, user, topic, type, travelAdmin) {
     const mailBody = {
@@ -79,4 +40,63 @@ export default class TripUtils {
     };
     return mailBody;
   }
+
+  static async getOriginDestinationAdmin({ origin, destination }) {
+    const travelAdminRoleId = 29187;
+    const travelAdmins = await UserRoleController.calculateUserRole(travelAdminRoleId);
+    const centersTravelAdmin = travelAdmins.users.filter(
+      user => user.centers[0].dataValues === origin || destination
+    )
+      .map(user => user.dataValues);
+    return centersTravelAdmin;
+  }
+
+  static async getCheckInCheckOutMailData(
+    {
+      tripId, sender, topic, type
+    }
+  ) {
+    const redirect = '/redirect/residence/manage/guest-houses/';
+    const guestHouseDetails = await TripUtils.fetchTripsOriginAndDestination(tripId);
+
+    const guestHouse = guestHouseDetails.beds.rooms.guestHouses;
+    // Calculate duration of stay
+    const checkIn = moment(guestHouseDetails.checkInDate);
+    const checkOut = moment(guestHouseDetails.returnDate);
+    const days = checkOut.diff(checkIn, 'days') + 1;
+
+    const mailContent = {
+      sender,
+      topic,
+      type,
+      redirectLink: `${process.env.REDIRECT_URL}${redirect}${guestHouse.id}`,
+      guesthouseName: guestHouse.houseName,
+      checkInTime: moment(guestHouseDetails.checkInDate).format('hh:mm:ss a'),
+      checkoutTime: moment(Date.now()).format('hh:mm:ss a'),
+      durationOfStay: days,
+    };
+    return mailContent;
+  }
+
+  static async getMailDataWithReceipints(trip, type, topic) {
+    const {
+      origin,
+      destination,
+      requestId,
+      id
+    } = trip.dataValues;
+    const request = await models.Request.findById(requestId);
+    const user = await models.User.findOne({
+      where: { userId: request.userId }
+    });
+    const { fullName } = user.dataValues;
+    const data = await TripUtils.getCheckInCheckOutMailData({
+      tripId: id, user, sender: fullName, topic, type,
+    });
+    const travelAdmins = await TripUtils
+      .getOriginDestinationAdmin({ origin, destination });
+    return { data, travelAdmins };
+  }
 }
+
+export default TripUtils;

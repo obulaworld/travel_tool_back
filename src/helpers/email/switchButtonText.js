@@ -8,6 +8,10 @@ const switchButtonText = (type) => {
       return 'View Notification';
     case 'Travel Readiness':
       return 'View Dashboard';
+    case 'Guesthouse Check-out':
+      return 'View Check Out Details';
+    case 'Guesthouse Check-In':
+      return 'View Check In Details';
     default:
       return 'View Request';
   }

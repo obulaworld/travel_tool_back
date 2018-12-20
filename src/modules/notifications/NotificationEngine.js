@@ -34,24 +34,21 @@ export default class NotificationEngine {
     global.io.sockets.emit('notification', newNotification);
   }
 
-  static sendMail({
-    recipient,
-    sender,
-    topic,
-    type,
-    redirectLink,
-    requestId,
-    comment,
-    guesthouseName,
-    checkInTime,
-    durationOfStay,
-    destination
-  }) {
-    const mailgun = mail({
-      apiKey: process.env.MAILGUN_API_KEY,
-      domain: process.env.MAILGUN_DOMAIN_NAME
-    });
+  static dispatchEmail(mailData) {
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'test') {
+      const mailgun = mail({
+        apiKey: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN_NAME
+      });
+      mailgun.messages().send(mailData);
+    }
+    return false;
+  }
 
+  static sendMail({
+    recipient, sender, topic, type, redirectLink, requestId, comment
+  }) {
     const data = {
       from: `Travela <${process.env.MAIL_SENDER}>`,
       to: `${recipient.email}`,
@@ -62,57 +59,46 @@ export default class NotificationEngine {
         type,
         redirectLink,
         requestId,
-        comment,
-        guesthouseName,
-        checkInTime,
-        durationOfStay,
-        destination,
+        comment
       )
     };
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'test') {
-      mailgun.messages().send(data);
-    }
+    NotificationEngine.dispatchEmail(data);
   }
 
-  static getReciepientVariables(records) {
+  static prepareMultipleReceipients(recipients) {
     const recipientVars = {};
-    records.forEach((recipient) => {
+    const emails = recipients.map((recipient) => {
       recipientVars[recipient.email] = {
-        name: recipient.name,
+        name: recipient.fullName,
       };
+      return recipient.email;
     });
-    return { recipientVars };
+    return { emails, recipientVars };
   }
 
-  static sendMailToMany({
-    recipient, sender, topic, type, redirectLink, requestId, comment, guesthouseName, checkInTime, durationOfStay, recipientVars
-  }) {
-    const mailgun = mail({
-      apiKey: process.env.MAILGUN_API_KEY,
-      domain: process.env.MAILGUN_DOMAIN_NAME
-    });
-    const emails = recipient.map(value => value.email);
-    const data = {
+  static sendMailToMany(recipients, data) {
+    const { emails, recipientVars } = NotificationEngine.prepareMultipleReceipients(recipients);
+    const destination = '';
+    const mailData = {
       from: `Travela <${process.env.MAIL_SENDER}>`,
-      to: emails.join(','),
-      subject: topic,
+      to: emails,
+      subject: data.topic,
       html: mailTemplate(
-        recipient.name,
-        sender,
-        type,
-        redirectLink,
-        requestId,
-        comment,
-        guesthouseName,
-        checkInTime,
-        durationOfStay
+        '%recipient.name%',
+        data.sender,
+        data.type,
+        data.redirectLink,
+        data.requestId,
+        data.comment,
+        data.guesthouseName,
+        data.checkInTime,
+        data.durationOfStay,
+        destination,
+        data.checkoutTime,
       ),
-      'recipient-variables': JSON.stringify(recipientVars),
+      'recipient-variables': recipientVars,
     };
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'test') {
-      mailgun.messages().send(data);
-    }
+
+    NotificationEngine.dispatchEmail(mailData);
   }
 }
