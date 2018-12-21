@@ -70,6 +70,8 @@ class RequestsController {
           || !trip.bedId
         ) {
           // eslint-disable-next-line
+          trip.accommodationType = trip.bedId == -1 ? 'Hotel Booking' : 'Not Required';
+          // eslint-disable-next-line
           trip.bedId = null;
         }
 
@@ -239,7 +241,20 @@ class RequestsController {
 
   static async updateRequest(req, res) {
     const { requestId } = req.params;
-    const { trips } = req.body;
+    let { trips } = req.body;
+    // eslint-disable-next-line
+    trips = trips.map((trip) => {
+      if (trip.bedId < 1) {
+        // eslint-disable-next-line
+        trip.accommodationType = trip.bedId == -1 ? 'Hotel Booking' : 'Not Required';
+        // eslint-disable-next-line
+        trip.bedId = null;
+      } else {
+        // eslint-disable-next-line
+        trip.accommodationType = 'Residence';
+      }
+      return trip;
+    });
     try {
       await RequestUtils.validateTripDates(req.user.UserInfo.id, trips, requestId);
 
