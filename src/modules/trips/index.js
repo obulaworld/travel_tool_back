@@ -12,7 +12,7 @@ TripsRouter.put(
   tripValidator.validateCheckType,
   tripValidator.checkTripExists,
   tripValidator.checkTripOwner,
-  tripValidator.checkTripApproved,
+  tripValidator.checkTripVerified,
   TripsController.updateCheckStatus,
 );
 

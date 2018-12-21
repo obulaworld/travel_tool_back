@@ -40,7 +40,7 @@ export const requestsData = [
     tripType: 'oneWay',
     gender: 'Female',
     department: 'TDD',
-    status: 'Approved',
+    status: 'Verified',
     picture: 'https://sgeeegege',
     role: 'Software Developer',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm',
@@ -147,7 +147,7 @@ export const tripsResponse = {
         gender: 'Female',
         department: 'TDD',
         role: 'Software Developer',
-        status: 'Approved',
+        status: 'Verified',
         userId: '-MUyHJmKrxA90lPNQ1FOLNm',
         createdAt: '2018-09-29T18:56:49.014Z',
         updatedAt: '2018-09-29T18:56:49.014Z'
