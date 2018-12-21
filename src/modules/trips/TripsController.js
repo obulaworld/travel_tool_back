@@ -71,6 +71,12 @@ class TripsController {
   static async sendSurveyEmail(requestId) {
     try {
       const request = await models.Request.findById(requestId);
+      const trip = await models.Trip.findOne({
+        where: {
+          requestId: request.id,
+        }
+      });
+      const { destination } = trip;
       const user = await models.User.findOne({
         where: { userId: request.userId }
       });
@@ -79,7 +85,7 @@ class TripsController {
       const topic = 'Travel Survey Email';
       const type = 'Trip Survey';
       const mailData = TripsController.getSurveyMailData(
-        recipient, sender, topic, type
+        recipient, sender, topic, type, destination
       );
       NotificationEngine.sendMail(mailData);
     } catch (error) { /* istanbul ignore next */ }
@@ -109,12 +115,13 @@ class TripsController {
     } catch (error) { /* istanbul ignore next */ }
   }
 
-  static getSurveyMailData(recipient, sender, topic, type) {
+  static getSurveyMailData(recipient, sender, topic, type, destination) {
     const mailBody = {
       recipient,
       sender,
       topic,
       type,
+      destination,
       redirectLink: process.env.SURVEY_URL,
     };
     return mailBody;

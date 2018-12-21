@@ -3,7 +3,7 @@ const switchButtonText = (type) => {
     case 'New Request':
       return 'View Request';
     case 'Trip Survey':
-      return 'Fill Survey';
+      return 'Start Survey';
     case 'Deleted Request':
       return 'View Notification';
     case 'Travel Readiness':
