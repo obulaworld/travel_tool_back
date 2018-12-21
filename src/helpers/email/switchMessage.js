@@ -33,6 +33,10 @@ const updateMessage = msgDetail => (
   ">${msgDetail.senderName}</b> just updated a travel request for your approval. Login to your
   travela account for details.`);
 
+const checKoutMessage = msgDetail => (
+  `<b style="text-transform: capitalize">${msgDetail.senderName}</b> has checked out at ${msgDetail.guesthouseName} guesthouse at ${msgDetail.checkoutTime}`
+);
+
 const switchMessage = (msgDetail) => {
   switch (msgDetail.type) {
     case 'New Request':
@@ -66,6 +70,7 @@ const switchMessage = (msgDetail) => {
       return (
         `<b style="text-transform: capitalize">${msgDetail.senderName}</b> has checked in at ${msgDetail.guesthouseName} guesthouse at ${msgDetail.checkInTime} and would be spending ${msgDetail.durationOfStay} day(s). Click on the link below to view details`
       );
+    case 'Guesthouse Check-out': return checKoutMessage(msgDetail);
     default: return '';
   }
 };

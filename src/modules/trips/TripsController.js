@@ -91,27 +91,16 @@ class TripsController {
     } catch (error) { /* istanbul ignore next */ }
   }
 
-  static async sendMailToTravelAdmin(requestId, req, tripId) {
+  static async sendMailToTravelAdmin(trip, checkType) {
     try {
-      const request = await models.Request.findById(requestId);
-      const user = await models.User.findOne({
-        where: { userId: request.userId }
-      });
-      const theRecipients = await TripUtils.getRecipients(req);
-
-      const recipients = theRecipients.map(theRecipient => ({
-        email: theRecipient.email,
-        name: theRecipient.fullName
-      }));
-      const { recipientVars } = await NotificationEngine.getReciepientVariables(recipients);
-
-      const sender = user.fullName;
-      const topic = 'Guesthouse Check In';
-      const type = 'Guesthouse Check-In';
-      const mailData = await TripUtils.getCheckInMailData(
-        tripId, recipients, sender, topic, type, recipientVars
-      );
-      NotificationEngine.sendMailToMany(mailData);
+      let topic = 'Guesthouse Check In';
+      let type = 'Guesthouse Check-In';
+      if (checkType === 'checkOut') {
+        topic = 'Guesthouse Check out';
+        type = 'Guesthouse Check-out';
+      }
+      const { data, travelAdmins } = await TripUtils.getMailDataWithReceipints(trip, type, topic);
+      NotificationEngine.sendMailToMany(travelAdmins, data);
     } catch (error) { /* istanbul ignore next */ }
   }
 
@@ -151,7 +140,7 @@ class TripsController {
       const updatedTrip = await TripsController
         .updateTrip(returnedTrip, checkType);
       TripsController.sendNotification(req, updatedTrip.request, checkType);
-      TripsController.sendMailToTravelAdmin(returnedTrip.requestId, req, tripId);
+      TripsController.sendMailToTravelAdmin(updatedTrip, checkType);
       if (checkType === 'checkOut') {
         TripsController.sendSurveyEmail(returnedTrip.requestId);
       }
