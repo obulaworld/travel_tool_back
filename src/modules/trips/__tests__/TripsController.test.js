@@ -385,7 +385,7 @@ describe('Test Suite for Trips Controller', () => {
             await res;
             expect(res.statusCode).toEqual(200);
             expect(res.body.success).toEqual(true);
-            expect(res.body.trips.length).toEqual(4);
+            expect(res.body.trips.length).toEqual(2);
             expect(res.body.message).toEqual('Retrieved Successfully');
             if (err) return done(err);
             done();

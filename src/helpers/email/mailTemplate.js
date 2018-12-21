@@ -59,7 +59,11 @@ const mailTemplate = (
     <style>
     @font-face {
     font-family: DINPro;
+<<<<<<< HEAD
     src: url(https://res.cloudinary.com/travela-andela/raw/upload/v1545298182/staging/FontFont_-_DINPro.otf);
+=======
+    src: url(https://res.cloudinary.com/travela-andela/raw/upload/v1545298182/staging/FontFont_-_DINPro.otf); 
+>>>>>>> Merge develop to master (#229)
     }
     * {
     font-family: DINPro;
@@ -96,7 +100,11 @@ const mailTemplate = (
         margin: 0 auto 50px auto;"
     >
       ${switchMessage({
+<<<<<<< HEAD
     type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime, details
+=======
+    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime
+>>>>>>> Merge develop to master (#229)
   })}
     </p>
     ${returnButton(type, redirectLink)}
