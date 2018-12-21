@@ -12,7 +12,7 @@ const getReturnedTrip = (where, userId) => models.Trip.findOne({
     model: models.Request,
     as: 'request',
     where: {
-      status: 'Approved',
+      status: 'Verified',
       userId,
     },
   }]
@@ -71,6 +71,12 @@ class TripsController {
   static async sendSurveyEmail(requestId) {
     try {
       const request = await models.Request.findById(requestId);
+      const trip = await models.Trip.findOne({
+        where: {
+          requestId: request.id,
+        }
+      });
+      const { destination } = trip;
       const user = await models.User.findOne({
         where: { userId: request.userId }
       });
@@ -79,42 +85,32 @@ class TripsController {
       const topic = 'Travel Survey Email';
       const type = 'Trip Survey';
       const mailData = TripsController.getSurveyMailData(
-        recipient, sender, topic, type
+        recipient, sender, topic, type, destination
       );
       NotificationEngine.sendMail(mailData);
     } catch (error) { /* istanbul ignore next */ }
   }
 
-  static async sendMailToTravelAdmin(requestId, req, tripId) {
+  static async sendMailToTravelAdmin(trip, checkType) {
     try {
-      const request = await models.Request.findById(requestId);
-      const user = await models.User.findOne({
-        where: { userId: request.userId }
-      });
-      const theRecipients = await TripUtils.getRecipients(req);
-
-      const recipients = theRecipients.map(theRecipient => ({
-        email: theRecipient.email,
-        name: theRecipient.fullName
-      }));
-      const { recipientVars } = await NotificationEngine.getReciepientVariables(recipients);
-
-      const sender = user.fullName;
-      const topic = 'Guesthouse Check In';
-      const type = 'Guesthouse Check-In';
-      const mailData = await TripUtils.getCheckInMailData(
-        tripId, recipients, sender, topic, type, recipientVars
-      );
-      NotificationEngine.sendMailToMany(mailData);
+      let topic = 'Guesthouse Check In';
+      let type = 'Guesthouse Check-In';
+      if (checkType === 'checkOut') {
+        topic = 'Guesthouse Check out';
+        type = 'Guesthouse Check-out';
+      }
+      const { data, travelAdmins } = await TripUtils.getMailDataWithReceipints(trip, type, topic);
+      NotificationEngine.sendMailToMany(travelAdmins, data);
     } catch (error) { /* istanbul ignore next */ }
   }
 
-  static getSurveyMailData(recipient, sender, topic, type) {
+  static getSurveyMailData(recipient, sender, topic, type, destination) {
     const mailBody = {
       recipient,
       sender,
       topic,
       type,
+      destination,
       redirectLink: process.env.SURVEY_URL,
     };
     return mailBody;
@@ -144,7 +140,7 @@ class TripsController {
       const updatedTrip = await TripsController
         .updateTrip(returnedTrip, checkType);
       TripsController.sendNotification(req, updatedTrip.request, checkType);
-      TripsController.sendMailToTravelAdmin(returnedTrip.requestId, req, tripId);
+      TripsController.sendMailToTravelAdmin(updatedTrip, checkType);
       if (checkType === 'checkOut') {
         TripsController.sendSurveyEmail(returnedTrip.requestId);
       }
@@ -166,7 +162,7 @@ class TripsController {
         model: models.Request,
         as: 'request',
         where: {
-          status: 'Approved',
+          status: 'Verified',
           userId
         },
       }, {

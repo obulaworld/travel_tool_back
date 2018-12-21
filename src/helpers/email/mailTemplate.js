@@ -33,9 +33,10 @@ const mailTemplate = (
   comment,
   guesthouseName,
   checkInTime,
-  durationOfStay
+  durationOfStay,
+  destination,
+  checkoutTime
 ) => (
-
   `
   <div
     style="background-color: #ececec;
@@ -46,12 +47,21 @@ const mailTemplate = (
       padding-top: 80px;
       font-weight: 100;
       text-align: center;">
-      <div style="height: 477px;
+      <div style="height: max-content;
       background-color: #FFFFFF;
       width: 610px;
       border: 1px solid #F5F5F5;
       margin: 0 auto;"
     >
+    <style>
+    @font-face {
+    font-family: DINPro;
+    src: url(https://res.cloudinary.com/travela-andela/raw/upload/v1545298182/staging/FontFont_-_DINPro.otf); 
+    }
+    * {
+    font-family: DINPro;
+    }
+    </style>
     <div
       style="color: green;
         font-size: 27px;
@@ -83,7 +93,7 @@ const mailTemplate = (
         margin: 0 auto 50px auto;"
     >
       ${switchMessage({
-    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay
+    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime
   })}
     </p>
     ${returnButton(type, redirectLink)}
@@ -104,8 +114,8 @@ const mailTemplate = (
   >
     <div
       style="color: #000000; font-family: "DIN Pro";
-        font-size: 16px; line-height: 27px;
-        height: 27px;"
+        font-size: 16px; line-height: 100%;
+        height: 100%;"
     >
       <p style="margin: 40px 0 10px 0;
         color: #4F4F4F;"

@@ -1,4 +1,4 @@
-
+import checkoutTemplate from './checkoutTemplate';
 
 const attachCommentToMail = msgDetail => (
   `
@@ -33,6 +33,10 @@ const updateMessage = msgDetail => (
   ">${msgDetail.senderName}</b> just updated a travel request for your approval. Login to your
   travela account for details.`);
 
+const checKoutMessage = msgDetail => (
+  `<b style="text-transform: capitalize">${msgDetail.senderName}</b> has checked out at ${msgDetail.guesthouseName} guesthouse at ${msgDetail.checkoutTime}`
+);
+
 const switchMessage = (msgDetail) => {
   switch (msgDetail.type) {
     case 'New Request':
@@ -56,16 +60,17 @@ const switchMessage = (msgDetail) => {
       return (
         `Your residence record for the travel request 
         <a href="${process.env.REDIRECT_URL}/requests/${msgDetail.requestId}"><b>#
-        ${msgDetail.requestId}</b></a> was updated by ${msgDetail.senderName}. <b>Login to your travela account for details.`);
+        ${msgDetail.requestId}</b></a> was updated by ${msgDetail.senderName}. <b>
+        Login to your travela account for details.`);
     case 'Trip Survey':
-      return (
-        'You just checked out of a Travela guesthouse. Please fill in this survey to tell us about your guest experience.');
+      return checkoutTemplate(msgDetail.destination);
     case 'Travel Readiness':
       return (`${msgDetail.senderName[1]} has achieved 100% travel readiness for trip to ${msgDetail.senderName[2]}. Kindly login to your Travela account for details.`);
     case 'Guesthouse Check-In':
       return (
         `<b style="text-transform: capitalize">${msgDetail.senderName}</b> has checked in at ${msgDetail.guesthouseName} guesthouse at ${msgDetail.checkInTime} and would be spending ${msgDetail.durationOfStay} day(s). Click on the link below to view details`
       );
+    case 'Guesthouse Check-out': return checKoutMessage(msgDetail);
     default: return '';
   }
 };

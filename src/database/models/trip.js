@@ -1,85 +1,94 @@
 export default (sequelize, DataTypes) => {
-  const Trip = sequelize.define('Trip', {
-    id: {
-      allowNull: false,
-      primaryKey: true,
-      type: DataTypes.STRING,
-    },
-    origin: {
-      allowNull: false,
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: {
-          args: true,
-          msg: 'Origin cannot be empty',
-        },
+  const Trip = sequelize.define(
+    'Trip',
+    {
+      id: {
+        allowNull: false,
+        primaryKey: true,
+        type: DataTypes.STRING
       },
-    },
-    destination: {
-      allowNull: false,
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: {
-          args: true,
-          msg: 'Destination cannot be empty',
-        },
+      origin: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        validate: {
+          notEmpty: {
+            args: true,
+            msg: 'Origin cannot be empty'
+          }
+        }
       },
+      destination: {
+        allowNull: false,
+        type: DataTypes.STRING,
+        validate: {
+          notEmpty: {
+            args: true,
+            msg: 'Destination cannot be empty'
+          }
+        }
+      },
+      departureDate: {
+        allowNull: false,
+        type: DataTypes.DATEONLY
+      },
+      returnDate: {
+        allowNull: true,
+        type: DataTypes.DATEONLY
+      },
+      checkStatus: {
+        allowNull: false,
+        defaultValue: 'Not Checked In',
+        type: DataTypes.ENUM('Not Checked In', 'Checked In', 'Checked Out')
+      },
+      checkInDate: {
+        allowNull: true,
+        type: DataTypes.DATE
+      },
+      checkOutDate: {
+        allowNull: true,
+        type: DataTypes.DATE
+      },
+      accommodationType: {
+        allowNull: false,
+        type: DataTypes.ENUM('Residence', 'Hotel Booking', 'Not Required'),
+        defaultValue: 'Residence'
+      },
+      lastNotifyDate: {
+        allowNull: true,
+        type: DataTypes.DATE
+      },
+      notificationCount: {
+        allowNull: false,
+        defaultValue: 0,
+        type: DataTypes.INTEGER
+      },
+      travelCompletion: {
+        allowNull: false,
+        defaultValue: 'false',
+        type: DataTypes.ENUM('true', 'false')
+      }
     },
-    departureDate: {
-      allowNull: false,
-      type: DataTypes.DATEONLY,
-    },
-    returnDate: {
-      allowNull: true,
-      type: DataTypes.DATEONLY,
-    },
-    checkStatus: {
-      allowNull: false,
-      defaultValue: 'Not Checked In',
-      type: DataTypes.ENUM('Not Checked In', 'Checked In', 'Checked Out'),
-    },
-    checkInDate: {
-      allowNull: true,
-      type: DataTypes.DATE,
-    },
-    checkOutDate: {
-      allowNull: true,
-      type: DataTypes.DATE,
-    },
-    lastNotifyDate: {
-      allowNull: true,
-      type: DataTypes.DATE,
-    },
-    notificationCount: {
-      allowNull: false,
-      defaultValue: 0,
-      type: DataTypes.INTEGER
-    },
-    travelCompletion: {
-      allowNull: false,
-      defaultValue: 'false',
-      type: DataTypes.ENUM('true', 'false')
-    }
-  }, { paranoid: true });
+    { paranoid: true }
+  );
   Trip.associate = (models) => {
     Trip.belongsTo(models.Bed, {
       allowNull: true,
       foreignKey: 'bedId',
-      as: 'beds',
+      as: 'beds'
     });
     Trip.belongsTo(models.Request, {
       foreignKey: 'requestId',
       as: 'request',
       onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      onUpdate: 'CASCADE'
     });
     Trip.hasMany(models.ChecklistSubmission, {
       foreignKey: 'tripId',
-      as: 'submissions',
+      as: 'submissions'
     });
     Trip.hasMany(models.ChangedRoom, {
       foreignKey: 'tripId',
-      as: 'changedRooms',
+      as: 'changedRooms'
     });
   };
   return Trip;
