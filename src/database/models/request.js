@@ -59,7 +59,7 @@ export default (sequelize, DataTypes) => {
     },
     status: {
       allowNull: false,
-      type: DataTypes.ENUM('Open', 'Approved', 'Rejected'),
+      type: DataTypes.ENUM('Open', 'Approved', 'Rejected', 'Verified'),
       defaultValue: 'Open',
       validate: {
         notEmpty: {

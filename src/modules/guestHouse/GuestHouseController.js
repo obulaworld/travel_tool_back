@@ -124,7 +124,7 @@ class GuestHouseController {
     const { query } = req;
     const { doInclude, makeTripsDateClauseFrom } = GuestHouseIncludeHelper;
     const bedTripsWhereClause = makeTripsDateClauseFrom(query);
-    const srcRequestWhereClause = { status: 'Approved' };
+    const srcRequestWhereClause = { status: ['Approved', 'Verified'] };
     const guestHouse = await models.GuestHouse.findOne({
       where: { id: guestHouseId, disabled: false },
       include: [{
