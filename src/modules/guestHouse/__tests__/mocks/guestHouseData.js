@@ -1,5 +1,5 @@
 export const postGuestHouse = {
-  houseName: 'Mini flat',
+  houseName: 'Mountain flat',
   location: 'Lagos Nigeria',
   bathRooms: '1',
   imageUrl: 'https://www.lol.com',
