@@ -18,7 +18,7 @@ export default class RequestUtils {
     // order the incoming trips by their departure dates then select the first and last trips
     const orderedTrips = _.orderBy(trips, ['departureDate'], ['asc']);
     const [firstTrip, lastTrip] = [_.first(orderedTrips), _.last(orderedTrips)];
-
+    const checkStatus = 'Checked Out';
     const requestsInRange = await models.Request.findAll(
       {
         where: {
@@ -29,7 +29,7 @@ export default class RequestUtils {
         include: [{
           model: models.Trip,
           as: 'trips',
-          where: generateRangeQuery(firstTrip.departureDate, lastTrip.returnDate),
+          where: generateRangeQuery(firstTrip.departureDate, lastTrip.returnDate, checkStatus),
           attributes: ['departureDate', 'returnDate'],
         }],
         attributes: ['id']
