@@ -9,5 +9,8 @@ module.exports = {
   ),
 
   down: queryInterface => queryInterface.sequelize
-    .query('ALTER TABLE "Trips" DROP COLUMN "accommodationType"; DROP TYPE IF EXISTS "enum_Trips_accommodationType";')
+    .query(`
+      ALTER TABLE "Trips" DROP COLUMN "accommodationType";
+      DROP TYPE IF EXISTS "enum_Trips_accommodationType";
+    `)
 };

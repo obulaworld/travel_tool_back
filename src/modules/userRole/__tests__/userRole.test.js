@@ -1,4 +1,5 @@
 import request from 'supertest';
+import axios from 'axios';
 import app from '../../../app';
 import models from '../../../database/models';
 import {
@@ -361,6 +362,12 @@ describe('User Role Test', () => {
   });
 
   it('should return error if email does not exist when updating user role', (done) => {
+    axios.get = jest.fn(() => Promise.resolve({
+      data: {
+        values: [],
+        total: 0
+      }
+    }));
     request(app)
       .put('/api/v1/user/role/update')
       .set('Content-Type', 'application/json')
@@ -370,6 +377,40 @@ describe('User Role Test', () => {
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
         expect(res.body.error).toEqual('Email does not exist');
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should change the role of a user that has not logged in for the first time', async (done) => {
+    axios.get = jest.fn(() => Promise.resolve({
+      data: {
+        values: [
+          {
+            id: 'jdddd',
+            email: 'black.widow@andela.com',
+            first_name: 'Black',
+            last_name: 'Widow',
+            name: 'Black Widow',
+            picture: 'photo.jpg?sz=50Vn',
+            status: 'active',
+            location: {
+              name: 'Wakanda'
+            }
+          }
+        ],
+        total: 1,
+      }
+    }));
+
+    request(app)
+      .put('/api/v1/user/role/update')
+      .set('Content-Type', 'application/json')
+      .set('Authorization', token)
+      .send({ email: 'black.widow@andela.com', roleName: 'manager' })
+      .end((err, res) => {
+        expect(res.body.result.email).toEqual('black.widow@andela.com');
+        expect(res.body.result.fullName).toEqual('Black Widow');
         if (err) return done(err);
         done();
       });

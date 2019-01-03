@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import axios from 'axios';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 
@@ -99,16 +100,48 @@ class UserRoleController {
     }
   }
 
+  static async getUserFromApi(url) {
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.USER_JW}`
+    };
+    const data = await axios.get(url, {
+      headers
+    });
+    return data;
+  }
+
+  static async createUserFromApi(url) {
+    const { data } = await UserRoleController.getUserFromApi(url);
+    const user = data.values[0];
+    if (data.total === 0) {
+      return { found: false };
+    }
+    const createdUser = await models.User.create({
+      fullName: user.name,
+      email: user.email,
+      userId: user.id,
+      picture: user.picture,
+      location: user.location.name
+    });
+    return { createdUser, found: true };
+  }
+
   static async updateUserRole(req, res) {
     try {
       const { roleId, centerId, body: { email, center } } = req;
-      const findUser = await models.User.findOne({
+      let findUser = await models.User.findOne({
         where: { email },
         attributes: ['email', 'fullName', 'userId', 'id']
       });
       if (!findUser) {
-        const message = 'Email does not exist';
-        return CustomError.handleError(message, 404, res);
+        const url = `${process.env.ANDELA_PROD_API}/users?email=${email}`;
+        const { found, createdUser } = await UserRoleController.createUserFromApi(url);
+        if (!found) {
+          const message = 'Email does not exist';
+          return CustomError.handleError(message, 404, res);
+        }
+        findUser = createdUser;
       }
       if (!centerId && roleId === 339458) {
         const message = [400, 'Please provide center', false];
@@ -128,7 +161,7 @@ class UserRoleController {
       const message = [200, 'Role updated successfully', true];
       UserRoleController.response(res, message, findUser);
     } catch (error) { /* istanbul ignore next */
-      return CustomError.handleError(error, 500, res);
+      return CustomError.handleError(error.toString(), 500, res);
     }
   }
 
