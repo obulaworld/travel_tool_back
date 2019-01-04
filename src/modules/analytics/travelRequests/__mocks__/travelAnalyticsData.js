@@ -83,7 +83,7 @@ export const analyticsResopnse = {
   success: true,
   data: {
     totalRequests: 1,
-    pendingRequests: 0,
+    pendingRequests: 1,
     peopleVisiting: 0,
     peopleLeaving: 1,
     travelDurationBreakdown: {
