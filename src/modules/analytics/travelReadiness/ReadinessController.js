@@ -5,6 +5,7 @@ import CustomError from '../../../helpers/Error';
 import TravelCompletion from '../../travelChecklist/TravelChecklistController';
 import Pagination from '../../../helpers/Pagination';
 import Centers from '../../../helpers/centers';
+import { srcRequestWhereClause } from '../../../helpers/requests';
 
 class ReadinessController {
   static calcArrivalAndPercentageCompletion(result, req, res) {
@@ -57,7 +58,7 @@ class ReadinessController {
         include: [{
           model: models.Request,
           attributes: ['name', 'id'],
-          where: { status: 'Approved' },
+          where: srcRequestWhereClause,
           as: 'request',
         }],
         order: [[{ model: models.Request, as: 'request' }, 'updatedAt', 'DESC']],

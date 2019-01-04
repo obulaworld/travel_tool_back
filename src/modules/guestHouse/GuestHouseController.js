@@ -7,6 +7,7 @@ import {
   BedName, GuestHouseIncludeHelper
 } from '../../helpers/guestHouse/index';
 import GuestHouseTransactions from './GuestHouseTransactions';
+import { srcRequestWhereClause } from '../../helpers/requests/index';
 
 dotenv.config();
 class GuestHouseController {
@@ -124,7 +125,6 @@ class GuestHouseController {
     const { query } = req;
     const { doInclude, makeTripsDateClauseFrom } = GuestHouseIncludeHelper;
     const bedTripsWhereClause = makeTripsDateClauseFrom(query);
-    const srcRequestWhereClause = { status: ['Approved', 'Verified'] };
     const guestHouse = await models.GuestHouse.findOne({
       where: { id: guestHouseId, disabled: false },
       include: [{
