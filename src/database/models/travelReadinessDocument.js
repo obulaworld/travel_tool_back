@@ -1,4 +1,3 @@
-
 export default (sequelize, DataTypes) => {
   const TravelReadinessDocuments = sequelize.define(
     'TravelReadinessDocuments', {
