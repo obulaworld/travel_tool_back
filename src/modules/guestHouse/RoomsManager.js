@@ -90,6 +90,7 @@ class RoomsManager {
       where: {
         destination: location,
         bedId: { [Op.ne]: null },
+        checkStatus: { [Op.ne]: 'Checked Out' },
         [Op.or]: {
           [Op.and]: {
             departureDate: { [Op.lte]: departureDate },

@@ -18,7 +18,7 @@ const oneWayRangeQuery = departureDate => ({
   ]
 });
 
-const multiRangeQuery = (departureDate, returnDate) => ({
+const multiRangeQuery = (departureDate, returnDate, checkStatus) => ({
   [Op.or]: [{
     [Op.and]: [
       { departureDate: { [Op.lte]: departureDate } },
@@ -27,17 +27,18 @@ const multiRangeQuery = (departureDate, returnDate) => ({
           [Op.or]: [{ [Op.and]: [{ [Op.lte]: returnDate }, { [Op.gte]: departureDate }] },
             { [Op.gte]: returnDate }]
         }
-      }
+      },
+      { checkStatus: { [Op.ne]: checkStatus } }
     ]
   },
   { departureDate: { [Op.gte]: departureDate, [Op.lte]: returnDate } }
   ]
 });
 
-export const generateRangeQuery = (dateFrom, dateTo) => {
+export const generateRangeQuery = (dateFrom, dateTo, checkStatus) => {
   const [departureDate, returnDate] = [new Date(dateFrom), new Date(dateTo)];
 
-  return !dateTo ? oneWayRangeQuery(departureDate) : multiRangeQuery(departureDate, returnDate);
+  return !dateTo ? oneWayRangeQuery(departureDate) : multiRangeQuery(departureDate, returnDate, checkStatus);
 };
 
 export const includeStatusSubquery = (subQuery, status, modelName) => {
