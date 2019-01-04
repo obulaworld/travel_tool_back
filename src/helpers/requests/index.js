@@ -157,3 +157,5 @@ export const retrieveParams = (req) => {
     page, limit, offset, status: req.query.status || '', search: req.query.search || '',
   };
 };
+
+export const srcRequestWhereClause = () => ({ status: ['Approved', 'Verified'] });

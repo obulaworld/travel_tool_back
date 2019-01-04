@@ -8,6 +8,7 @@ import fields from './fields';
 import Utils from './utils';
 import TravelCalendarError from '../../../exceptions/travelCalendarExceptions';
 import Centers from '../../../helpers/centers';
+import { srcRequestWhereClause } from '../../../helpers/requests';
 
 const { Op } = models.Sequelize;
 
@@ -33,7 +34,7 @@ class CalendarController {
     const dateQuery = await CalendarController.dateQuery(dateFrom, dateTo);
     const query = {
       raw: true,
-      where: { status: 'Approved' },
+      where: srcRequestWhereClause,
       attributes: ['id', 'name', 'department', 'role', 'picture', 'tripType'],
       order: [['id', 'ASC']],
       include: [{
