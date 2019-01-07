@@ -40,13 +40,14 @@ const invalidDocument = {
 
 const passport = {
   passport: {
-    passportNumber: 'qw357etrty',
-    nationality: 'kenyan',
-    dateOfBirth: '1970-01-01',
-    dateOfIssue: '2018-11-01',
+    name: 'Mike',
+    passportNumber: 'ABC123ab',
+    nationality: 'Kenyan ',
+    dateOfBirth: '2018/11/02',
+    dateOfIssue: '2017/11/01',
     placeOfIssue: 'Kenya',
-    expiryDate: '2029-11-01',
-    cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky2'
+    expiryDate: '2018/11/01',
+    cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky24f/image/upload/v1543520867/oga8ewofyyirrlk9hv.jpg'
   }
 };
 

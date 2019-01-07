@@ -15,14 +15,15 @@ export default class TravelReadinessController {
 
       if (document) {
         const data = req.body[document];
-        Object.keys(data)
+        const newData = { ...data };
+        Object.keys(newData)
           .forEach((key) => {
-            data[key] = data[key].trim();
+            newData[key] = newData[key].trim();
           });
         newDocument = {
           id: Utils.generateUniqueId(),
           type: documentTypes[document],
-          data: req.body[document],
+          data: newData,
           userId: req.user.UserInfo.id
         };
       }

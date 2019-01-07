@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Validator from './Validator';
 import CustomError from '../helpers/Error';
 import models from '../database/models';
@@ -48,18 +49,87 @@ export default class travelReadinessDocumentsValidator {
           ]
         });
       }
+      next();
     }
     next();
   }
 
   static validateInput(req, res, next) {
     if (req.body.passport) {
+      const isValidDate = date => moment(date, 'YYYY/MM/DD', true).isValid();
+      const { dateOfIssue } = req.body.passport;
+      req.checkBody('passport.name', 'name is required').notEmpty().ltrim();
+      req.checkBody('passport.passportNumber', 'passport is required').notEmpty().ltrim();
+      req.checkBody('passport.nationality', 'nationality is required').notEmpty().ltrim();
+      req.checkBody('passport.dateOfBirth', 'dateOfBirth is required').notEmpty().ltrim();
+      req.checkBody('passport.dateOfIssue', 'dateOfIssue is required').notEmpty().ltrim();
+      req.checkBody('passport.placeOfIssue', 'placeOfIssue is required').notEmpty().ltrim();
+      req.checkBody('passport.expiryDate', 'expiryDate is required').notEmpty().ltrim();
+      req.checkBody('passport.expiryDate', 'expiry date cannot be before date of issue')
+        .isAfter(dateOfIssue);
+      req.checkBody('passport.cloudinaryUrl', 'cloudinaryUrl is required').notEmpty().ltrim();
+      req.checkBody('passport.passportNumber', 'passport number is not valid')
+        .custom((passportNumber) => {
+          const reg = /[a-zA-Z0-9]{3,20}$/;
+          const checkPassportNum = reg.test(passportNumber);
+          if (checkPassportNum || !passportNumber) {
+            return Promise.reject(new Error());
+          }
+        });
+      req.checkBody('passport.cloudinaryUrl', 'cloudinaryUrl is not a valid url')
+        .custom((cloudinaryUrl) => {
+          const reg = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|pdf|jpeg|png)$/ /* eslint-disable-line*/;
+          const checkUrl = reg.test(cloudinaryUrl);
+          if (checkUrl || !cloudinaryUrl) {
+            return Promise.reject(new Error());
+          }
+        });
+      req.checkBody('passport.dateOfBirth',
+        'The date of birth format you provided is not valid, use: YYYY/DD/MM')
+        .custom((birthDate) => {
+          if (isValidDate(birthDate) || !birthDate) {
+            return Promise.reject(new Error());
+          }
+        });
+      req.checkBody('passport.dateOfIssue',
+        'The date of issue format you provided is not valid, use: YYYY/DD/MM')
+        .custom((issueDate) => {
+          if (isValidDate(issueDate) || !issueDate) {
+            return Promise.reject(new Error());
+          }
+        });
+      req.checkBody('passport.expiryDate',
+        'The date of issue format you provided is not valid, use: YYYY/DD/MM')
+        .custom((dateOfExpiry) => {
+          if (isValidDate(dateOfExpiry) || dateOfExpiry.length === 0) {
+            return Promise.reject(new Error());
+          }
+        });
+
       const errors = req.validationErrors();
       Validator.errorHandler(res, errors, next);
     } else if (req.body.visa) {
       travelReadinessDocumentsValidator.validateVisa(req, res, next);
     } else {
       CustomError.handleError('Please provide a valid document type', 400, res);
+    }
+  }
+
+  static async validatePassportUnique(req, res, next) {
+    if (req.body.passport) {
+      const { passportNumber } = req.body.passport;
+      const passport = await models.TravelReadinessDocuments.findOne({
+        where: {
+          'data.passportNumber': {
+            [Op.eq]: passportNumber.trim()
+          }
+        }
+      });
+      if (passport) {
+        CustomError.handleError('The passport already exists', 409, res);
+      } else {
+        next();
+      }
     }
   }
 }
