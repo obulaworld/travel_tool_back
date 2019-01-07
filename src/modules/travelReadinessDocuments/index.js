@@ -41,4 +41,11 @@ TravelReadinessRouter.get(
   TravelReadinessController.getTravelReadinessDocument,
 );
 
+TravelReadinessRouter.put(
+  '/travelreadiness/documents/:documentId/verify',
+  authenticate,
+  RoleValidator.checkUserRole(['Super Administrator', 'Travel Administrator']),
+  TravelReadinessController.verifyTravelReadinessDocuments
+);
+
 export default TravelReadinessRouter;
