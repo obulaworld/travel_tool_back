@@ -24,6 +24,9 @@ export default (sequelize, DataTypes) => {
     TravelReadinessDocuments.belongsTo(models.User, {
       foreignKey: 'userId'
     });
+    TravelReadinessDocuments.hasMany(models.Comment, {
+      foreignKey: 'requestId',
+    });
   };
   return TravelReadinessDocuments;
 };
