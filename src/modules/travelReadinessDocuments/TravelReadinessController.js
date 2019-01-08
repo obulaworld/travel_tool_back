@@ -120,4 +120,28 @@ export default class TravelReadinessController {
       CustomError.handleError(error.message, 500, res);
     }
   }
+
+  static async verifyTravelReadinessDocuments(req, res) {
+    try {
+      const { documentId } = req.params;
+
+      const travelReadiness = await models.TravelReadinessDocuments.findById(documentId);
+
+      if (!travelReadiness) {
+        return res.status(404).json({
+          success: false,
+          message: 'Document does not exist',
+        });
+      }
+      travelReadiness.isVerified = true;
+      travelReadiness.save();
+      return res.status(200).json({
+        success: true,
+        message: 'Document successfully verified',
+        updatedDocument: travelReadiness,
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
 }
