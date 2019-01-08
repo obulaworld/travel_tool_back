@@ -1,4 +1,5 @@
 import request from 'supertest';
+import axios from 'axios';
 import app from '../../../app';
 import models from '../../../database/models';
 import {
@@ -107,6 +108,12 @@ describe('Travel team role test', () => {
         });
     });
     it('should return 404 error if the email does not exist', (done) => {
+      axios.get = jest.fn(() => Promise.resolve({
+        data: {
+          values: [],
+          total: 0
+        }
+      }));
       request(app)
         .put('/api/v1/user/role/update')
         .set('authorization', token)
