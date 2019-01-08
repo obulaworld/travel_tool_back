@@ -70,6 +70,10 @@ export default (sequelize, DataTypes) => {
       as: 'travelDocuments',
       sourceKey: 'userId'
     });
+    User.hasMany(models.Comment, {
+      foreignKey: 'userId',
+      as: 'comments',
+    });
   };
   return User;
 };
