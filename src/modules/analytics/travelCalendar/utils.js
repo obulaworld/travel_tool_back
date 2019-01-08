@@ -32,15 +32,16 @@ class Utils {
       departureTime, arrivalTime, airline, ticketNumber, returnDepartureTime, returnTime, returnTicketNumber, returnAirline
     } = Utils.checkTicketDetails(ticket);
     const noValue = '--';
-    const noValueArray = [noValue, noValue, noValue, noValue, noValue];
+    const returnData = [destination, returnAirline, returnTicketNumber, returnTime, returnDepartureTime];
     const filteredOrigin = tripType === 'return' ? origin : noValue;
     if (origin === location) {
-      const departureData = [destination, airline, ticketNumber, arrivalTime, departureTime];
-      const flightDetails = Utils.getConsolidateItenerary(noValueArray, departureData);
+      const departureData = [origin, airline, ticketNumber, arrivalTime, departureTime];
+      const flightDetails = Utils.getConsolidateItenerary(returnData, departureData);
       return flightDetails;
     }
     if (destination === location) {
       if (tripType === 'oneWay') {
+        const noValueArray = [noValue, noValue, noValue, noValue, noValue];
         const onewayArrival = [destination, airline, ticketNumber, arrivalTime, departureTime];
         const flightData = Utils.getConsolidateItenerary(onewayArrival, noValueArray);
         return flightData;
