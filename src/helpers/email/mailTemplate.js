@@ -25,17 +25,20 @@ const returnButton = (type, redirectLink) => {
 };
 
 const mailTemplate = (
-  recipientName,
-  senderName,
-  type,
-  redirectLink,
-  requestId,
-  comment,
-  guesthouseName,
-  checkInTime,
-  durationOfStay,
-  destination,
-  checkoutTime
+  {
+    recipientName,
+    senderName,
+    type,
+    redirectLink,
+    requestId,
+    comment,
+    guesthouseName,
+    checkInTime,
+    durationOfStay,
+    destination,
+    checkoutTime,
+    details
+  }
 ) => (
   `
   <div
@@ -56,7 +59,7 @@ const mailTemplate = (
     <style>
     @font-face {
     font-family: DINPro;
-    src: url(https://res.cloudinary.com/travela-andela/raw/upload/v1545298182/staging/FontFont_-_DINPro.otf); 
+    src: url(https://res.cloudinary.com/travela-andela/raw/upload/v1545298182/staging/FontFont_-_DINPro.otf);
     }
     * {
     font-family: DINPro;
@@ -93,7 +96,7 @@ const mailTemplate = (
         margin: 0 auto 50px auto;"
     >
       ${switchMessage({
-    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime
+    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime, details
   })}
     </p>
     ${returnButton(type, redirectLink)}

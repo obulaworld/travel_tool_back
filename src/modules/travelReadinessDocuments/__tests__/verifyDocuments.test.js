@@ -4,6 +4,8 @@ import models from '../../../database/models';
 import { role } from '../../userRole/__tests__/mocks/mockData';
 import createVisaMock from './__mocks__/createVisaMock';
 import Utils from '../../../helpers/Utils';
+import NotificationEngine from '../../notifications/NotificationEngine';
+
 import {
   travelAdmin,
   travelAdminPayload,
@@ -49,6 +51,7 @@ describe('verify visa documents', () => {
   });
 
   it(' should successfully verify document', (done) => {
+    const sendMailSpy = jest.spyOn(NotificationEngine, 'sendMail');
     request(app)
       .put(`/api/v1/travelreadiness/documents/${documentId}/verify`)
       .set('Content-Type', 'application/json')
@@ -57,6 +60,7 @@ describe('verify visa documents', () => {
         if (err) done(err);
         expect(res.status).toEqual(200);
         expect(res.body.updatedDocument.isVerified).toEqual(true);
+        expect(sendMailSpy).toHaveBeenCalled();
         done();
       });
   });

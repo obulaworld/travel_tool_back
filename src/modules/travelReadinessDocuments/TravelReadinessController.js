@@ -1,6 +1,10 @@
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import Utils from '../../helpers/Utils';
+import NotificationEngine from '../notifications/NotificationEngine';
+import TravelReadinessUtils from './TravelReadinessUtils';
+import UserRoleController from '../userRole/UserRoleController';
+
 
 export default class TravelReadinessController {
   static async addTravelReadinessDocument(req, res) {
@@ -133,8 +137,10 @@ export default class TravelReadinessController {
           message: 'Document does not exist',
         });
       }
+      const recipient = await UserRoleController.getRecipient(null, travelReadiness.userId);
       travelReadiness.isVerified = true;
       travelReadiness.save();
+      await TravelReadinessController.sendMailToUser(travelReadiness, recipient, req.user);
       return res.status(200).json({
         success: true,
         message: 'Document successfully verified',
@@ -143,5 +149,12 @@ export default class TravelReadinessController {
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
+  }
+
+  static async sendMailToUser(details, user, travelAdmin) {
+    const topic = 'Travel Readiness Document Verification';
+    const type = 'Travel Readiness Document Verified';
+    const mailData = await TravelReadinessUtils.getMailData(details, user, topic, type, travelAdmin);
+    NotificationEngine.sendMail(mailData);
   }
 }
