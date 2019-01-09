@@ -1,5 +1,6 @@
 /* eslint-disable */
 import supertest from 'supertest';
+import moxios from 'moxios';
 import models from '../../../database/models';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
@@ -676,6 +677,7 @@ describe('Notifications Controller', () => {
       UserInfo: {
         id: '-MUyHJmKrdgd90lPNOLNm',
         fullName: 'Optimum Zeal',
+        name: 'Optimum Zeal',
         picture: 'fake.png',
         email: 'fakeemail@andela.com'
       },
@@ -688,22 +690,62 @@ describe('Notifications Controller', () => {
 
     const token2 = Utils.generateTestToken(payload2);
     beforeAll(async () => {
+    moxios.install();
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await  models.Role.bulkCreate(role);
-    const res = await request(app)
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=fakeemail@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          bamboo_hr_id: '01',
+        }]
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+      status: 200,
+      response: {
+        workEmail: 'lisa.doe@andela.com',
+        supervisorEId: '92'
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+      status: 200,
+      response: {
+        id: '92',
+        displayName: 'ssewilliam',
+        firstName: 'William',
+        lastName: 'Sserubiri',
+        jobTitle: 'Engineering Team Lead',
+        department: 'Partner-Programs',
+        location: 'Kenya',
+        workEmail: 'william.sserubiri@andela.com',
+        supervisorEId: '9',
+        supervisor: 'Samuel Kubai'
+      }
+    });
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          email: 'william.sserubiri@andela.com',
+          name: 'ssewilliam',
+          id: '92',
+          location: {
+            name: 'Kampala'
+          },
+          picture: 'http//:gif.jpg'
+        }]
+      }
+    });
+    await request(app)
       .post('/api/v1/user')
       .set('authorization', token2)
-      .send({
-      userId: '-MUyHJmKrdgd90lPNOLNm',
-      fullName: 'Optimum Zeal',
-      picture: 'fake.png',
-      email: 'fakeemail@andela.com',
-      location: 'Lagos'
-      });
+      .send({ location: 'Lagos' });
     });
 
     afterAll(async () => {
+      moxios.uninstall();
       await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
       await models.User.destroy({ force: true, truncate: { cascade: true } });
       await models.Role.destroy({ force: true, truncate: { cascade: true } });

@@ -1,4 +1,5 @@
 import request from 'supertest';
+import moxios from 'moxios';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import { postGuestHouse } from './mocks/guestHouseData';
@@ -9,6 +10,7 @@ const payload = {
   UserInfo: {
     id: '-TRUniolpknbbh',
     fullName: 'Jane Doe',
+    name: 'Jane Doe',
     email: 'jane.doe@andela.com',
     picture: 'fake.png'
   },
@@ -19,6 +21,7 @@ const invalidToken = 'YYTRYIM0nrbuy7tonfenu';
 
 describe('Get Guest Houses', () => {
   beforeAll(async (done) => {
+    moxios.install();
     await models.Role.sync({ force: true });
     await models.Role.bulkCreate(role);
     await models.User.sync({ force: true });
@@ -26,16 +29,54 @@ describe('Get Guest Houses', () => {
     await models.GuestHouse.destroy({ truncate: true, cascade: true });
 
     process.env.DEFAULT_ADMIN = 'jane.doe@andela.com';
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=jane.doe@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          bamboo_hr_id: '01',
+        }]
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+      status: 200,
+      response: {
+        workEmail: 'lisa.doe@andela.com',
+        supervisorEId: '92'
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+      status: 200,
+      response: {
+        id: '92',
+        displayName: 'ssewilliam',
+        firstName: 'William',
+        lastName: 'Sserubiri',
+        jobTitle: 'Engineering Team Lead',
+        department: 'Partner-Programs',
+        location: 'Kenya',
+        workEmail: 'william.sserubiri@andela.com',
+        supervisorEId: '9',
+        supervisor: 'Samuel Kubai'
+      }
+    });
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          email: 'william.sserubiri@andela.com',
+          name: 'ssewilliam',
+          id: '92',
+          location: {
+            name: 'Kampala'
+          },
+          picture: 'http//:gif.jpg'
+        }]
+      }
+    });
     request(app)
       .post('/api/v1/user')
       .set('authorization', token)
-      .send({
-        fullName: 'Jand Doe',
-        email: 'jane.doe@andela.com',
-        userId: '-TRUniolpknbbh',
-        picture: 'fakePicture.png',
-        location: 'Lagos'
-      })
+      .send({ location: 'Lagos' })
       .end((err) => {
         if (err) return done(err);
         done();
@@ -43,6 +84,7 @@ describe('Get Guest Houses', () => {
   });
 
   afterAll(async () => {
+    moxios.uninstall();
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.User.sync({ force: true });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });

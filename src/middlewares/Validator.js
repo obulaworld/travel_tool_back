@@ -63,7 +63,10 @@ export default class Validator {
   }
 
   static checkEmail(req, res, next) {
-    if (req.body.email.split('@')[1] !== 'andela.com') {
+    const tokenEmail = req.user.UserInfo.email;
+    const bodyEmail = req.body.email;
+    if ((bodyEmail && bodyEmail.split('@')[1] !== 'andela.com')
+     || (tokenEmail.split('@')[1] !== 'andela.com')) {
       return res.status(400).json({
         success: false,
         message: 'Only Andela Email address allowed'
