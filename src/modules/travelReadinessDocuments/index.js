@@ -14,8 +14,7 @@ TravelReadinessRouter.post(
   '/travelreadiness',
   authenticate,
   TravelReadinessDocumentValidator.validateInput,
-  TravelReadinessDocumentValidator.validateUniqueVisa,
-  TravelReadinessDocumentValidator.validatePassportUnique,
+  TravelReadinessDocumentValidator.validateUniqueDocument,
   TravelReadinessController.addTravelReadinessDocument,
 );
 
