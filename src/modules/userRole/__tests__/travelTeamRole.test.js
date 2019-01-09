@@ -1,5 +1,5 @@
 import request from 'supertest';
-import axios from 'axios';
+import moxios from 'moxios';
 import app from '../../../app';
 import models from '../../../database/models';
 import {
@@ -12,6 +12,7 @@ const payload = {
   UserInfo: {
     id: 'wer45660+++',
     fullName: 'test user',
+    name: 'test user',
     email: 'test.user@andela.com',
     picture: 'fakePicture.png'
   },
@@ -21,6 +22,7 @@ const payload2 = {
   UserInfo: {
     id: 'wer45660treui',
     fullName: 'second test user',
+    name: 'second test user',
     email: 'secondTestuser@andela.com',
     picture: 'fakePicture.png'
   },
@@ -31,6 +33,7 @@ const secondToken = Utils.generateTestToken(payload2);
 
 describe('Travel team role test', () => {
   beforeAll(async (done) => {
+    moxios.install();
     await models.Role.destroy({ truncate: true, cascade: true });
     await models.Role.bulkCreate(role);
     await models.User.destroy({ truncate: true, cascade: true });
@@ -39,16 +42,54 @@ describe('Travel team role test', () => {
     await models.Center.destroy({ truncate: true, cascade: true });
     await models.Center.bulkCreate(centers);
     process.env.DEFAULT_ADMIN = 'test.user@andela.com';
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=test.user@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          bamboo_hr_id: '01',
+        }]
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+      status: 200,
+      response: {
+        workEmail: 'lisa.doe@andela.com',
+        supervisorEId: '92'
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+      status: 200,
+      response: {
+        id: '92',
+        displayName: 'ssewilliam',
+        firstName: 'William',
+        lastName: 'Sserubiri',
+        jobTitle: 'Engineering Team Lead',
+        department: 'Partner-Programs',
+        location: 'Kenya',
+        workEmail: 'william.sserubiri@andela.com',
+        supervisorEId: '9',
+        supervisor: 'Samuel Kubai'
+      }
+    });
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          email: 'william.sserubiri@andela.com',
+          name: 'ssewilliam',
+          id: '92',
+          location: {
+            name: 'Kampala'
+          },
+          picture: 'http//:gif.jpg'
+        }]
+      }
+    });
     request(app)
       .post('/api/v1/user')
       .set('authorization', token)
-      .send({
-        fullName: 'test user',
-        email: 'test.user@andela.com',
-        userId: 'wer45660+++',
-        picture: 'fakePicture.png',
-        location: 'Lagos',
-      })
+      .send({ location: 'Lagos' })
       .expect(201)
       .end((err) => {
         if (err) return done(err);
@@ -57,6 +98,7 @@ describe('Travel team role test', () => {
   });
 
   afterAll(async () => {
+    moxios.uninstall();
     await models.Role.destroy({ truncate: true, cascade: true });
     await models.UserRole.destroy({ truncate: true, cascade: true });
     await models.User.destroy({ truncate: true, cascade: true });
@@ -108,12 +150,13 @@ describe('Travel team role test', () => {
         });
     });
     it('should return 404 error if the email does not exist', (done) => {
-      axios.get = jest.fn(() => Promise.resolve({
-        data: {
+      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=someEmail@andela.com`, {
+        status: 200,
+        response: {
           values: [],
           total: 0
         }
-      }));
+      });
       request(app)
         .put('/api/v1/user/role/update')
         .set('authorization', token)
@@ -205,16 +248,54 @@ describe('Travel team role test', () => {
   });
   describe('Travel admin assigning roles other than travel team member', () => {
     beforeAll((done) => {
+      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=secondTestuser@andela.com`, {
+        status: 200,
+        response: {
+          values: [{
+            bamboo_hr_id: '01',
+          }]
+        }
+      });
+      moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+        status: 200,
+        response: {
+          workEmail: 'lisa.doe@andela.com',
+          supervisorEId: '92'
+        }
+      });
+      moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+        status: 200,
+        response: {
+          id: '92',
+          displayName: 'ssewilliam',
+          firstName: 'William',
+          lastName: 'Sserubiri',
+          jobTitle: 'Engineering Team Lead',
+          department: 'Partner-Programs',
+          location: 'Kenya',
+          workEmail: 'william.sserubiri@andela.com',
+          supervisorEId: '9',
+          supervisor: 'Samuel Kubai'
+        }
+      });
+      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+        status: 200,
+        response: {
+          values: [{
+            email: 'william.sserubiri@andela.com',
+            name: 'ssewilliam',
+            id: '92',
+            location: {
+              name: 'Kampala'
+            },
+            picture: 'http//:gif.jpg'
+          }]
+        }
+      });
       request(app)
         .post('/api/v1/user')
-        .set('authorization', token)
-        .send({
-          userId: 'wer45660treui',
-          fullName: 'second test user',
-          email: 'secondTestuser@andela.com',
-          picture: 'fakePicture.png',
-          location: 'Lagos',
-        })
+        .set('authorization', secondToken)
+        .send({ location: 'Lagos' })
         .expect(201)
         .end((err) => {
           if (err) return done(err);

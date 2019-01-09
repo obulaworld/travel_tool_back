@@ -27,7 +27,6 @@ Router.put(
 Router.post(
   '/user',
   authenticate,
-  RoleValidator.validateUser,
   Validator.checkEmail,
   UserRoleController.addUser
 );

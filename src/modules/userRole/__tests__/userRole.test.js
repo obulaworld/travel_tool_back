@@ -1,5 +1,6 @@
 import request from 'supertest';
 import axios from 'axios';
+import moxios from 'moxios';
 import app from '../../../app';
 import models from '../../../database/models';
 import {
@@ -17,6 +18,7 @@ const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'captain america',
+    name: 'captain america',
     email: 'captain.america@andela.com',
     picture: 'fake.png'
   },
@@ -26,6 +28,7 @@ const payload2 = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'captain america',
+    name: 'captain america',
     email: 'captain.@andela.com',
     picture: 'fake.png'
   },
@@ -35,6 +38,7 @@ const payload3 = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'black window ',
+    name: 'black window ',
     email: 'black.window@andela.com',
     picture: 'fake.png'
   },
@@ -44,11 +48,45 @@ const payload4 = {
   UserInfo: {
     id: '-jdif34444',
     fullName: 'Nice Guy ',
+    name: 'Nice Guy ',
     email: 'nice.guy@andela.com',
     picture: 'fake.png'
   },
 };
 
+const payload5 = {
+  UserInfo: {
+    id: '-jdif34444',
+    fullName: 'Nice Guy ',
+    name: 'Nice Guy ',
+    email: 'nice.guy@gmail.com',
+    picture: 'fake.png'
+  },
+};
+
+const payload6 = {
+  UserInfo: {
+    fullName: 'Nice Guy ',
+    name: 'Nice Guy ',
+    email: 'nice.guy@andela.com',
+    picture: 'fake.png'
+  },
+};
+
+const payload7 = {
+  UserInfo: {
+    ...user.user1,
+    name: user.user1.fullName,
+    id: user.user1.userId
+  }
+};
+const payload8 = {
+  UserInfo: {
+    ...user.user2,
+    name: user.user2.fullName,
+    id: user.user2.userId
+  }
+};
 const updateRoleData = {
   id: 10948,
   roleName: 'Super Administrator',
@@ -60,10 +98,15 @@ const updateRoleData = {
 const token = Utils.generateTestToken(payload);
 const token2 = Utils.generateTestToken(payload2);
 const token3 = Utils.generateTestToken(payload3);
+const tokenNonAndelan = Utils.generateTestToken(payload5);
+const tokenNoUserId = Utils.generateTestToken(payload6);
+const newUserToken = Utils.generateTestToken(payload7);
+const newUser2Token = Utils.generateTestToken(payload8);
 const unSeededUserToken = Utils.generateTestToken(payload4);
 
 describe('User Role Test', () => {
   beforeAll(async () => {
+    moxios.install();
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
@@ -74,6 +117,7 @@ describe('User Role Test', () => {
   });
 
   afterAll(async () => {
+    moxios.uninstall();
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
@@ -95,9 +139,11 @@ describe('User Role Test', () => {
     request(app)
       .post('/api/v1/user')
       .set('Content-Type', 'application/json')
-      .set('authorization', token)
-      .expect(422)
+      .set('authorization', '')
+      .send({ location: 'Kampala' })
+      .expect(401)
       .end((err, res) => {
+        expect(res.body.error).toEqual('Please provide a token');
         expect(res.body.success).toEqual(false);
         if (err) return done(err);
         done();
@@ -108,8 +154,8 @@ describe('User Role Test', () => {
     request(app)
       .post('/api/v1/user')
       .set('Content-Type', 'application/json')
-      .set('authorization', token)
-      .send(user.user3)
+      .set('authorization', tokenNonAndelan)
+      .send({ location: 'kampala' })
       .expect(400)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
@@ -122,8 +168,8 @@ describe('User Role Test', () => {
     request(app)
       .post('/api/v1/user')
       .set('Content-Type', 'application/json')
-      .set('authorization', token)
-      .send(user.user4)
+      .set('authorization', tokenNoUserId)
+      .send({ location: 'Lagos' })
       .expect(400)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
@@ -134,11 +180,55 @@ describe('User Role Test', () => {
   });
 
   it('should add a new user to the database', (done) => {
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=${user.user1.email}`, {
+      status: 200,
+      response: {
+        values: [{
+          bamboo_hr_id: '01',
+        }]
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+      status: 200,
+      response: {
+        workEmail: 'lisa.doe@andela.com',
+        supervisorEId: '92'
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+      status: 200,
+      response: {
+        id: '92',
+        displayName: 'ssewilliam',
+        firstName: 'William',
+        lastName: 'Sserubiri',
+        jobTitle: 'Engineering Team Lead',
+        department: 'Partner-Programs',
+        location: 'Kenya',
+        workEmail: 'william.sserubiri@andela.com',
+        supervisorEId: '9',
+        supervisor: 'Samuel Kubai'
+      }
+    });
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          email: 'william.sserubiri@andela.com',
+          name: 'ssewilliam',
+          id: '92',
+          location: {
+            name: 'Kampala'
+          },
+          picture: 'http//:gif.jpg'
+        }]
+      }
+    });
     request(app)
       .post('/api/v1/user')
       .set('Content-Type', 'application/json')
-      .set('authorization', token)
-      .send(user.user1)
+      .set('authorization', newUserToken)
+      .send({ location: user.user1.location })
       .expect(201)
       .end((err, res) => {
         expect(res.body.result).toHaveProperty('userId');
@@ -153,11 +243,55 @@ describe('User Role Test', () => {
   });
 
   it('should add another new user to the database', (done) => {
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=${user.user2.email}`, {
+      status: 200,
+      response: {
+        values: [{
+          bamboo_hr_id: '01',
+        }]
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+      status: 200,
+      response: {
+        workEmail: 'lisa.doe@andela.com',
+        supervisorEId: '92'
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+      status: 200,
+      response: {
+        id: '92',
+        displayName: 'ssewilliam',
+        firstName: 'William',
+        lastName: 'Sserubiri',
+        jobTitle: 'Engineering Team Lead',
+        department: 'Partner-Programs',
+        location: 'Kenya',
+        workEmail: 'william.sserubiri@andela.com',
+        supervisorEId: '9',
+        supervisor: 'Samuel Kubai'
+      }
+    });
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          email: 'william.sserubiri@andela.com',
+          name: 'ssewilliam',
+          id: '92',
+          location: {
+            name: 'Kampala'
+          },
+          picture: 'http//:gif.jpg'
+        }]
+      }
+    });
     request(app)
       .post('/api/v1/user')
       .set('Content-Type', 'application/json')
-      .set('authorization', token)
-      .send(user.user2)
+      .set('authorization', newUser2Token)
+      .send({ location: user.user2.location })
       .expect(201)
       .end((err, res) => {
         expect(res.body.result).toHaveProperty('userId');
