@@ -13,10 +13,10 @@ const attachCommentToMail = msgDetail => (
                   ">
           <tbody >
             <tr >
-            <td width="20%" ><img src=${msgDetail.comment.dataValues.picture} 
+            <td width="20%" ><img src=${msgDetail.comment.dataValues.picture}
             style="border-radius: 50%; width: 50px; height: 50px;"
             /></td>
-            <td width="80%"> 
+            <td width="80%">
               <i>${msgDetail.comment.dataValues.comment}</i></td>
             </tr>
             </tbody>
@@ -58,7 +58,7 @@ const switchMessage = (msgDetail) => {
     case 'Updated Request': return updateMessage(msgDetail);
     case 'Changed Room':
       return (
-        `Your residence record for the travel request 
+        `Your residence record for the travel request
         <a href="${process.env.REDIRECT_URL}/requests/${msgDetail.requestId}"><b>#
         ${msgDetail.requestId}</b></a> was updated by ${msgDetail.senderName}. <b>
         Login to your travela account for details.`);
@@ -71,6 +71,10 @@ const switchMessage = (msgDetail) => {
         `<b style="text-transform: capitalize">${msgDetail.senderName}</b> has checked in at ${msgDetail.guesthouseName} guesthouse at ${msgDetail.checkInTime} and would be spending ${msgDetail.durationOfStay} day(s). Click on the link below to view details`
       );
     case 'Guesthouse Check-out': return checKoutMessage(msgDetail);
+    case 'Travel Readiness Document Verified':
+      return (`Your ${msgDetail.details.type} ${msgDetail.details.type === 'passport' ? 'with number' : 'to'}
+          <b>${msgDetail.details.type === 'passport' ? msgDetail.details.data.passportNumber : msgDetail.details.data.country}</b>
+          has been verified by ${msgDetail.senderName} on ${msgDetail.details.createdAt}. Login to your travela account for details.`);
     default: return '';
   }
 };

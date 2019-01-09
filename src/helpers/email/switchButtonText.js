@@ -12,6 +12,8 @@ const switchButtonText = (type) => {
       return 'View Check Out Details';
     case 'Guesthouse Check-In':
       return 'View Check In Details';
+    case 'Travel Readiness Document Verified':
+      return 'View Document';
     default:
       return 'View Request';
   }
