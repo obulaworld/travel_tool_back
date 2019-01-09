@@ -1,4 +1,7 @@
+import _ from 'lodash';
 import dotenv from 'dotenv';
+import moment from 'moment';
+
 import getRequests from './getRequests.data';
 import models from '../../database/models';
 import Pagination from '../../helpers/Pagination';
@@ -22,6 +25,7 @@ import RequestUtils from './RequestUtils';
 
 dotenv.config();
 
+const { Op } = models.Sequelize;
 const noResult = 'No records found';
 let params = {};
 class RequestsController {
@@ -204,6 +208,43 @@ class RequestsController {
     RequestsController.setRequestParameters(req);
     try {
       await RequestsController.processResult(req, res);
+    } catch (error) {
+      /* istanbul ignore next */
+      return Error.handleError('Server Error', 500, res);
+    }
+  }
+
+  static async getTravellingTeammates(req, res) {
+    try {
+      const { dept } = req.params;
+      const currentUserId = req.user.UserInfo.id;
+      const today = moment().format('YYYY-MM-DD');
+      const requests = await models.Request.findAll({
+        where: { department: dept, status: 'Verified', userId: { [Op.ne]: currentUserId } },
+        order: [[{ model: models.Trip, as: 'trips' }, 'departureDate', 'asc']],
+        include: [{
+          model: models.Trip,
+          as: 'trips',
+          where: { departureDate: { [Op.gte]: today } },
+        }]
+      });
+      const uniqRequests = _.uniqBy(requests, 'userId');
+
+      const teammates = uniqRequests.map(({ trips, name, picture }) => {
+        const { returnDate } = trips[trips.length - 1];
+        return ({
+          name,
+          picture,
+          destination: trips[0].destination.split(',')[0],
+          departureDate: trips[0].departureDate,
+          returnDate,
+        });
+      });
+
+      res.status(200).json({
+        success: true,
+        teammates
+      });
     } catch (error) {
       /* istanbul ignore next */
       return Error.handleError('Server Error', 500, res);
