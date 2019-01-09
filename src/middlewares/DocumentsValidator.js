@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import models from '../database/models';
 import CustomError from '../helpers/Error';
+import { urlCheck } from '../helpers/reg';
 
 const { sequelize } = models;
 
@@ -8,8 +9,6 @@ export default class DocumentsValidator {
   static validateCloudinaryPayload(req, res, next) {
     // eslint-disable-next-line camelcase
     const { cloudinary_public_id, cloudinary_url } = req.body;
-    const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
-  
     // eslint-disable-next-line camelcase
     if (!cloudinary_public_id || (cloudinary_public_id.length < 3)) {
       return CustomError.handleError(
@@ -17,7 +16,7 @@ export default class DocumentsValidator {
       );
     }
     // eslint-disable-next-line camelcase
-    const checkUrl = reg.test(cloudinary_url);
+    const checkUrl = urlCheck.test(cloudinary_url);
     // eslint-disable-next-line camelcase
     if (!cloudinary_url || !checkUrl) {
       return CustomError.handleError(
