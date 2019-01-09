@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 import { validationResult } from 'express-validator/check';
 import { Op } from 'sequelize';
-// import moment from 'moment';
+import { urlCheck } from '../helpers/reg';
 import models from '../database/models';
 import Error from '../helpers/Error';
 
@@ -127,8 +127,7 @@ export default class Validator {
     const emailAddress = req.user.UserInfo.email;
     const methodName = req.method;
     const action = { POST: 'create', GET: 'view', PUT: 'update' };
-    const reg = /[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%“\,\{\}\\|\\\^\[\]`]+)?$/; /* eslint-disable-line*/
-    const checkUrl = reg.test(req.body.imageUrl);
+    const checkUrl = urlCheck.test(req.body.imageUrl);
     try {
       const query = { where: { email: emailAddress } };
       const user = await Validator.getUserFromDb(query, res);

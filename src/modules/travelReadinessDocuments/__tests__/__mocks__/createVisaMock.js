@@ -23,6 +23,7 @@ const validVisa = {
       country: 'Kenya',
       dateOfIssue: '02-01-2018',
       expiryDate: '06-01-2018',
+      visaType: 'H-2A',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     }
 };
@@ -34,6 +35,7 @@ const invalidDocument = {
       country: 'Kenya',
       dateOfIssue: '02-01-2018',
       expiryDate: '06-01-2018',
+      visaType: 'H-2A',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     }
 };
