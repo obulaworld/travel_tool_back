@@ -670,7 +670,7 @@ describe('Notifications Controller', () => {
       expect(res.body).toMatchObject(expectedResponse.body);
     });
   });
-  
+
   describe('Comment replied by email', () => {
     const payload2 = {
       UserInfo: {

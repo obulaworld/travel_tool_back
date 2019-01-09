@@ -26,6 +26,12 @@ RequestsRouter.get(
   RequestsController.getUserRequestDetails,
 );
 
+RequestsRouter.get(
+  '/requests/:dept/users',
+  authenticate,
+  RequestsController.getTravellingTeammates,
+);
+
 RequestsRouter.post(
   '/requests',
   authenticate,

@@ -32,6 +32,7 @@ export default class DocumentsController {
           userId: id
         }
       });
+
       if (!deletedDocument[0]) {
         return res.status(404).json({
           success: false,

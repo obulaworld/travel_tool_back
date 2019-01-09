@@ -65,6 +65,11 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'changedRooms',
     });
+    User.hasMany(models.TravelReadinessDocuments, {
+      foreignKey: 'userId',
+      as: 'travelDocuments',
+      sourceKey: 'userId'
+    });
   };
   return User;
 };

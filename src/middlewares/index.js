@@ -8,6 +8,7 @@ import DocumentsValidator from './DocumentsValidator';
 import ChecklistValidator from './checklistValidator';
 import travelCalendarValidator from './travelCalendarValidator';
 import RequestValidator from './RequestValidator';
+import TravelReadinessDocumentValidator from './travelReadinessDocumentsValidator';
 
 const middleware = {
   authenticate,
@@ -19,7 +20,8 @@ const middleware = {
   DocumentsValidator,
   ChecklistValidator,
   travelCalendarValidator,
-  RequestValidator
+  RequestValidator,
+  TravelReadinessDocumentValidator
 };
 
 export default middleware;

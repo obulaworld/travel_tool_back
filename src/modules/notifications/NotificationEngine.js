@@ -47,19 +47,23 @@ export default class NotificationEngine {
   }
 
   static sendMail({
-    recipient, sender, topic, type, redirectLink, requestId, comment
+    recipient, sender, topic, type, redirectLink, requestId, comment, details
   }) {
     const data = {
       from: `Travela <${process.env.MAIL_SENDER}>`,
       to: `${recipient.email}`,
       subject: topic,
+      details,
       html: mailTemplate(
-        recipient.name,
-        sender,
-        type,
-        redirectLink,
-        requestId,
-        comment
+        {
+          recipientName: recipient.name,
+          senderName: sender,
+          type,
+          redirectLink,
+          requestId,
+          comment,
+          details
+        }
       )
     };
     NotificationEngine.dispatchEmail(data);
@@ -84,17 +88,19 @@ export default class NotificationEngine {
       to: emails,
       subject: data.topic,
       html: mailTemplate(
-        '%recipient.name%',
-        data.sender,
-        data.type,
-        data.redirectLink,
-        data.requestId,
-        data.comment,
-        data.guesthouseName,
-        data.checkInTime,
-        data.durationOfStay,
-        destination,
-        data.checkoutTime,
+        {
+          recipientName: '%recipient.name%',
+          senderName: data.sender,
+          type: data.type,
+          redirectLink: data.redirectLink,
+          requestId: data.requestId,
+          comment: data.comment,
+          guesthouseName: data.guesthouseName,
+          checkInTime: data.checkInTime,
+          durationOfStay: data.durationOfStay,
+          destination,
+          checkoutTime: data.checkoutTime,
+        }
       ),
       'recipient-variables': recipientVars,
     };
