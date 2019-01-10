@@ -21,40 +21,50 @@ import Utils from '../../../../helpers/Utils';
 const requesterToken = Utils.generateTestToken(requesterPayload);
 const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
 
+const date = new Date();
+const firstDate = date.toISOString();
+const lastDate = new Date(date.getTime() + 86400000).toISOString();
+
 describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () => {
   beforeAll(async () => {
-    await models.GuestHouse.destroy({ truncate: true, cascade: true });
-    await models.Room.destroy({ truncate: true, cascade: true });
-    await models.Bed.destroy({ truncate: true, cascade: true });
-    await models.Role.destroy({ truncate: true, cascade: true });
-    await models.User.destroy({ truncate: true, cascade: true });
-    await models.UserRole.destroy({ truncate: true, cascade: true });
-    await models.Request.destroy({ truncate: true, cascade: true });
-    await models.Trip.destroy({ truncate: true, cascade: true });
-    await models.Role.bulkCreate(role);
-    await models.User.create(travelAdmin);
-    await models.User.create(travelRequester);
-    await models.UserRole.create(userRole);
-    await request(app)
-      .post('/api/v1/guesthouses')
-      .set('Content-Type', 'application/json')
-      .set('authorization', travelAdminToken)
-      .send(postGuestHouse);
-    const bed = models.Bed.findOne({});
-    await models.Request.bulkCreate(requestsData);
-    await models.Trip.bulkCreate(tripsData(bed.id));
     process.env.DEFAULT_ADMIN = 'john.snow@andela.com';
+    try {
+      await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+      await models.Role.destroy({ force: true, truncate: { cascade: true } });
+      await models.Trip.destroy({ force: true, truncate: { cascade: true } });
+      await models.Request.destroy({ force: true, truncate: { cascade: true } });
+      await models.Bed.destroy({ force: true, truncate: { cascade: true } });
+      await models.Room.destroy({ force: true, truncate: { cascade: true } });
+      await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
+      await models.User.destroy({ force: true, truncate: { cascade: true } });
+      await models.Role.bulkCreate(role);
+      await models.User.create(travelAdmin);
+      await models.User.create(travelRequester);
+      await models.UserRole.create(userRole);
+      await request(app)
+        .post('/api/v1/guesthouses')
+        .set('Content-Type', 'application/json')
+        .set('authorization', travelAdminToken)
+        .send(postGuestHouse);
+      const bed = models.Bed.findOne({});
+      await models.Request.bulkCreate(requestsData);
+      await models.Trip.bulkCreate(tripsData(bed.id));
+    } catch (error) {
+      return 'Error';
+    }
   });
+
   afterAll(async () => {
-    await models.GuestHouse.destroy({ truncate: true, cascade: true });
-    await models.Room.destroy({ truncate: true, cascade: true });
-    await models.Bed.destroy({ truncate: true, cascade: true });
-    await models.Role.destroy({ truncate: true, cascade: true });
-    await models.User.destroy({ truncate: true, cascade: true });
-    await models.UserRole.destroy({ truncate: true, cascade: true });
-    await models.Request.destroy({ truncate: true, cascade: true });
-    await models.Trip.destroy({ truncate: true, cascade: true });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.Trip.destroy({ force: true, truncate: { cascade: true } });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
+    await models.Bed.destroy({ force: true, truncate: { cascade: true } });
+    await models.Room.destroy({ force: true, truncate: { cascade: true } });
+    await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
   });
+
   it('should require a user token', (done) => {
     request(app)
       .get('/api/v1/analytics/trips/departments')
@@ -104,7 +114,7 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
 
   it('should get trips from admin location', (done) => {
     request(app)
-      .get('/api/v1/analytics/trips/departments?filterBy=month&type=json')
+      .get(`/api/v1/analytics/trips/departments?filterBy=month&type=json&firstDate=${firstDate}&lastDate=${lastDate}`)
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {
@@ -118,7 +128,7 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
 
   it('should return csv file', (done) => {
     request(app)
-      .get('/api/v1/analytics/trips/departments?filterBy=month&type=file')
+      .get(`/api/v1/analytics/trips/departments?filterBy=month&type=file&firstDate=${firstDate}&lastDate=${lastDate}`)
       .set('Content-Type', 'application/json')
       .set('authorization', travelAdminToken)
       .end((err, res) => {

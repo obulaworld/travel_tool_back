@@ -1,7 +1,6 @@
 import { Parser } from 'json2csv';
 import models from '../../../database/models';
 import Error from '../../../helpers/Error';
-import Utils from '../../../helpers/Utils';
 import TravelChecklistHelper from '../../../helpers/travelChecklist';
 
 const { Op } = models.Sequelize;
@@ -20,28 +19,27 @@ class TripsController {
 
   static async getTripsPerMonth(req, res) {
     const { location } = req.user;
+    const { firstDate, lastDate } = req.query;
     const andelaCenters = TravelChecklistHelper.getAndelaCenters();
-    const monthFirstAndLastDate = Utils.getMonthFirstAndLastDate(new Date().getMonth());
     try {
       const trips = await models.Request.findAll({
         group: ['department'],
         raw: true,
         attributes: [
           'department',
-          [models.sequelize.fn('COUNT', models.sequelize.col('trips.id')), 'totalTrips'],
-        ],
+          [models.sequelize.fn('COUNT', models.sequelize.col('trips.id')), 'totalTrips']],
         where: { status: { [Op.ne]: 'Rejected' } },
         include: [{
           model: models.Trip,
           where: {
             origin: andelaCenters[`${location}`],
             departureDate: {
-              [Op.gte]: monthFirstAndLastDate.firstDate,
-              [Op.lte]: monthFirstAndLastDate.lastDate
-            },
+              [Op.gte]: new Date(firstDate),
+              [Op.lte]: new Date(lastDate)
+            }
           },
           as: 'trips',
-          attributes: [],
+          attributes: []
         }]
       });
       const report = TripsController.generateAnalysis(trips);

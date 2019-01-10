@@ -34,21 +34,6 @@ class Utils {
   static prependZeroToNumber(value) {
     return (value < 10) ? `0${value}` : value;
   }
-
-  static getMonthFirstAndLastDate(monthNumber) {
-    const currentDate = new Date();
-    const firstDate = new Date(currentDate.getFullYear(), monthNumber, 1);
-    const lastDate = new Date(currentDate.getFullYear(), monthNumber + 1, 0);
-    const firstDateMonth = Utils.prependZeroToNumber(firstDate.getMonth() + 1);
-    const lastDateMonth = Utils.prependZeroToNumber(lastDate.getMonth() + 1);
-    const firstDateDay = Utils.prependZeroToNumber(firstDate.getDate());
-    const firstDateString = `${firstDate.getFullYear()}-${firstDateMonth}-${firstDateDay}`;
-    const lastDateString = `${lastDate.getFullYear()}-${lastDateMonth}-${lastDate.getDate()}`;
-    return {
-      firstDate: firstDateString,
-      lastDate: lastDateString
-    };
-  }
 }
 
 export default Utils;
