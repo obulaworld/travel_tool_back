@@ -46,17 +46,18 @@ const andelacenter = [{
 
 const userToken = Utils.generateTestToken(normalUser);
 const adminToken = Utils.generateTestToken(adminUser);
-describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)', () => {
+
+const dateParams = (dateFrom, dateTo) => `&dateFrom=${
+  dateFrom || '2018-10-2'}8&dateTo=${dateTo || '2018-11-30'}`;
+
+describe.only('Test Suite for Trips Analytics => Get Travel Readiness of requesters)', () => {
   beforeAll(async (done) => {
     await models.GuestHouse.destroy({ truncate: true, cascade: true });
-    await models.Room.destroy({ truncate: true, cascade: true });
-    await models.Bed.destroy({ truncate: true, cascade: true });
     await models.Role.destroy({ truncate: true, cascade: true });
     await models.User.destroy({ truncate: true, cascade: true });
     await models.Center.destroy({ truncate: true, cascade: true });
-    await models.UserRole.destroy({ truncate: true, cascade: true });
     await models.Request.destroy({ truncate: true, cascade: true });
-    await models.Trip.destroy({ truncate: true, cascade: true });
+
     await models.Role.bulkCreate(role);
     await models.User.create(travelAdmin);
     await models.User.create(travelRequester);
@@ -75,17 +76,16 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
       });
     process.env.DEFAULT_ADMIN = 'richy.richy@andela.com';
   });
-  afterAll(async () => {
+
+  afterAll(async (done) => {
     await models.GuestHouse.destroy({ truncate: true, cascade: true });
-    await models.Room.destroy({ truncate: true, cascade: true });
-    await models.Bed.destroy({ truncate: true, cascade: true });
     await models.Role.destroy({ truncate: true, cascade: true });
     await models.User.destroy({ truncate: true, cascade: true });
-    await models.UserRole.destroy({ truncate: true, cascade: true });
     await models.Center.destroy({ truncate: true, cascade: true });
     await models.Request.destroy({ truncate: true, cascade: true });
-    await models.Trip.destroy({ truncate: true, cascade: true });
+    done();
   });
+
   it('should require a user to be authenticated', async (done) => {
     request(app)
       .get('/api/v1/analytics/readiness?page=1&limit=3')
@@ -98,9 +98,9 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
         done();
       });
   });
-  it('should require user to be a travel Admin', (done) => {
+  it('should require user to be a travel Admin', async (done) => {
     request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=3&type=json&travelFlow=inflow')
+      .get(`/api/v1/analytics/readiness?page=1&limit=3&type=json&travelFlow=inflow${dateParams()}`)
       .set('Content-Type', 'application/json')
       .set('authorization', userToken)
       .end((err, res) => {
@@ -111,9 +111,9 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
         done();
       });
   });
-  it('should return 200 status, travel readiness and pagination data', (done) => {
+  it('should return 200 status, travel readiness and pagination data', async (done) => {
     request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=3&type=json&travelFlow=inflow')
+      .get(`/api/v1/analytics/readiness?page=1&limit=3&type=json&travelFlow=inflow${dateParams()}`)
       .set('Content-Type', 'application/json')
       .set('authorization', adminToken)
       .end((err, res) => {
@@ -124,35 +124,21 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
         done();
       });
   });
-  it('should return 200 status, travel readiness and pagination data for outflows', (done) => {
+  it('should return 200 status, travel readiness and pagination data for outflows',
+    async (done) => {
+      request(app)
+        .get(`/api/v1/analytics/readiness?page=1&limit=1&type=json&travelFlow=outflow${dateParams()}`)
+        .set('Content-Type', 'application/json')
+        .set('authorization', adminToken)
+        .end((err, res) => {
+          expect(res.statusCode).toEqual(200);
+          expect(res.body.success).toEqual(true);
+          done();
+        });
+    });
+  it('should return csv data when type is set to file', async (done) => {
     request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=1&type=json&travelFlow=outflow')
-      .set('Content-Type', 'application/json')
-      .set('authorization', adminToken)
-      .end((err, res) => {
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.success).toEqual(true);
-        done();
-      });
-  });
-  it('should return csv data when type is set to file', (done) => {
-    request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=3&type=file&travelFlow=inflow')
-      .set('Content-Type', 'application/json')
-      .set('authorization', adminToken)
-      .end((err, res) => {
-        expect(res.statusCode).toEqual(200);
-        expect(res.header['content-type']).toBe('application/octet-stream; charset=utf-8');
-        expect(res.header['content-disposition']).toBe(
-          'attachment; filename="Travel readiness for all travelers"'
-        );
-        if (err) return done(err);
-        done();
-      });
-  });
-  it('should return csv data when type is set to file and when it travelFlow is outflow', (done) => {
-    request(app)
-      .get('/api/v1/analytics/readiness?page=1&limit=2&type=file&travelFlow=outflow')
+      .get(`/api/v1/analytics/readiness?page=1&limit=3&type=file&travelFlow=inflow${dateParams()}`)
       .set('Content-Type', 'application/json')
       .set('authorization', adminToken)
       .end((err, res) => {
@@ -165,4 +151,22 @@ describe('Test Suite for Trips Analytics => Get Travel Readiness of requesters)'
         done();
       });
   });
+  it('should return csv data when type is set to file and when it travelFlow is outflow',
+    async (done) => {
+      request(app)
+        .get(
+          `/api/v1/analytics/readiness?page=1&limit=2&type=file&travelFlow=outflow${dateParams()}`
+        )
+        .set('Content-Type', 'application/json')
+        .set('authorization', adminToken)
+        .end((err, res) => {
+          expect(res.statusCode).toEqual(200);
+          expect(res.header['content-type']).toBe('application/octet-stream; charset=utf-8');
+          expect(res.header['content-disposition']).toBe(
+            'attachment; filename="Travel readiness for all travelers"'
+          );
+          if (err) return done(err);
+          done();
+        });
+    });
 });

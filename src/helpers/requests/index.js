@@ -28,17 +28,20 @@ const multiRangeQuery = (departureDate, returnDate, checkStatus) => ({
             { [Op.gte]: returnDate }]
         }
       },
-      { checkStatus: { [Op.ne]: checkStatus } }
+      // Here the checkstatus has to be defined or else, don't include it in the final query
+      checkStatus && { checkStatus: { [Op.ne]: checkStatus } }
     ]
   },
   { departureDate: { [Op.gte]: departureDate, [Op.lte]: returnDate } }
   ]
 });
 
+// This function can only be used to generate a range query that finds overlaps
 export const generateRangeQuery = (dateFrom, dateTo, checkStatus) => {
   const [departureDate, returnDate] = [new Date(dateFrom), new Date(dateTo)];
 
-  return !dateTo ? oneWayRangeQuery(departureDate) : multiRangeQuery(departureDate, returnDate, checkStatus);
+  return !dateTo ? oneWayRangeQuery(departureDate)
+    : multiRangeQuery(departureDate, returnDate, checkStatus);
 };
 
 export const includeStatusSubquery = (subQuery, status, modelName) => {
@@ -156,6 +159,21 @@ export const retrieveParams = (req) => {
   const { page, limit, offset } = Pagination.initializePagination(req);
   return {
     page, limit, offset, status: req.query.status || '', search: req.query.search || '',
+  };
+};
+
+// Generates the where clause for the trips fetched for the travel readiness analytics
+export const readinessRequestClause = (travelFlow, dateFrom, dateTo, location) => {
+  const locationQuery = travelFlow === 'inflow' ? { destination: location }
+    : { origin: location };
+  const rangeQuery = {
+    departureDate: { [Op.gte]: dateFrom, [Op.lte]: dateTo },
+  };
+  return {
+    [Op.and]: [
+      locationQuery,
+      rangeQuery
+    ]
   };
 };
 
