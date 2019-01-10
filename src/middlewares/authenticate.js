@@ -31,6 +31,7 @@ const authenticate = (req, res, next) => {
           error: 'Token is not valid',
         });
       }
+      req.userToken = token;
       req.user = decodedToken;
       return next();
     },

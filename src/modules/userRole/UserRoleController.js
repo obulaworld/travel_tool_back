@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import axios from 'axios';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
+import UserHelper from '../../helpers/user';
 
 dotenv.config();
 
@@ -28,25 +29,21 @@ class UserRoleController {
     const { id } = req.user;
     const result = await models.User.findOne({
       where: { userId: req.params.id },
-      include: [
-        {
-          model: models.Role,
-          as: 'roles',
-          attributes: ['roleName', 'description'],
-          through: { attributes: [] },
-          include: [
-            {
-              model: models.Center,
-              as: 'centers',
-              attributes: ['id', 'location'],
-              through: {
-                attributes: [],
-                where: { userId: id },
-              }
-            }
-          ]
-        }
-      ],
+      include: [{
+        model: models.Role,
+        as: 'roles',
+        attributes: ['roleName', 'description'],
+        through: { attributes: [] },
+        include: [{
+          model: models.Center,
+          as: 'centers',
+          attributes: ['id', 'location'],
+          through: {
+            attributes: [],
+            where: { userId: id },
+          }
+        }]
+      }],
     });
     const message = [200, 'data', true];
     UserRoleController.response(res, message, result);
@@ -74,9 +71,8 @@ class UserRoleController {
   }
 
   static async addUser(req, res) {
-    const {
-      fullName, email, userId, location, picture
-    } = req.body;
+    const { location } = req.body;
+    const userId = req.user.UserInfo.id;
     try {
       if (!userId) {
         const message = [400, 'User Id required', false];
@@ -84,16 +80,26 @@ class UserRoleController {
       }
       const [result] = await models.User.findOrCreate({
         where: {
-          fullName,
-          email,
-          userId,
-          picture,
+          fullName: req.user.UserInfo.name,
+          email: req.user.UserInfo.email,
+          userId: req.user.UserInfo.id,
+          picture: req.user.UserInfo.picture,
           location
         },
       });
       const [userRole] = await result.addRole(401938);
       result.dataValues.roles = userRole;
       const message = [201, 'User created successfully', true];
+      UserHelper.authorizeRequests(req.userToken);
+      const userOnProduction = await UserHelper.getUserOnProduction(result);
+      const userOnBamboo = await UserHelper.getUserOnBamboo(userOnProduction.data.values[0].bamboo_hr_id);
+      const managerOnBamboo = await UserHelper.getUserOnBamboo(userOnBamboo.data.supervisorEId);
+      const managerOnProduction = await UserHelper.getUserOnProduction(managerOnBamboo);
+      const travelaUser = UserHelper.generateTravelaUser(managerOnProduction, managerOnBamboo);
+      const [managerResult] = await models.User.findOrCreate({ where: travelaUser, });
+      await managerResult.addRole(53019);
+      result.dataValues.manager = travelaUser.fullName;
+      
       return UserRoleController.response(res, message, result);
     } catch (error) { /* istanbul ignore next */
       return CustomError.handleError(error, 500, res);
@@ -153,9 +159,7 @@ class UserRoleController {
       const error = 'User already has this role';
       if (hasRole) return CustomError.handleError(error, 409, res);
       const [[result]] = await findUser.addRole(roleId, {
-        through: {
-          centerId
-        }
+        through: { centerId }
       });
       findUser.dataValues.centers = [{ id: result.centerId, location: center }];
       const message = [200, 'Role updated successfully', true];

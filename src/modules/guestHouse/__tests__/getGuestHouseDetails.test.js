@@ -1,4 +1,5 @@
 import request from 'supertest';
+import moxios from 'moxios';
 import app from '../../../app';
 import { postGuestHouse } from './mocks/guestHouseData';
 import models from '../../../database/models';
@@ -9,6 +10,7 @@ const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
     fullName: 'John Snow',
+    name: 'John Snow',
     email: 'john.snow@andela.com',
     picture: 'fake.png'
   },
@@ -21,13 +23,7 @@ const createTestUser = () => (
     .post('/api/v1/user')
     .set('Content-Type', 'application/json')
     .set('authorization', token)
-    .send({
-      userId: '-MUyHJmKrxA90lPNQ1FOLNm',
-      fullName: 'John Snow',
-      email: 'john.snow@andela.com',
-      picture: 'fake.png',
-      location: 'Lagos',
-    })
+    .send({ location: 'Lagos' })
 );
 
 const switchToAdminRole = userToken => (
@@ -47,6 +43,7 @@ const createTestGuestHouse = data => (
 
 describe('Guest house details test', () => {
   beforeAll(async () => {
+    moxios.install();
     await models.Role.sync({ force: true });
     await models.Role.bulkCreate(role);
     await models.User.sync({ force: true });
@@ -55,6 +52,7 @@ describe('Guest house details test', () => {
   });
 
   afterAll(async () => {
+    moxios.uninstall();
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
@@ -76,6 +74,50 @@ describe('Guest house details test', () => {
 
   it('should return the correct shape or response', async (done) => {
     // create admin
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=john.snow@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          bamboo_hr_id: '01',
+        }]
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+      status: 200,
+      response: {
+        workEmail: 'lisa.doe@andela.com',
+        supervisorEId: '92'
+      }
+    });
+    moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+      status: 200,
+      response: {
+        id: '92',
+        displayName: 'ssewilliam',
+        firstName: 'William',
+        lastName: 'Sserubiri',
+        jobTitle: 'Engineering Team Lead',
+        department: 'Partner-Programs',
+        location: 'Kenya',
+        workEmail: 'william.sserubiri@andela.com',
+        supervisorEId: '9',
+        supervisor: 'Samuel Kubai'
+      }
+    });
+    moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+      status: 200,
+      response: {
+        values: [{
+          email: 'william.sserubiri@andela.com',
+          name: 'ssewilliam',
+          id: '92',
+          location: {
+            name: 'Kampala'
+          },
+          picture: 'http//:gif.jpg'
+        }]
+      }
+    });
     await createTestUser();
     await switchToAdminRole(token);
     const { body, status } = await createTestGuestHouse(postGuestHouse);

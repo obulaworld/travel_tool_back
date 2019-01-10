@@ -1,4 +1,5 @@
 import request from 'supertest';
+import moxios from 'moxios';
 import app from '../../../app';
 import models from '../../../database/models';
 import {
@@ -28,7 +29,7 @@ const travelAdminpayload = {
     fullName: 'John Snow',
     email: 'john.snow@andela.com',
     name: 'John Snow',
-    picture: ''
+    picture: 'fakePicture.png'
   },
 };
 const requesterPayload = {
@@ -50,7 +51,6 @@ const travelAdminPayload = {
     picture: ''
   }
 };
-
 const token = Utils.generateTestToken(travelAdminpayload);
 const requesterToken = Utils.generateTestToken(requesterPayload);
 const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
@@ -68,18 +68,61 @@ describe('Test Suite for Trips Controller', () => {
   });
 
   describe('Setup users', () => {
+    beforeEach(async () => {
+      moxios.install();
+    });
+    afterEach(async () => {
+      moxios.uninstall();
+    });
     it('should add a new user to the database', (done) => {
+      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=john.snow@andela.com`, {
+        status: 200,
+        response: {
+          values: [{
+            bamboo_hr_id: '01',
+          }]
+        }
+      });
+      moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+        status: 200,
+        response: {
+          workEmail: 'lisa.doe@andela.com',
+          supervisorEId: '92'
+        }
+      });
+      moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+        status: 200,
+        response: {
+          id: '92',
+          displayName: 'ssewilliam',
+          firstName: 'William',
+          lastName: 'Sserubiri',
+          jobTitle: 'Engineering Team Lead',
+          department: 'Partner-Programs',
+          location: 'Kenya',
+          workEmail: 'william.sserubiri@andela.com',
+          supervisorEId: '9',
+          supervisor: 'Samuel Kubai'
+        }
+      });
+      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+        status: 200,
+        response: {
+          values: [{
+            email: 'william.sserubiri@andela.com',
+            name: 'ssewilliam',
+            id: '92',
+            location: { name: 'Kampala' },
+            picture: 'http//:gif.jpg'
+          }]
+        }
+      });
+
       request(app)
         .post('/api/v1/user')
         .set('Content-Type', 'application/json')
         .set('authorization', token)
-        .send({
-          fullName: 'John Show',
-          email: 'john.snow@andela.com',
-          userId: '-MUyHJmKrxA90lPNQ1FOLNm',
-          picture: 'fakePicture.png',
-          location: 'Lagos',
-        })
+        .send({ location: 'Kampala' })
         .expect(201)
         .end((err, res) => {
           expect(res.body.result).toHaveProperty('fullName');
@@ -89,16 +132,57 @@ describe('Test Suite for Trips Controller', () => {
           done();
         });
     });
+
     it('should add requester user to the database', (done) => {
+      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=jack.sparrow@andela.com`, {
+        status: 200,
+        response: {
+          values: [{
+            bamboo_hr_id: '01',
+          }]
+        }
+      });
+      moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '01'), {
+        status: 200,
+        response: {
+          workEmail: 'lisa.doe@andela.com',
+          supervisorEId: '92'
+        }
+      });
+      moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
+        status: 200,
+        response: {
+          id: '92',
+          displayName: 'ssewilliam',
+          firstName: 'William',
+          lastName: 'Sserubiri',
+          jobTitle: 'Engineering Team Lead',
+          department: 'Partner-Programs',
+          location: 'Kenya',
+          workEmail: 'william.sserubiri@andela.com',
+          supervisorEId: '9',
+          supervisor: 'Samuel Kubai'
+        }
+      });
+      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=william.sserubiri@andela.com`, {
+        status: 200,
+        response: {
+          values: [{
+            email: 'william.sserubiri@andela.com',
+            name: 'ssewilliam',
+            id: '92',
+            location: {
+              name: 'Kampala'
+            },
+            picture: 'http//:gif.jpg'
+          }]
+        }
+      });
       request(app)
         .post('/api/v1/user')
         .set('Content-Type', 'application/json')
-        .set('authorization', token)
+        .set('authorization', requesterToken)
         .send({
-          fullName: 'Jack Sparrow',
-          email: 'jack.sparrow@andela.com',
-          userId: '-AVwHJmKrxA90lPNQ1FOLNn',
-          picture: 'fakePicture.png',
           location: 'Lagos',
         })
         .expect(201)
@@ -110,6 +194,7 @@ describe('Test Suite for Trips Controller', () => {
           done();
         });
     });
+
     it('should change user to admin', (done) => {
       request(app)
         .put('/api/v1/user/admin')
@@ -253,7 +338,7 @@ describe('Test Suite for Trips Controller', () => {
       });
 
       it(`should not update trip record to check out if user has not been
-        checked in`, async (done) => {
+          checked in`, async (done) => {
         request(app)
           .put('/api/v1/trips/2')
           .set('authorization', token)
@@ -303,7 +388,7 @@ describe('Test Suite for Trips Controller', () => {
       });
 
       it(`should not update trip record to check in if user
-        has been checked in`,
+          has been checked in`,
       async (done) => {
         request(app)
           .put('/api/v1/trips/2')
@@ -340,7 +425,7 @@ describe('Test Suite for Trips Controller', () => {
       });
 
       it(`should not update trip record to check out if user has been
-       checked out`, async (done) => {
+         checked out`, async (done) => {
         request(app)
           .put('/api/v1/trips/2')
           .set('authorization', token)
