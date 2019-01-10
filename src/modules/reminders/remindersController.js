@@ -64,7 +64,8 @@ export default class RemindersController {
             [Op.iLike]: `%${documentType}%`
           }
         } : {},
-        order: [[{ model: models.ReminderDisableReason, as: 'reasons' }, 'createdAt', 'DESC']]
+        order: [['createdAt', 'DESC'],
+          [{ model: models.ReminderDisableReason, as: 'reasons' }, 'createdAt', 'DESC']]
       };
 
       const count = await models.Condition.count(query);

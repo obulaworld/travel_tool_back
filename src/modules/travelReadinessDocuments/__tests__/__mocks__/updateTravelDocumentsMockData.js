@@ -149,10 +149,10 @@ export const existingPassportData = {
     name: 'Jeremy Pink',
     passportNumber: 'qw357etrtz',
     nationality: 'Nigerian',
-    dateOfBirth: '1970/01/01',
-    dateOfIssue: '2018/11/01',
+    dateOfBirth: '01/01/1970',
+    dateOfIssue: '11/01/2018',
     placeOfIssue: 'Kenya',
-    expiryDate: '2020/11/01',
+    expiryDate: '11/01/2020',
     cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky24f/image/upload/v1543520867/oga7x8ewofyyirrlk9hv.jpg'
   }
 };

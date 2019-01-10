@@ -54,9 +54,9 @@ export default class travelReadinessDocumentsValidator {
     if (!isType) {
       return CustomError.handleError('Please provide a valid document type', 400, res);
     }
-    
+
     if (req.body.passport) {
-      const isValidDate = date => moment(date, 'YYYY/MM/DD', true).isValid();
+      const isValidDate = date => moment(date, 'MM/DD/YYYY', true).isValid();
       const { dateOfIssue } = req.body.passport;
       req
         .checkBody('passport.name', 'name is required')
@@ -112,7 +112,7 @@ export default class travelReadinessDocumentsValidator {
       req
         .checkBody(
           'passport.dateOfBirth',
-          'The date of birth format you provided is not valid, use: YYYY/DD/MM'
+          'The date of birth format you provided is not valid, use: MM/DD/YYYY'
         )
         .custom((birthDate) => {
           if (isValidDate(birthDate) || !birthDate) {
@@ -122,7 +122,7 @@ export default class travelReadinessDocumentsValidator {
       req
         .checkBody(
           'passport.dateOfIssue',
-          'The date of issue format you provided is not valid, use: YYYY/DD/MM'
+          'The date of issue format you provided is not valid, use: MM/DD/YYYY'
         )
         .custom((issueDate) => {
           if (isValidDate(issueDate) || !issueDate) {
@@ -132,7 +132,7 @@ export default class travelReadinessDocumentsValidator {
       req
         .checkBody(
           'passport.expiryDate',
-          'The date of issue format you provided is not valid, use: YYYY/DD/MM'
+          'The date of issue format you provided is not valid, use: MM/DD/YYYY'
         )
         .custom((dateOfExpiry) => {
           if (isValidDate(dateOfExpiry) || dateOfExpiry.length === 0) {
