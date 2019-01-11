@@ -5,7 +5,6 @@ import fs from 'fs';
 import { Parser } from 'json2csv';
 import models from '../../../database/models';
 import Error from '../../../helpers/Error';
-import { srcRequestWhereClause } from '../../../helpers/requests';
 
 const { Op } = models.Sequelize;
 class AnalyticsController {
@@ -63,7 +62,7 @@ class AnalyticsController {
           where: { origin: { [Op.iRegexp]: `^${city},` }, departureDate: dateQuery }
         }
       ],
-      where: srcRequestWhereClause
+      where: { status: 'Approved' }
     };
     return pendingRequestsQuery;
   }
