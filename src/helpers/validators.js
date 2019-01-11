@@ -54,7 +54,7 @@ export const editAndCreateRequestValidators = [
     .withMessage('Date must not be less than today'),
   body('trips.*.returnDate').trim()
     .custom((value, { req }) => {
-      if (req.body.tripType !== 'oneWay'
+      if (req.body.tripType === 'return'
         && !moment(value, moment.ISO_8601, true)
           .isValid()) {
         throw new Error('Please specify a valid ISO return date');
