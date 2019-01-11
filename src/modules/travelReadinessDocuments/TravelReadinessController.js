@@ -4,6 +4,7 @@ import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
 import TravelReadinessUtils from './TravelReadinessUtils';
 import UserRoleController from '../userRole/UserRoleController';
+import RoleValidator from '../../middlewares/RoleValidator';
 
 
 export default class TravelReadinessController {
@@ -49,17 +50,30 @@ export default class TravelReadinessController {
       const document = await models.TravelReadinessDocuments.findOne({
         where: { id: documentId }
       });
+
       if (!document) {
         return res.status(404).json({
           success: false,
           message: `Document with id ${documentId} does not exist`,
         });
       }
-      res.status(200).json({
-        success: true,
-        message: 'Document successfully fetched',
-        document
-      });
+
+      const handleResponse = () => {
+        res.status(200).json({
+          success: true,
+          message: 'Document successfully fetched',
+          document
+        });
+      };
+
+      // check if logged in user/admin is the one requesting this resource
+      if (req.user.UserInfo.id !== document.userId) {
+        return RoleValidator.checkUserRole(
+          ['Super Administrator', 'Travel Administrator']
+        )(req, res, handleResponse);
+      }
+
+      return handleResponse();
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
@@ -87,10 +101,10 @@ export default class TravelReadinessController {
   }
 
   static async getUserReadiness(req, res) {
-    const { userId } = req.params;
+    const { id } = req.params;
     try {
       const user = await models.User.findOne({
-        where: { userId },
+        where: { userId: id },
         include: [
           {
             model: models.TravelReadinessDocuments,
@@ -101,7 +115,7 @@ export default class TravelReadinessController {
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: `User with id ${userId} does not exist`,
+          message: `User with id ${id} does not exist`,
         });
       }
 
