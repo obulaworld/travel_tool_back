@@ -123,22 +123,21 @@ describe('Test for travel analytics by location', () => {
       });
   });
 
-  xit('should return a csv report file', (done) => {
-    setTimeout(() => {
-      request(app)
-        .get('/api/v1/analytics?type=file&location=Nairobi')
-        .set('Content-Type', 'application/zip')
-        .set('authorization', travelAdminToken)
-        .end((err, res) => {
-          expect(res.statusCode).toEqual(200);
-          expect(res.headers['content-type']).toEqual('application/zip');
-          expect(res.headers['content-disposition']).toEqual(
-            'attachment; filename="Analytics.zip"'
-          );
-          if (err) return done(err);
-          done();
-        });
-    }, 5000);
+  it('should return a csv report file', async (done) => {
+    jest.setTimeout(30000);
+    request(app)
+      .get('/api/v1/analytics?type=file&location=Nairobi')
+      .set('Content-Type', 'application/zip')
+      .set('authorization', travelAdminToken)
+      .end((err, res) => {
+        expect(res.statusCode).toEqual(200);
+        expect(res.headers['content-type']).toEqual('application/zip');
+        expect(res.headers['content-disposition']).toEqual(
+          'attachment; filename="Analytics.zip"'
+        );
+        if (err) return done(err);
+        done();
+      });
   });
 
   it('should return response in json format', (done) => {
