@@ -216,12 +216,12 @@ describe('Update center test', () => {
       .send({})
       .end((err, res) => {
         expect(res.body.result.users[0].email).toEqual('black.windows@andela.com');
-        expect(res.body.result.users[0].id).toEqual(3);
+        expect(res.body.result.users[0].id).toEqual(4);
         if (err) return done(err);
       });
 
     request(app)
-      .patch('/api/v1/center/user/3')
+      .patch('/api/v1/center/user/4')
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send({

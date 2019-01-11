@@ -176,8 +176,17 @@ describe('Guest Rooms - GET', () => {
       .expect(422)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message)
-          .toEqual('Please fill the details for departure date, gender and location');
+        expect(res.body.errors)
+          .toEqual([
+            {
+              message: 'The gender is required',
+              name: 'gender'
+            },
+            {
+              message: 'The arrival date is required',
+              name: 'arrivalDate'
+            },
+          ]);
         if (err) return done(err);
         done();
       });
@@ -190,8 +199,17 @@ describe('Guest Rooms - GET', () => {
       .expect(422)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message)
-          .toEqual('Please fill the details for departure date, gender and location');
+        expect(res.body.errors)
+          .toEqual([
+            {
+              message: 'The location is required',
+              name: 'location'
+            },
+            {
+              message: 'The arrival date is required',
+              name: 'arrivalDate'
+            },
+          ]);
         if (err) return done(err);
         done();
       });
@@ -199,13 +217,22 @@ describe('Guest Rooms - GET', () => {
 
   it('should not get bed if departureDate is not provided', (done) => {
     request(app)
-      .get('/api/v1/availablerooms?location=Lagos&gender?Male')
+      .get('/api/v1/availablerooms?location=Lagos&gender=Male')
       .set('authorization', token)
       .expect(422)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message)
-          .toEqual('Please fill the details for departure date, gender and location');
+        expect(res.body.errors)
+          .toEqual([
+            {
+              message: 'The departure date is required',
+              name: 'departureDate'
+            },
+            {
+              message: 'The arrival date is required',
+              name: 'arrivalDate'
+            },
+          ]);
         if (err) return done(err);
         done();
       });
@@ -218,8 +245,17 @@ describe('Guest Rooms - GET', () => {
       .expect(422)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message)
-          .toEqual('Invalid departure or arrival dates');
+        expect(res.body.errors)
+          .toEqual([
+            {
+              message: 'The arrival date is required',
+              name: 'arrivalDate'
+            },
+            {
+              message: 'The departure date is invalid',
+              name: 'departureDate'
+            }
+          ]);
         if (err) return done(err);
         done();
       });
@@ -232,8 +268,17 @@ describe('Guest Rooms - GET', () => {
       .expect(422)
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
-        expect(res.body.message)
-          .toEqual('Invalid departure or arrival dates');
+        expect(res.body.errors)
+          .toEqual([
+            {
+              message: 'The arrival date is invalid',
+              name: 'arrivalDate'
+            },
+            {
+              message: 'Departure date should be less than arrival date.',
+              name: 'departureDate'
+            }
+          ]);
         if (err) return done(err);
         done();
       });
@@ -248,6 +293,25 @@ describe('Guest Rooms - GET', () => {
         expect(res.body.success).toEqual(true);
         expect(res.body.message)
           .toEqual('Available rooms fetched');
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should not get bed if departureDate is greater than arrivalDate', (done) => {
+    request(app)
+      .get('/api/v1/availablerooms?location=Lagos&gender=Male&departureDate=2018-12-23&arrivalDate=2018-12-22')
+      .set('authorization', token)
+      .expect(422)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
+        expect(res.body.errors)
+          .toEqual([
+            {
+              message: 'Departure date should be less than arrival date.',
+              name: 'departureDate'
+            }
+          ]);
         if (err) return done(err);
         done();
       });
