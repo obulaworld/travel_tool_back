@@ -133,29 +133,30 @@ class GuestHouseValidator {
   }
 
   static validateAvailableRooms(req, res, next) {
-    const {
-      gender,
-      departureDate,
-      location,
-      arrivalDate
-    } = req.query;
+    const { query: { departureDate, arrivalDate } } = req;
+    req.checkQuery('gender', 'The gender is required').notEmpty();
+    req.checkQuery('departureDate', 'The departure date is required').notEmpty();
+    req.checkQuery('location', 'The location is required').notEmpty();
+    req.checkQuery('arrivalDate', 'The arrival date is required').notEmpty();
 
-    if (!departureDate || !gender || !location) {
-      return res.status(422).json({
-        success: false,
-        message: 'Please fill the details for departure date, gender and location'
-      });
+    if (arrivalDate) {
+      req.checkQuery('arrivalDate', 'The arrival date is invalid')
+        .custom(date => moment(date, 'YYYY-MM-DD', true).isValid());
     }
-    const isValidDeparturedate = moment(departureDate, 'YYYY-MM-DD', true).isValid();
-    const isValidArrivalDate = moment(arrivalDate, 'YYYY-MM-YY', true).isValid();
 
-    if (!isValidDeparturedate || (arrivalDate && !isValidArrivalDate)) {
-      return res.status(422).json({
-        success: false,
-        message: 'Invalid departure or arrival dates'
-      });
+    if (departureDate) {
+      req.checkQuery('departureDate', 'The departure date is invalid')
+        .custom(date => moment(date, 'YYYY-MM-DD', true).isValid());
     }
-    next();
+    if (arrivalDate && departureDate) {
+      req.checkQuery('departureDate', 'Departure date should be less than arrival date.')
+        .custom(date => (
+          new Date(date) <= new Date(arrivalDate)
+        ));
+    }
+
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
   }
 
   static async validateImage(req, res, next) {
