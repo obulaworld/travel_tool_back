@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import { urlCheck } from '../helpers/reg';
 import models from '../database/models';
 import Error from '../helpers/Error';
+import RoleValidator from './RoleValidator';
 
 export default class Validator {
   static validateRequest(req, res, next) {
@@ -187,6 +188,16 @@ export default class Validator {
         message: 'You cannot perform this operation'
       });
     }
+    next();
+  }
+
+  static checkSignedInUserOrAdmin(req, res, next) {
+    if (req.user.UserInfo.id !== req.params.id) {
+      return RoleValidator.checkUserRole(
+        ['Super Administrator', 'Travel Administrator']
+      )(req, res, next);
+    }
+
     next();
   }
 

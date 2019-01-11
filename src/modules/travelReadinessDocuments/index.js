@@ -2,7 +2,12 @@ import express from 'express';
 import middleware from '../../middlewares';
 import TravelReadinessController from './TravelReadinessController';
 
-const { authenticate, TravelReadinessDocumentValidator, RoleValidator } = middleware;
+const {
+  authenticate,
+  TravelReadinessDocumentValidator,
+  RoleValidator,
+  Validator
+} = middleware;
 const TravelReadinessRouter = express.Router();
 
 TravelReadinessRouter.post(
@@ -24,20 +29,15 @@ TravelReadinessRouter.get(
 );
 
 TravelReadinessRouter.get(
-  '/travelreadiness/users/:userId',
+  '/travelreadiness/users/:id',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  Validator.checkSignedInUserOrAdmin,
   TravelReadinessController.getUserReadiness,
 );
 
 TravelReadinessRouter.get(
   '/travelreadiness/documents/:documentId',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
   TravelReadinessController.getTravelReadinessDocument,
 );
 

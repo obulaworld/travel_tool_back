@@ -37,6 +37,7 @@ const middleware = {
     validateChecklistQuery: jest.fn(invokeNextMiddleware),
     getUserFromDb: jest.fn(invokeNextMiddleware),
     checkSignedInUser: jest.fn(invokeNextMiddleware),
+    checkSignedInUserOrAdmin: jest.fn(invokeNextMiddleware),
     validateNewCentre: jest.fn(invokeNextMiddleware),
     validateTeamMemberLocation: jest.fn(invokeNextMiddleware),
 
