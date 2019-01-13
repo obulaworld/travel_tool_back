@@ -31,16 +31,19 @@ export default class travelReadinessDocumentsValidator {
 
   static documentExistsError(res, req) {
     let document = 'visa';
+    let message = `You already have a ${document} for this country with the same expiry date`;
     if (req.body.passport) {
       document = 'passport';
+      message = `You already have a ${document} with the same number`;
     } else if (req.body.other) {
       document = 'document';
+      message = `You already have a ${document} with the same name`;
     }
     return res.status(409).json({
       success: false,
       message: 'validation error',
       errors: [
-        { message: `You already added this ${document}` }
+        { message }
       ]
     });
   }
@@ -149,6 +152,22 @@ export default class travelReadinessDocumentsValidator {
     }
   }
 
+  static async checkDocumentAndUser(req, res, next) {
+    const { documentId } = req.params;
+    const document = await models.TravelReadinessDocuments.findOne({
+      where: { id: documentId }
+    });
+
+    if (document) {
+      if (document.userId === req.user.UserInfo.id) {
+        return next();
+      }
+      return res.status(403).json({ success: false, message: 'You don\'t have access to perform this action' });
+    }
+
+    return res.status(404).json({ success: false, message: 'Document not found' });
+  }
+
   static getWereClause(
     type,
     operation,
@@ -156,24 +175,26 @@ export default class travelReadinessDocumentsValidator {
     req,
   ) {
     const dataFields = fields.map(field => ({ [`data.${field}`]: req.body[type][field] }));
-    return {
+    const where = {
       [operation]: [
         ...dataFields,
         { userId: req.user.UserInfo.id },
         { type },
       ]
     };
+
+    if (req.params.documentId) {
+      where.id = {
+        [Op.ne]: req.params.documentId
+      };
+    }
+    return where;
   }
 
   static async findDocument(req) {
     let where;
     if (req.body.passport) {
-      const { passportNumber } = req.body.passport;
-      where = {
-        'data.passportNumber': {
-          [Op.eq]: passportNumber.trim()
-        }
-      };
+      where = this.getWereClause('passport', Op.and, ['passportNumber'], req);
     } else if (req.body.other) {
       where = this.getWereClause('other', Op.and, ['name', 'expiryDate'], req);
     } else if (req.body.visa) {

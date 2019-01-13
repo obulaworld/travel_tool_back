@@ -11,7 +11,7 @@ import {
   travelAdmin,
   travelAdminPayload,
   travelAdminRole,
-} from '../__mocks__';
+} from './__mocks__';
 
 const request = supertest;
 let documentId;

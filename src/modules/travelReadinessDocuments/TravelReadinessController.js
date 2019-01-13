@@ -8,24 +8,34 @@ import RoleValidator from '../../middlewares/RoleValidator';
 
 
 export default class TravelReadinessController {
+  static getDocumentType(req) {
+    const documentTypes = {
+      passport: 'passport',
+      visa: 'visa',
+      other: 'other',
+    };
+    const document = Object.keys(documentTypes).find(type => req.body[type]);
+    return { document, documentTypes };
+  }
+
+  static trimData(documentData) {
+    const dataValue = documentData;
+    Object.keys(documentData)
+      .forEach((key) => {
+        dataValue[key] = dataValue[key].trim();
+      });
+    return dataValue;
+  }
+
   static async addTravelReadinessDocument(req, res) {
     try {
       let newDocument;
 
-      const documentTypes = {
-        passport: 'passport',
-        visa: 'visa',
-        other: 'other',
-      };
-      const document = Object.keys(documentTypes).find(type => req.body[type]);
-
+      const { document, documentTypes } = await TravelReadinessController.getDocumentType(req);
       if (document) {
         const data = req.body[document];
         const newData = { ...data };
-        Object.keys(newData)
-          .forEach((key) => {
-            newData[key] = newData[key].trim();
-          });
+        TravelReadinessController.trimData(newData);
         newDocument = {
           id: Utils.generateUniqueId(),
           type: documentTypes[document],
@@ -171,5 +181,41 @@ export default class TravelReadinessController {
     const type = 'Travel Readiness Document Verified';
     const mailData = await TravelReadinessUtils.getMailData(details, user, topic, type, travelAdmin);
     NotificationEngine.sendMail(mailData);
+  }
+
+  static async editTravelReadinessDocument(req, res) {
+    try {
+      const { documentId } = req.params;
+
+      const foundDocument = await models.TravelReadinessDocuments.findOne({
+        where: { id: documentId, isVerified: false, userId: req.user.UserInfo.id }
+      });
+      
+      if (!foundDocument) {
+        return res.status(403).json({
+          success: false, message: 'You can no longer update this document',
+        });
+      }
+
+      const { document, documentTypes } = await TravelReadinessController.getDocumentType(req);
+
+      const data = req.body[document];
+      const updateData = { ...data };
+      TravelReadinessController.trimData(updateData);
+      const documentUpdate = {
+        type: documentTypes[document],
+        data: updateData,
+      };
+
+      const updatedDocument = await foundDocument.update(documentUpdate);
+      res.status(200).json({
+        success: true,
+        message: 'document successfully updated',
+        updatedDocument,
+      });
+      return null;
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
   }
 }

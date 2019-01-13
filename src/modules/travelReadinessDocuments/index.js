@@ -47,4 +47,13 @@ TravelReadinessRouter.put(
   TravelReadinessController.verifyTravelReadinessDocuments
 );
 
+TravelReadinessRouter.put(
+  '/travelreadiness/documents/:documentId',
+  authenticate,
+  TravelReadinessDocumentValidator.checkDocumentAndUser,
+  TravelReadinessDocumentValidator.validateInput,
+  TravelReadinessDocumentValidator.validateUniqueDocument,
+  TravelReadinessController.editTravelReadinessDocument,
+);
+
 export default TravelReadinessRouter;
