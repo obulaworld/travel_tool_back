@@ -49,22 +49,6 @@ const mockData = {
       updatedAt: '2018-08-16 012:11:52.181+01',
     },
   ],
-  documentMock: {
-    id: '-ss60B42oZ-d',
-    type: 'visa',
-    data: {
-      country: 'Kenya',
-      visaType: 'H-2A',
-      entryType: 'Multiple',
-      expiryDate: '03-01-2018',
-      dateOfIssue: '02-01-2018',
-      cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
-    },
-    isVerified: 'FALSE',
-    userId: '-LHJmKrxA8SlPNQFOVVm',
-    createdAt: '2018-08-16 012:11:52.181+01',
-    updatedAt: '2018-08-16 012:11:52.181+01',
-  },
   commentMock: {
     id: 'DOCstrange',
     comment: "I thought we agreed you'd spend only two weeks",
@@ -75,8 +59,6 @@ const mockData = {
     picture: 'fakepicture.png',
     createdAt: '2018-08-16 012:11:52.181+01',
     updatedAt: '2018-08-16 012:11:52.181+01',
-    documentId: null,
-    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
   }
 };
 

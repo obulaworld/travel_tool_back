@@ -753,7 +753,7 @@ describe('Notifications Controller', () => {
 
     })
 
-    xit('should post a replied comment from email', async (done) => {
+    it('should post a replied comment from email', async (done) => {
         request(app)
         .post('/api/v1/email')
         .set('authorization', token2)

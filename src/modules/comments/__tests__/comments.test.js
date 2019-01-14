@@ -18,7 +18,8 @@ const request = supertest(app);
 const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
-    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    name: 'Doctor Strange',
+    email: 'doctor.strange@andela.com',
     picture: 'fakepicture.png',
     roleid: 53019
   }
@@ -42,7 +43,6 @@ describe('Comments controller', () => {
     await models.User.destroy({ truncate: true, cascade: true });
     await models.User.create(mockData.userMock);
     await models.Request.bulkCreate(mockData.requestsMock);
-    await models.TravelReadinessDocuments.create(mockData.documentMock);
     request
       .get('/api/v1/user')
       .send(mockData.userMock)
@@ -57,7 +57,6 @@ describe('Comments controller', () => {
     await models.Request.destroy({ truncate: true, cascade: true });
     await models.UserRole.destroy({ truncate: true, cascade: true });
     await models.Comment.destroy({ truncate: true, cascade: true });
-    await models.TravelReadinessDocuments.destroy({ truncate: true, cascade: true });
   });
   describe('Unauthenticated user', () => {
     it('should throw 401 error if the user does not provide a token',
@@ -121,26 +120,6 @@ describe('Comments controller', () => {
           });
       });
 
-      it('throws 404 if the documentId does not match', (done) => {
-        const expectedResponse = {
-          success: false,
-          error: 'Request does not exist'
-        };
-        request
-          .post('/api/v1/comments')
-          .set('authorization', token)
-          .send({
-            comment: "I thought we agreed you'd spend only two weeks",
-            documentId: '-ss60B42oZ-invalid'
-          })
-          .end((err, response) => {
-            if (err) done(err);
-            expect(response.statusCode).toEqual(404);
-            expect(response.body).toEqual(expectedResponse);
-            done();
-          });
-      });
-
       it('returns 201 and creates a new comment', (done) => {
         const expectedResponse = {
           success: true,
@@ -148,7 +127,8 @@ describe('Comments controller', () => {
           comment: {
             comment: "I thought we agreed you'd spend only two weeks",
             requestId: '-ss60B42oZ-a',
-            userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+            userName: 'Doctor Strange',
+            userEmail: 'doctor.strange@andela.com'
           }
         };
         request
@@ -161,14 +141,15 @@ describe('Comments controller', () => {
           .end((err, res) => {
             if (err) done(err);
             const {
-              comment, requestId, userId
+              comment, requestId, userName, userEmail
             } = res.body.comment;
             expect(res.statusCode).toEqual(201);
             expect(res.body.success).toBe(true);
             expect(res.body.message).toEqual(expectedResponse.message);
             expect(comment).toEqual(expectedResponse.comment.comment);
             expect(requestId).toEqual(expectedResponse.comment.requestId);
-            expect(userId).toEqual(expectedResponse.comment.userId);
+            expect(userName).toEqual(expectedResponse.comment.userName);
+            expect(userEmail).toEqual(expectedResponse.comment.userEmail);
             done();
           });
       });
@@ -188,7 +169,7 @@ describe('Comments controller', () => {
           .set('authorization', token)
           .send({
             comment: "I thought we agreed you'd spend only two weeks",
-            requestId: '-ss60B42oZ-invalid',
+            requestId: '-ss60B42oZ-invalid'
           })
           .end((err, response) => {
             if (err) done(err);
