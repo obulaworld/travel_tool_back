@@ -15,7 +15,6 @@ const payload = {
 };
 
 const token = Utils.generateTestToken(payload);
-
 const createTestUser = () => (
   request(app)
     .post('/api/v1/user')
