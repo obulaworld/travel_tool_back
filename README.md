@@ -1,6 +1,10 @@
 ### travel_tool_back
 
-[![CircleCI](https://circleci.com/gh/andela/travel_tool_back/tree/develop.svg?style=svg)](https://circleci.com/gh/andela/travel_tool_back/tree/develop)
+[![CircleCI](https://circleci.com/gh/andela/travel_tool_back.svg?style=svg&circle-token=6b9b93c91b2b5db0ec3e700ea2da8a4f56486df5)](https://circleci.com/gh/andela/travel_tool_back)
+[![Maintainability](https://api.codeclimate.com/v1/badges/e827017c4dbdedc8e944/maintainability)](https://codeclimate.com/repos/5c35c067613b2b0286009fd2/maintainability)
+[![Coverage](https://api.codeclimate.com/v1/badges/e827017c4dbdedc8e944/test_coverage)](https://codeclimate.com/repos/5c37071dd1bdba0258009e21/test_coverage)
+
+
 
 An application for managing travel in Andela.
 
