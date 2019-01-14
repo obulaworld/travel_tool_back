@@ -116,6 +116,7 @@ export default class Validator {
 
   static validateComment(req, res, next) {
     req.checkBody('comment', 'Comment is required').notEmpty();
+    req.checkBody('requestId', 'RequestId is required').notEmpty();
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
   }

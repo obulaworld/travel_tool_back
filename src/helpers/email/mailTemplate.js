@@ -37,8 +37,7 @@ const mailTemplate = (
     durationOfStay,
     destination,
     checkoutTime,
-    details,
-    picture
+    details
   }
 ) => (
   `
@@ -97,7 +96,7 @@ const mailTemplate = (
         margin: 0 auto 50px auto;"
     >
       ${switchMessage({
-    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime, details, picture
+    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime, details
   })}
     </p>
     ${returnButton(type, redirectLink)}

@@ -14,8 +14,8 @@ export default class NotificationEngine {
       return false;
     }
     const validKeys = ['senderId', 'recipientId', 'notificationType',
-      'message', 'notificationLink',
-      'senderName', 'senderImage'];
+      'requestId', 'message', 'notificationLink',
+      'notificationStatus', 'senderName', 'senderImage'];
     const validateData = validKeys.map((value) => {
       if (dataKeys.includes(value) === false) {
         return false;
@@ -47,7 +47,7 @@ export default class NotificationEngine {
   }
 
   static sendMail({
-    recipient, sender, topic, type, redirectLink, requestId, comment, details, picture
+    recipient, sender, topic, type, redirectLink, requestId, comment, details
   }) {
     const data = {
       from: `Travela <${process.env.MAIL_SENDER}>`,
@@ -62,8 +62,7 @@ export default class NotificationEngine {
           redirectLink,
           requestId,
           comment,
-          details,
-          picture
+          details
         }
       )
     };

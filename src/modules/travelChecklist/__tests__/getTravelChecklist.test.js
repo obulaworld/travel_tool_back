@@ -29,16 +29,14 @@ describe('Travel Checklists Controller', () => {
   const payload = {
     UserInfo: {
       id: '-MUyHJmKrxA90lPNQ1FOLNm',
-      name: 'Samuel Kubai',
-      userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+      name: 'Samuel Kubai'
     }
   };
 
   const payload1 = {
     UserInfo: {
       id: '-MUyHJmKrxA90lPNOLNm',
-      name: 'Optimum Price',
-      userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+      name: 'Optimum Price'
     },
   };
 
