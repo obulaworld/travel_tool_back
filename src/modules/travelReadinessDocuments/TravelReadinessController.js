@@ -14,7 +14,8 @@ export default class TravelReadinessController {
 
       const documentTypes = {
         passport: 'passport',
-        visa: 'visa'
+        visa: 'visa',
+        other: 'other',
       };
       const document = Object.keys(documentTypes).find(type => req.body[type]);
 
@@ -32,7 +33,7 @@ export default class TravelReadinessController {
           userId: req.user.UserInfo.id
         };
       }
-
+      
       const addedDocument = await models.TravelReadinessDocuments.create(newDocument);
       res.status(201).json({
         success: true,

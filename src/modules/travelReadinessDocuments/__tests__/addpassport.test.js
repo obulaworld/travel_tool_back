@@ -29,10 +29,10 @@ describe('Create passport', () => {
   const token = Utils.generateTestToken(payload);
 
   beforeAll(async () => {
-    await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.TravelReadinessDocuments.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
 
     await models.Role.bulkCreate(role);
     await models.User.create(user);
@@ -40,9 +40,9 @@ describe('Create passport', () => {
 
   afterAll(async () => {
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
-    await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.TravelReadinessDocuments.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
   });
 
   const response = (status, body) => ({
@@ -213,7 +213,12 @@ describe('Create passport', () => {
   it('should check if passport is unique', (done) => {
     const body = {
       success: false,
-      error: 'The passport already exists'
+      message: 'validation error',
+      errors: [
+        {
+          message: 'You already added this passport'
+        }
+      ]
     };
     const expectedResponse = response(409, body);
     request(app)
