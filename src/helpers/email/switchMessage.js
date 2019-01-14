@@ -13,7 +13,7 @@ const attachCommentToMail = msgDetail => (
                   ">
           <tbody >
             <tr >
-            <td width="20%" ><img src=${msgDetail.comment.dataValues.picture}
+            <td width="20%" ><img src=${msgDetail.picture}
             style="border-radius: 50%; width: 50px; height: 50px;"
             /></td>
             <td width="80%">

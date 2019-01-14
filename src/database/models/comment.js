@@ -6,21 +6,18 @@ module.exports = (sequelize, DataTypes) => {
     isEdited: {
       type: DataTypes.BOOLEAN,
     },
-    userName: {
-      type: DataTypes.STRING,
-    },
-    userEmail: {
-      type: DataTypes.STRING,
-    },
-    picture: {
-      type: DataTypes.STRING,
-    },
   }, { paranoid: true });
 
   Comment.associate = (models) => {
     Comment.belongsTo(models.Request, {
       foreignKey: 'requestId',
       as: 'comments',
+    });
+    Comment.belongsTo(models.TravelReadinessDocuments, {
+      foreignKey: 'documentId',
+    });
+    Comment.belongsTo(models.User, {
+      foreignKey: 'userId',
     });
   };
   return Comment;
