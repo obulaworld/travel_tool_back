@@ -43,7 +43,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "jest": "^23.4.1",
-    "nodemon": "^1.18.3",
+    "nodemon": "^1.18.8",
     "nsp": "^3.2.1",
     "sequelize-cli": "^4.1.1",
     "supertest": "^3.1.0"
