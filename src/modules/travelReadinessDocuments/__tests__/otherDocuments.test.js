@@ -136,7 +136,7 @@ describe('create a visa document', () => {
       message: 'validation error',
       errors: [
         {
-          message: 'You already added this document'
+          message: 'You already have a document with the same name'
         }
       ]
     };

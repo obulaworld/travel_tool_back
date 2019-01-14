@@ -216,7 +216,7 @@ describe('Create passport', () => {
       message: 'validation error',
       errors: [
         {
-          message: 'You already added this passport'
+          message: 'You already have a passport with the same number'
         }
       ]
     };

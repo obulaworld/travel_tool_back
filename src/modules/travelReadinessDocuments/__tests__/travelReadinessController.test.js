@@ -10,7 +10,7 @@ import {
   travelAdminRole,
   documentsData,
   requesterPayload
-} from '../__mocks__';
+} from './__mocks__';
 
 const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
 const requesterToken = Utils.generateTestToken(requesterPayload);

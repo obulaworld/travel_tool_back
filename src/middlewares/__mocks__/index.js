@@ -114,7 +114,8 @@ const middleware = {
   TravelReadinessDocumentValidator: {
     validateInput: jest.fn(invokeNextMiddleware),
     validateUniqueVisa: jest.fn(invokeNextMiddleware),
-    validateUniqueDocument: jest.fn(invokeNextMiddleware)
+    validateUniqueDocument: jest.fn(invokeNextMiddleware),
+    checkDocumentAndUser: jest.fn(invokeNextMiddleware)
   },
   DocumentValidator: {
     validatInput: jest.fn(invokeNextMiddleware),
