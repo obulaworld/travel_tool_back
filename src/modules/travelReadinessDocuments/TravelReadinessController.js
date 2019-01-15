@@ -5,6 +5,7 @@ import NotificationEngine from '../notifications/NotificationEngine';
 import TravelReadinessUtils from './TravelReadinessUtils';
 import UserRoleController from '../userRole/UserRoleController';
 import RoleValidator from '../../middlewares/RoleValidator';
+import getTravelDocument from './getTravelDocument.data';
 
 
 export default class TravelReadinessController {
@@ -58,9 +59,7 @@ export default class TravelReadinessController {
   static async getTravelReadinessDocument(req, res) {
     const { documentId } = req.params;
     try {
-      const document = await models.TravelReadinessDocuments.findOne({
-        where: { id: documentId }
-      });
+      const document = await getTravelDocument(documentId, models);
 
       if (!document) {
         return res.status(404).json({

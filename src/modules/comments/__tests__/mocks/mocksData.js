@@ -2,7 +2,13 @@ const mockData = {
   userMock: {
     fullName: 'Samuel Kubai',
     email: 'captan.ameria@andela.com',
-    userId: '--MUyHJmKrxA90lPNQ1FOLNm',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    location: 'Lagos',
+  },
+  otherUserMock: {
+    fullName: 'David Muhanguzi',
+    email: 'captan2.ameria@andela.com',
+    userId: '-MUnaemKrxA90lPNQ1FOLNm',
     location: 'Lagos',
   },
   requestsMock: [
@@ -76,7 +82,7 @@ const mockData = {
     createdAt: '2018-08-16 012:11:52.181+01',
     updatedAt: '2018-08-16 012:11:52.181+01',
     documentId: null,
-    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    userId: 3,
   }
 };
 

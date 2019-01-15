@@ -11,13 +11,15 @@ module.exports = (sequelize, DataTypes) => {
   Comment.associate = (models) => {
     Comment.belongsTo(models.Request, {
       foreignKey: 'requestId',
-      as: 'comments',
+      as: 'requests',
     });
     Comment.belongsTo(models.TravelReadinessDocuments, {
       foreignKey: 'documentId',
+      as: 'documents',
     });
     Comment.belongsTo(models.User, {
       foreignKey: 'userId',
+      as: 'user',
     });
   };
   return Comment;
