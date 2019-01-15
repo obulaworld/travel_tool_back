@@ -121,6 +121,11 @@ const middleware = {
     validatInput: jest.fn(invokeNextMiddleware),
     validateUniqueDocument: jest.fn(invokeNextMiddleware),
     addTravelReadinessDocument: jest.fn(invokeNextMiddleware)
+  },
+  ReminderValidator: {
+    validateReminder: jest.fn(invokeNextMiddleware),
+    validateReminderTemplates: jest.fn(invokeNextMiddleware),
+    validateUniqueReminderCondition: jest.fn(invokeNextMiddleware),
   }
 };
 

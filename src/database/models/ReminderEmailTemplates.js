@@ -1,5 +1,5 @@
 export default (sequelize, DataTypes) => {
-  const ReminderEmailTemplates = sequelize.define('ReminderEmailTemplates', {
+  const ReminderEmailTemplate = sequelize.define('ReminderEmailTemplate', {
     id: {
       allowNull: false,
       primaryKey: true,
@@ -52,11 +52,14 @@ export default (sequelize, DataTypes) => {
     },
   }, { paranoid: true });
 
-  ReminderEmailTemplates.associate = (models) => {
-    ReminderEmailTemplates.belongsTo(models.User, {
+  ReminderEmailTemplate.associate = (models) => {
+    ReminderEmailTemplate.belongsTo(models.User, {
       foreignKey: 'createdBy',
-      as: 'reminderEmailTemplates'
+      as: 'reminderEmailTemplate'
+    });
+    ReminderEmailTemplate.hasMany(models.Reminder, {
+      foreignKey: 'reminderEmailTemplateId',
     });
   };
-  return ReminderEmailTemplates;
+  return ReminderEmailTemplate;
 };
