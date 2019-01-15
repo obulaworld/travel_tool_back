@@ -9,6 +9,7 @@ import ChecklistValidator from './checklistValidator';
 import travelCalendarValidator from './travelCalendarValidator';
 import RequestValidator from './RequestValidator';
 import TravelReadinessDocumentValidator from './travelReadinessDocumentsValidator';
+import ReminderEmailTemplateValidator from './reminderEmailTemplateValidator';
 import ReminderValidator from './reminderValidator';
 
 const middleware = {
@@ -24,6 +25,7 @@ const middleware = {
   RequestValidator,
   TravelReadinessDocumentValidator,
   ReminderValidator,
+  ReminderEmailTemplateValidator
 };
 
 export default middleware;

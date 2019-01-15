@@ -12,28 +12,32 @@ import analyticsRouter from './analytics';
 import travelChecklistRouter from './travelChecklist';
 import documentsRouter from './documents';
 import travelReadinessRouter from './travelReadinessDocuments';
-import RemindersRouter from './reminders';
+import reminderManagementRouter from './reminderManagement';
+import remindersRouter from './reminders';
 
 
 const apiPrefix = '/api/v1';
 
-const routes = (app) => {
-  app.use(apiPrefix, healthCheckRouter);
-  app.use(apiPrefix, requestsRouter);
-  app.use(apiPrefix, approvalsRouter);
-  app.use(apiPrefix, userRoleRouter);
-  app.use(apiPrefix, commentsRouter);
-  app.use(apiPrefix, notificationRouter);
-  app.use(apiPrefix, occupationsRouter);
-  app.use(apiPrefix, guestHouseRouter);
-  app.use(apiPrefix, tripsRouter);
-  app.use(apiPrefix, centerRouter);
-  app.use(apiPrefix, travelChecklistRouter);
-  app.use(apiPrefix, analyticsRouter);
-  app.use(apiPrefix, documentsRouter);
-  app.use(apiPrefix, travelReadinessRouter);
-  app.use(apiPrefix, RemindersRouter);
+// add your route to this list
+const routes = [
+  healthCheckRouter,
+  requestsRouter,
+  approvalsRouter,
+  userRoleRouter,
+  commentsRouter,
+  notificationRouter,
+  occupationsRouter,
+  guestHouseRouter,
+  tripsRouter,
+  centerRouter,
+  travelChecklistRouter,
+  analyticsRouter,
+  documentsRouter,
+  travelReadinessRouter,
+  reminderManagementRouter,
+  remindersRouter
+];
+export default (app) => {
+  routes.forEach(route => app.use(apiPrefix, route));
   return app;
 };
-
-export default routes;
