@@ -190,7 +190,7 @@ export default class TravelReadinessController {
       const foundDocument = await models.TravelReadinessDocuments.findOne({
         where: { id: documentId, isVerified: false, userId: req.user.UserInfo.id }
       });
-      
+
       if (!foundDocument) {
         return res.status(403).json({
           success: false, message: 'You can no longer update this document',
@@ -214,6 +214,45 @@ export default class TravelReadinessController {
         updatedDocument,
       });
       return null;
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async deleteTravelReadinessDocument(req, res) {
+    try {
+      const { documentId } = req.params;
+      const { id } = req.user.UserInfo;
+
+      const documentToBeDeleted = await models.TravelReadinessDocuments.findById(documentId);
+
+      if (!documentToBeDeleted) {
+        return res.status(404).json({
+          success: false,
+          message: 'Document does not exist',
+        });
+      }
+
+      if (documentToBeDeleted.isVerified) {
+        return res.status(403).json({
+          success: false,
+          message: 'Document has already been verified',
+        });
+      }
+
+      if (!documentToBeDeleted.isVerified && documentToBeDeleted.userId === id) {
+        documentToBeDeleted.destroy();
+        return res.status(200).json({
+          success: true,
+          message: 'Document successfully deleted',
+          deletedDocument: documentToBeDeleted
+        });
+      }
+
+      return res.status(401).json({
+        success: false,
+        message: 'You are Unauthorized to delete this Document',
+      });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }

@@ -56,4 +56,10 @@ TravelReadinessRouter.put(
   TravelReadinessController.editTravelReadinessDocument,
 );
 
+TravelReadinessRouter.delete(
+  '/travelreadiness/documents/:documentId',
+  authenticate,
+  TravelReadinessController.deleteTravelReadinessDocument
+);
+
 export default TravelReadinessRouter;

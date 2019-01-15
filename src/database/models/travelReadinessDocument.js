@@ -17,7 +17,7 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false
       }
-    }, {}
+    }, { paranoid: true }
   );
   TravelReadinessDocuments.associate = (models) => {
     // associations can be defined here
