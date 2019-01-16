@@ -119,10 +119,11 @@ class AnalyticsController {
       const minDeparture = _.min(depatureDates);
       const maxReturn = _.max(returnDates);
       const durationToDay = (maxReturn - minDeparture) / (1000 * 3600 * 24) + 1; // eslint-disable-line
-      const day = `${durationToDay.toString()} days`;
+      const day = durationToDay > 0 && `${durationToDay.toString()} days`;
       return day;
     });
-    const getCountOfDuration = AnalyticsController.getCount(durations);
+
+    const getCountOfDuration = AnalyticsController.getCount(_.compact(durations));
     let durationsResult = AnalyticsController.getResult(getCountOfDuration);
     if (durationsResult.length === 0) {
       durationsResult = [{ name: '', value: '' }];
