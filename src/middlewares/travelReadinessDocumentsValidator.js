@@ -17,16 +17,7 @@ export default class travelReadinessDocumentsValidator {
     req
       .checkBody('visa.entryType', 'entryType is either Single or Multiple')
       .custom(entryType => entryType === 'Single' || entryType === 'Multiple');
-    req
-      .checkBody('visa.dateOfIssue', 'issue date date must be provided in the form  mm/dd/yyyy')
-      .notEmpty()
-      .ltrim()
-      .matches(checkDate);
-    req
-      .checkBody('visa.expiryDate', 'expiry date date must be provided in the form mm/dd/yyyy')
-      .notEmpty()
-      .ltrim()
-      .matches(checkDate);
+    travelReadinessDocumentsValidator.validateDateWithExpiry(req, 'visa');
     req
       .checkBody('visa.cloudinaryUrl', 'url is invalid')
       .notEmpty()
@@ -34,47 +25,37 @@ export default class travelReadinessDocumentsValidator {
     req
       .checkBody('visa.visaType', 'visaType is either H-2A or H-2B')
       .custom(visaType => visaType === 'H-2A' || visaType === 'H-2B');
-    req
-      .checkBody('visa.expiryDate', 'expiry date should be greater than date of issue')
-      .custom((date) => {
-        const expiryDate = new Date(date);
-        const dateOfIssue = new Date(req.body.visa.dateOfIssue);
-        return expiryDate > dateOfIssue;
-      });
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
   }
 
-  static async validateUniqueVisa(req, res, next) {
-    if (req.body.visa) {
-      const { country, expiryDate } = req.body.visa;
-      const exists = await models.TravelReadinessDocuments.findOne({
-        where: {
-          [Op.and]: [
-            { 'data.country': country.trim() },
-            { 'data.expiryDate': expiryDate.trim() },
-            { userId: req.user.UserInfo.id },
-            { type: 'visa' }
-          ]
-        }
-      });
-      if (exists) {
-        return res.status(409).json({
-          success: false,
-          message: 'validation error',
-          errors: [
-            {
-              message: 'You already added the document'
-            }
-          ]
-        });
-      }
-      next();
+  static documentExistsError(res, req) {
+    let document = 'visa';
+    let message = `You already have a ${document} for this country with the same expiry date`;
+    if (req.body.passport) {
+      document = 'passport';
+      message = `You already have a ${document} with the same number`;
+    } else if (req.body.other) {
+      document = 'document';
+      message = `You already have a ${document} with the same name`;
     }
-    next();
+    return res.status(409).json({
+      success: false,
+      message: 'validation error',
+      errors: [
+        { message }
+      ]
+    });
   }
 
   static validateInput(req, res, next) {
+    const validTypes = ['other', 'visa', 'passport'];
+    const isType = Object.keys(req.body).filter(type => validTypes.includes(type)).length;
+   
+    if (!isType) {
+      return CustomError.handleError('Please provide a valid document type', 400, res);
+    }
+    
     if (req.body.passport) {
       const isValidDate = date => moment(date, 'YYYY/MM/DD', true).isValid();
       const { dateOfIssue } = req.body.passport;
@@ -162,28 +143,112 @@ export default class travelReadinessDocumentsValidator {
 
       const errors = req.validationErrors();
       Validator.errorHandler(res, errors, next);
-    } else if (req.body.visa) {
+    }
+    if (req.body.visa) {
       travelReadinessDocumentsValidator.validateVisa(req, res, next);
-    } else {
-      CustomError.handleError('Please provide a valid document type', 400, res);
+    }
+    if (req.body.other) {
+      travelReadinessDocumentsValidator.validateOtherDocument(req, res, next);
     }
   }
 
-  static async validatePassportUnique(req, res, next) {
-    if (req.body.passport) {
-      const { passportNumber } = req.body.passport;
-      const passport = await models.TravelReadinessDocuments.findOne({
-        where: {
-          'data.passportNumber': {
-            [Op.eq]: passportNumber.trim()
-          }
-        }
-      });
-      if (passport) {
-        CustomError.handleError('The passport already exists', 409, res);
-      } else {
-        next();
+  static async checkDocumentAndUser(req, res, next) {
+    const { documentId } = req.params;
+    const document = await models.TravelReadinessDocuments.findOne({
+      where: { id: documentId }
+    });
+
+    if (document) {
+      if (document.userId === req.user.UserInfo.id) {
+        return next();
       }
+      return res.status(403).json({ success: false, message: 'You don\'t have access to perform this action' });
     }
+
+    return res.status(404).json({ success: false, message: 'Document not found' });
+  }
+
+  static getWereClause(
+    type,
+    operation,
+    fields,
+    req,
+  ) {
+    const dataFields = fields.map(field => ({ [`data.${field}`]: req.body[type][field] }));
+    const where = {
+      [operation]: [
+        ...dataFields,
+        { userId: req.user.UserInfo.id },
+        { type },
+      ]
+    };
+
+    if (req.params.documentId) {
+      where.id = {
+        [Op.ne]: req.params.documentId
+      };
+    }
+    return where;
+  }
+
+  static async findDocument(req) {
+    let where;
+    if (req.body.passport) {
+      where = this.getWereClause('passport', Op.and, ['passportNumber'], req);
+    } else if (req.body.other) {
+      where = this.getWereClause('other', Op.and, ['name', 'expiryDate'], req);
+    } else if (req.body.visa) {
+      where = this.getWereClause('visa', Op.and, ['country', 'expiryDate'], req);
+    }
+    const document = await models.TravelReadinessDocuments.findOne({
+      where,
+    });
+    return document;
+  }
+
+  static async validateUniqueDocument(req, res, next) {
+    const document = await travelReadinessDocumentsValidator.findDocument(req);
+    if (document) {
+      return travelReadinessDocumentsValidator.documentExistsError(res, req);
+    }
+    next();
+  }
+
+
+  static validateOtherDocument(req, res, next) {
+    if (req.body.other) {
+      req.checkBody('other.name', 'document name should be provided').notEmpty().ltrim();
+      req.checkBody(
+        'other.name',
+        'document that contains visa or passport keyword is not allowed in this category'
+      )
+        .custom((name) => {
+          if (name === undefined) {
+            return Promise.resolve();
+          }
+          if (name.match(/passport|visa/ig) === null) {
+            return Promise.reject(new Error());
+          }
+        });
+      req.checkBody('other.cloudinaryUrl', 'url is invalid').notEmpty()
+        .matches(urlCheck);
+      travelReadinessDocumentsValidator.validateDateWithExpiry(req, 'other');
+      const errors = req.validationErrors();
+      Validator.errorHandler(res, errors, next);
+    }
+  }
+
+
+  static validateDateWithExpiry(req, type) {
+    req.checkBody(`${type}.dateOfIssue`, 'issue date date must be provided in the form  mm/dd/yyyy')
+      .notEmpty().ltrim().matches(checkDate);
+    req.checkBody(`${type}.expiryDate`, 'expiry date date must be provided in the form mm/dd/yyyy')
+      .notEmpty().ltrim().matches(checkDate);
+    req.checkBody(`${type}.expiryDate`, 'expiry date should be greater than date of issue')
+      .custom((date) => {
+        const expiryDate = new Date(date);
+        const dateOfIssue = new Date(req.body[type].dateOfIssue);
+        return expiryDate > dateOfIssue;
+      });
   }
 }

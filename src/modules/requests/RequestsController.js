@@ -54,9 +54,11 @@ class RequestsController {
         userId: req.user.UserInfo.id,
         picture: req.user.UserInfo.picture,
       };
+      
 
       const multipleRoomsData = trips.map(trip => ({
-        arrivalDate: requestData.tripType === 'oneWay' ? trip.departureDate : trip.returnDate,
+        arrivalDate: (requestData.tripType === 'oneWay' || (requestData.tripType === 'multi' && !trip.returnDate))
+          ? trip.departureDate : trip.returnDate,
         departureDate: trip.departureDate,
         location: trip.destination,
         gender: requestDetails.gender,

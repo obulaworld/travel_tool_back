@@ -2,15 +2,19 @@ import express from 'express';
 import middleware from '../../middlewares';
 import TravelReadinessController from './TravelReadinessController';
 
-const { authenticate, TravelReadinessDocumentValidator, RoleValidator } = middleware;
+const {
+  authenticate,
+  TravelReadinessDocumentValidator,
+  RoleValidator,
+  Validator
+} = middleware;
 const TravelReadinessRouter = express.Router();
 
 TravelReadinessRouter.post(
   '/travelreadiness',
   authenticate,
   TravelReadinessDocumentValidator.validateInput,
-  TravelReadinessDocumentValidator.validateUniqueVisa,
-  TravelReadinessDocumentValidator.validatePassportUnique,
+  TravelReadinessDocumentValidator.validateUniqueDocument,
   TravelReadinessController.addTravelReadinessDocument,
 );
 
@@ -24,20 +28,15 @@ TravelReadinessRouter.get(
 );
 
 TravelReadinessRouter.get(
-  '/travelreadiness/users/:userId',
+  '/travelreadiness/users/:id',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  Validator.checkSignedInUserOrAdmin,
   TravelReadinessController.getUserReadiness,
 );
 
 TravelReadinessRouter.get(
   '/travelreadiness/documents/:documentId',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
   TravelReadinessController.getTravelReadinessDocument,
 );
 
@@ -46,6 +45,21 @@ TravelReadinessRouter.put(
   authenticate,
   RoleValidator.checkUserRole(['Super Administrator', 'Travel Administrator']),
   TravelReadinessController.verifyTravelReadinessDocuments
+);
+
+TravelReadinessRouter.put(
+  '/travelreadiness/documents/:documentId',
+  authenticate,
+  TravelReadinessDocumentValidator.checkDocumentAndUser,
+  TravelReadinessDocumentValidator.validateInput,
+  TravelReadinessDocumentValidator.validateUniqueDocument,
+  TravelReadinessController.editTravelReadinessDocument,
+);
+
+TravelReadinessRouter.delete(
+  '/travelreadiness/documents/:documentId',
+  authenticate,
+  TravelReadinessController.deleteTravelReadinessDocument
 );
 
 export default TravelReadinessRouter;

@@ -4,26 +4,38 @@ import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
 import TravelReadinessUtils from './TravelReadinessUtils';
 import UserRoleController from '../userRole/UserRoleController';
+import RoleValidator from '../../middlewares/RoleValidator';
 
 
 export default class TravelReadinessController {
+  static getDocumentType(req) {
+    const documentTypes = {
+      passport: 'passport',
+      visa: 'visa',
+      other: 'other',
+    };
+    const document = Object.keys(documentTypes).find(type => req.body[type]);
+    return { document, documentTypes };
+  }
+
+  static trimData(documentData) {
+    const dataValue = documentData;
+    Object.keys(documentData)
+      .forEach((key) => {
+        dataValue[key] = dataValue[key].trim();
+      });
+    return dataValue;
+  }
+
   static async addTravelReadinessDocument(req, res) {
     try {
       let newDocument;
 
-      const documentTypes = {
-        passport: 'passport',
-        visa: 'visa'
-      };
-      const document = Object.keys(documentTypes).find(type => req.body[type]);
-
+      const { document, documentTypes } = await TravelReadinessController.getDocumentType(req);
       if (document) {
         const data = req.body[document];
         const newData = { ...data };
-        Object.keys(newData)
-          .forEach((key) => {
-            newData[key] = newData[key].trim();
-          });
+        TravelReadinessController.trimData(newData);
         newDocument = {
           id: Utils.generateUniqueId(),
           type: documentTypes[document],
@@ -31,7 +43,7 @@ export default class TravelReadinessController {
           userId: req.user.UserInfo.id
         };
       }
-
+      
       const addedDocument = await models.TravelReadinessDocuments.create(newDocument);
       res.status(201).json({
         success: true,
@@ -49,17 +61,30 @@ export default class TravelReadinessController {
       const document = await models.TravelReadinessDocuments.findOne({
         where: { id: documentId }
       });
+
       if (!document) {
         return res.status(404).json({
           success: false,
           message: `Document with id ${documentId} does not exist`,
         });
       }
-      res.status(200).json({
-        success: true,
-        message: 'Document successfully fetched',
-        document
-      });
+
+      const handleResponse = () => {
+        res.status(200).json({
+          success: true,
+          message: 'Document successfully fetched',
+          document
+        });
+      };
+
+      // check if logged in user/admin is the one requesting this resource
+      if (req.user.UserInfo.id !== document.userId) {
+        return RoleValidator.checkUserRole(
+          ['Super Administrator', 'Travel Administrator']
+        )(req, res, handleResponse);
+      }
+
+      return handleResponse();
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
@@ -87,10 +112,10 @@ export default class TravelReadinessController {
   }
 
   static async getUserReadiness(req, res) {
-    const { userId } = req.params;
+    const { id } = req.params;
     try {
       const user = await models.User.findOne({
-        where: { userId },
+        where: { userId: id },
         include: [
           {
             model: models.TravelReadinessDocuments,
@@ -101,7 +126,7 @@ export default class TravelReadinessController {
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: `User with id ${userId} does not exist`,
+          message: `User with id ${id} does not exist`,
         });
       }
 
@@ -156,5 +181,80 @@ export default class TravelReadinessController {
     const type = 'Travel Readiness Document Verified';
     const mailData = await TravelReadinessUtils.getMailData(details, user, topic, type, travelAdmin);
     NotificationEngine.sendMail(mailData);
+  }
+
+  static async editTravelReadinessDocument(req, res) {
+    try {
+      const { documentId } = req.params;
+
+      const foundDocument = await models.TravelReadinessDocuments.findOne({
+        where: { id: documentId, isVerified: false, userId: req.user.UserInfo.id }
+      });
+
+      if (!foundDocument) {
+        return res.status(403).json({
+          success: false, message: 'You can no longer update this document',
+        });
+      }
+
+      const { document, documentTypes } = await TravelReadinessController.getDocumentType(req);
+
+      const data = req.body[document];
+      const updateData = { ...data };
+      TravelReadinessController.trimData(updateData);
+      const documentUpdate = {
+        type: documentTypes[document],
+        data: updateData,
+      };
+
+      const updatedDocument = await foundDocument.update(documentUpdate);
+      res.status(200).json({
+        success: true,
+        message: 'document successfully updated',
+        updatedDocument,
+      });
+      return null;
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async deleteTravelReadinessDocument(req, res) {
+    try {
+      const { documentId } = req.params;
+      const { id } = req.user.UserInfo;
+
+      const documentToBeDeleted = await models.TravelReadinessDocuments.findById(documentId);
+
+      if (!documentToBeDeleted) {
+        return res.status(404).json({
+          success: false,
+          message: 'Document does not exist',
+        });
+      }
+
+      if (documentToBeDeleted.isVerified) {
+        return res.status(403).json({
+          success: false,
+          message: 'Document has already been verified',
+        });
+      }
+
+      if (!documentToBeDeleted.isVerified && documentToBeDeleted.userId === id) {
+        documentToBeDeleted.destroy();
+        return res.status(200).json({
+          success: true,
+          message: 'Document successfully deleted',
+          deletedDocument: documentToBeDeleted
+        });
+      }
+
+      return res.status(401).json({
+        success: false,
+        message: 'You are Unauthorized to delete this Document',
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
   }
 }

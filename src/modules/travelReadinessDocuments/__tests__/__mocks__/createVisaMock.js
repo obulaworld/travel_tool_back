@@ -28,6 +28,18 @@ const validVisa = {
     }
 };
 
+const validVisa2 = {
+  visa:
+  {
+    entryType: 'Multiple',
+    country: 'Nigeria',
+    dateOfIssue: '02-01-2018',
+    expiryDate: '06-01-2018',
+    visaType: 'H-2A',
+    cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
+  }
+};
+
 const invalidDocument = {
   invalid:
     {
@@ -37,7 +49,18 @@ const invalidDocument = {
       expiryDate: '06-01-2018',
       visaType: 'H-2A',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
-    }
+    },
+  countyMissing:
+   {
+     visa: {
+       entryType: 'Multiple',
+       name: 'Permit',
+       dateOfIssue: '02-01-2018',
+       expiryDate: '06-01-2018',
+       visaType: 'H-2A',
+       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
+     }
+   }
 };
 
 const passport = {
@@ -54,5 +77,5 @@ const passport = {
 };
 
 export default {
-  user, payload, validVisa, invalidDocument, passport
+  user, payload, validVisa, validVisa2, invalidDocument, passport
 };

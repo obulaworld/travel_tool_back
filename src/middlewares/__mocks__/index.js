@@ -37,6 +37,7 @@ const middleware = {
     validateChecklistQuery: jest.fn(invokeNextMiddleware),
     getUserFromDb: jest.fn(invokeNextMiddleware),
     checkSignedInUser: jest.fn(invokeNextMiddleware),
+    checkSignedInUserOrAdmin: jest.fn(invokeNextMiddleware),
     validateNewCentre: jest.fn(invokeNextMiddleware),
     validateTeamMemberLocation: jest.fn(invokeNextMiddleware),
 
@@ -113,11 +114,12 @@ const middleware = {
   TravelReadinessDocumentValidator: {
     validateInput: jest.fn(invokeNextMiddleware),
     validateUniqueVisa: jest.fn(invokeNextMiddleware),
-    validatePassportUnique: jest.fn(invokeNextMiddleware)
+    validateUniqueDocument: jest.fn(invokeNextMiddleware),
+    checkDocumentAndUser: jest.fn(invokeNextMiddleware)
   },
   DocumentValidator: {
     validatInput: jest.fn(invokeNextMiddleware),
-    validatePassportUnique: jest.fn(invokeNextMiddleware),
+    validateUniqueDocument: jest.fn(invokeNextMiddleware),
     addTravelReadinessDocument: jest.fn(invokeNextMiddleware)
   }
 };

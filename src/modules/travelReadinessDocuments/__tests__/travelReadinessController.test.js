@@ -10,7 +10,7 @@ import {
   travelAdminRole,
   documentsData,
   requesterPayload
-} from '../__mocks__';
+} from './__mocks__';
 
 const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
 const requesterToken = Utils.generateTestToken(requesterPayload);
@@ -79,9 +79,9 @@ describe('TravelReadiness Controller', () => {
   });
 
   describe('getUserReadiness', () => {
-    it('should require user to be a travel Admin', (done) => {
+    it('a user cannot view another users travel readiness information', (done) => {
       request(app)
-        .get('/api/v1/travelreadiness/users/-FCbaka-ljvhsus83-B')
+        .get('/api/v1/travelreadiness/users/-Flo-RenXiunbs-sIUm')
         .set('Content-Type', 'application/json')
         .set('authorization', requesterToken)
         .end((err, res) => {
@@ -123,9 +123,9 @@ describe('TravelReadiness Controller', () => {
   });
 
   describe('getTravelReadinessDocument', () => {
-    it('should require user to be a travel Admin', (done) => {
+    it('a user cannot view another users travel readiness document', (done) => {
       request(app)
-        .get('/api/v1/travelreadiness/documents/SyOyr_AtC')
+        .get('/api/v1/travelreadiness/documents/b9gnYkdzG')
         .set('Content-Type', 'application/json')
         .set('authorization', requesterToken)
         .end((err, res) => {

@@ -5,20 +5,18 @@ import CustomError from '../../../helpers/Error';
 import TravelCompletion from '../../travelChecklist/TravelChecklistController';
 import Pagination from '../../../helpers/Pagination';
 import Centers from '../../../helpers/centers';
-import { srcRequestWhereClause } from '../../../helpers/requests';
+import { readinessRequestClause } from '../../../helpers/requests';
+
+const { Op } = models.Sequelize;
 
 class ReadinessController {
-  static calcArrivalAndPercentageCompletion(result, req, res) {
+  static calcPercentageCompletion(result, req, res) {
     if (!result.rows.length) return [];
     const travelReady = Promise.all(result.rows.map(async (request) => {
       const travelReadiness = await TravelCompletion.checkListPercentage(
         req, res, request.request.id
       );
-
       request.dataValues.travelReadiness = travelReadiness;
-      request.dataValues.arrivalDate = moment(request.dataValues.departureDate)
-        .add(1, 'day');
-
       return request;
     }));
 
@@ -37,7 +35,9 @@ class ReadinessController {
   }
 
   static async getReadiness(req, res) {
-    const { page, limit, travelFlow = 'inflow' } = req.query;
+    const {
+      page, limit, travelFlow = 'inflow', dateFrom, dateTo
+    } = req.query;
     try {
       const currentUserId = req.user.UserInfo.id;
       const location = await models.User.findOne({
@@ -45,29 +45,26 @@ class ReadinessController {
         where: { userId: currentUserId },
         raw: true
       });
-
       const andelaCenter = await Centers.getCenter(Object.values(location).toString());
 
       const offset = (page - 1) * limit;
       const result = await models.Trip.findAndCountAll({
         limit: limit || null,
         offset: offset || null,
-        where: travelFlow === 'inflow' ? { destination: andelaCenter }
-          : { origin: andelaCenter },
+        where: readinessRequestClause(travelFlow, dateFrom, dateTo, andelaCenter),
         attributes: ['departureDate'],
         include: [{
           model: models.Request,
           attributes: ['name', 'id'],
-          where: srcRequestWhereClause,
+          where: { status: { [Op.or]: ['Approved', 'Verified'] } },
           as: 'request',
         }],
         order: [[{ model: models.Request, as: 'request' }, 'updatedAt', 'DESC']],
       });
       const pagination = ReadinessController.handlePagination(req, result);
 
-      const travelReady = this.calcArrivalAndPercentageCompletion(result, req, res);
+      const readiness = await this.calcPercentageCompletion(result, req, res);
 
-      const readiness = await travelReady;
       return ({
         readiness,
         pagination
@@ -82,7 +79,7 @@ class ReadinessController {
     const { readiness, pagination } = await ReadinessController.getReadiness(req, res);
     if (type === 'file') {
       const csvArray = [];
-  
+
       const dateValue = (travelFlow === 'inflow')
         ? 'Expected Arrival Date' : 'Expected Departure Date';
 
@@ -93,7 +90,7 @@ class ReadinessController {
           [dateValue]: moment(value.dataValues.departureDate).format('D MMM, YYYY')
         });
       });
-      
+
       const Json2csvParser = Json2csv.Parser;
       const fields = travelFlow === 'inflow'
         ? ['Name', 'Travel Readiness', 'Expected Arrival Date']

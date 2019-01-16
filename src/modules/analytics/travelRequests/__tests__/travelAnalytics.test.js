@@ -30,7 +30,7 @@ describe('Test for travel analytics by location', () => {
     await models.Trip.destroy({ truncate: true, cascade: true });
     await models.Role.bulkCreate(role);
     // eslint-disable-next-line
-    const user = await models.User.create(travelAdmin);
+    await models.User.create(travelAdmin);
     await models.User.create(travelRequester);
     await models.UserRole.create(userRole);
     request(app)
@@ -123,8 +123,9 @@ describe('Test for travel analytics by location', () => {
       });
   });
 
-  it('should return a csv report file', async (done) => {
-    jest.setTimeout(30000);
+  it('should return a csv report file', (done) => {
+    // TODO Find out why it is failing on circle ci without jest.setTimeout
+    jest.setTimeout(20000);
     request(app)
       .get('/api/v1/analytics?type=file&location=Nairobi')
       .set('Content-Type', 'application/zip')

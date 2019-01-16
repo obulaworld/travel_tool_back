@@ -8,10 +8,10 @@ import Utils from '../../../helpers/Utils';
 const request = supertest;
 
 const prepareDatabase = async () => {
-  await models.User.destroy({ force: true, truncate: { cascade: true } });
   await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   await models.Role.destroy({ force: true, truncate: { cascade: true } });
   await models.TravelReadinessDocuments.destroy({ force: true, truncate: { cascade: true } });
+  await models.User.destroy({ force: true, truncate: { cascade: true } });
 };
 
 describe('create a visa document', () => {
@@ -62,6 +62,33 @@ describe('create a visa document', () => {
     testClient().send(invalidDocument).end((err, res) => {
       if (err) done(err);
       expect(res.status).toEqual(400);
+      done();
+    });
+  });
+
+  it('returns error when the same visa is added again', (done) => {
+    testClient().send(validVisa).end((err, res) => {
+      if (err) done(err);
+      expect(res.status).toEqual(409);
+      done();
+    });
+  });
+
+  it('returns error when the country is missing in visa detail', (done) => {
+    const errorBody = {
+      success: false,
+      message: 'Validation failed',
+      errors: [
+        {
+          message: 'country should be provided',
+          name: 'visa.country'
+        }
+      ]
+    };
+    testClient().send(invalidDocument.countyMissing).end((err, res) => {
+      if (err) done(err);
+      expect(res.status).toEqual(422);
+      expect(res.body).toMatchObject(errorBody);
       done();
     });
   });

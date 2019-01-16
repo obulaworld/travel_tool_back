@@ -27,7 +27,7 @@ export const requestsData = [
     gender: 'male',
     department: 'TDD',
     tripType: 'return',
-    status: 'Open',
+    status: 'Approved',
     picture: 'https://pic.com',
     userId: '-AVwHJmKrxA90lPNQ1FOLNn',
     createdAt: '2018-10-30',

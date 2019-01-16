@@ -5,21 +5,22 @@ import { role } from '../../userRole/__tests__/mocks/mockData';
 import createVisaMock from './__mocks__/createVisaMock';
 import Utils from '../../../helpers/Utils';
 import NotificationEngine from '../../notifications/NotificationEngine';
+import TravelReadinessUtils from '../TravelReadinessUtils';
 
 import {
   travelAdmin,
   travelAdminPayload,
   travelAdminRole,
-} from '../__mocks__';
+} from './__mocks__';
 
 const request = supertest;
 let documentId;
 
 const prepareDatabase = async () => {
-  await models.User.destroy({ force: true, truncate: { cascade: true } });
   await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   await models.Role.destroy({ force: true, truncate: { cascade: true } });
   await models.TravelReadinessDocuments.destroy({ force: true, truncate: { cascade: true } });
+  await models.User.destroy({ force: true, truncate: { cascade: true } });
 };
 
 describe('verify visa documents', () => {
@@ -77,5 +78,18 @@ describe('verify visa documents', () => {
         expect(res.body.success).toEqual(false);
         done();
       });
+  });
+
+  it(' should return mail data', (done) => {
+    const mailData = TravelReadinessUtils.getMailData(
+      { id: 'kht520h' },
+      { fullName: 'Black Window', email: 'back.window@andela.com' },
+      'verify',
+      'verify',
+      { UserInfo: { name: 'Black Window' } }
+    );
+    expect(mailData.recipient.name).toEqual('Black Window');
+    expect(mailData.recipient.email).toEqual('back.window@andela.com');
+    done();
   });
 });
