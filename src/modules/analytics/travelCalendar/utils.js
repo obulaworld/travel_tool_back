@@ -32,10 +32,10 @@ class Utils {
       departureTime, arrivalTime, airline, ticketNumber, returnDepartureTime, returnTime, returnTicketNumber, returnAirline
     } = Utils.checkTicketDetails(ticket);
     const noValue = '--';
-    const returnData = [destination, returnAirline, returnTicketNumber, returnTime, returnDepartureTime];
+    const returnData = [origin, returnAirline, returnTicketNumber, returnTime, returnDepartureTime];
     const filteredOrigin = tripType === 'return' ? origin : noValue;
     if (origin === location) {
-      const departureData = [origin, airline, ticketNumber, arrivalTime, departureTime];
+      const departureData = [destination, airline, ticketNumber, arrivalTime, departureTime];
       const flightDetails = Utils.getConsolidateItenerary(returnData, departureData);
       return flightDetails;
     }
