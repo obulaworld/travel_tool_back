@@ -95,4 +95,11 @@ describe('switchMessage helper', () => {
     expect(readinessMessage.split(' ')).toContain('achieved', 'readiness');
     done();
   });
+  it('should return edit document message', (done) => {
+    const editNoticeMessage = switchMessage({
+      type: 'Edit Travel Document', details: { user: { name: 'Tester' } }
+    });
+    expect(editNoticeMessage.split(' ')).toContain('edited', 'document');
+    done();
+  });
 });

@@ -75,6 +75,8 @@ const switchMessage = (msgDetail) => {
       return (`Your ${msgDetail.details.type} ${msgDetail.details.type === 'passport' ? 'with number' : 'to'}
           <b>${msgDetail.details.type === 'passport' ? msgDetail.details.data.passportNumber : msgDetail.details.data.country}</b>
           has been verified by ${msgDetail.senderName} on ${msgDetail.details.createdAt}. Login to your travela account for details.`);
+    case 'Edit Travel Document':
+      return (`${msgDetail.details.user.name} just edited a travel document on Travela`);
     default: return '';
   }
 };

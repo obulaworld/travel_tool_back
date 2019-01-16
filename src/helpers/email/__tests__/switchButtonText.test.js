@@ -21,4 +21,8 @@ describe('Switch Button helper', () => {
     expect(switchButtonText('Deleted Request')).toEqual('View Notification');
     done();
   });
+  it('should show View document in case of Document Edit', (done) => {
+    expect(switchButtonText('Edit Travel Document')).toEqual('View Document');
+    done();
+  });
 });

@@ -197,7 +197,7 @@ export default class Validator {
   static checkSignedInUserOrAdmin(req, res, next) {
     if (req.user.UserInfo.id !== req.params.id) {
       return RoleValidator.checkUserRole(
-        ['Super Administrator', 'Travel Administrator']
+        ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
       )(req, res, next);
     }
 

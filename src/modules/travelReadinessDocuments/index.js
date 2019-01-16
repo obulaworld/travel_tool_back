@@ -22,7 +22,7 @@ TravelReadinessRouter.get(
   '/travelreadiness/users',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   TravelReadinessController.getAllUsersReadiness,
 );
