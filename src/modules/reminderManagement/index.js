@@ -17,4 +17,13 @@ ReminderManagementRouter.post(
   EmailTemplateController.createEmailTemplate
 );
 
+ReminderManagementRouter.get(
+  '/reminderManagement/emailTemplates',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+
+  EmailTemplateController.listEmailTemplates,
+);
 export default ReminderManagementRouter;

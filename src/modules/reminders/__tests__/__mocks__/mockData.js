@@ -5,7 +5,7 @@ export const reminderTemplates = [
     from: 'test.admin@andela.com',
     subject: 'Visa expiring',
     message: 'Your visa will soon expire',
-    createdBy: 8379,
+    createdBy: 8379
   },
   {
     id: 301,
