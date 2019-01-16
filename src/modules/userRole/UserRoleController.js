@@ -99,10 +99,15 @@ class UserRoleController {
       const [managerResult] = await models.User.findOrCreate({ where: travelaUser, });
       await managerResult.addRole(53019);
       result.dataValues.manager = travelaUser.fullName;
-      
+      await result.update({
+        department: userOnBamboo.data.department,
+        occupation: userOnBamboo.data.jobTitle,
+        manager: managerOnBamboo.data.displayName,
+        passportName: userOnProduction.data.values[0].name
+      });
       return UserRoleController.response(res, message, result);
     } catch (error) { /* istanbul ignore next */
-      return CustomError.handleError(error, 500, res);
+      return CustomError.handleError(error.toString(), 500, res);
     }
   }
 
