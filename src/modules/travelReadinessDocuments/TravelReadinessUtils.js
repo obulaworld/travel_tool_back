@@ -8,7 +8,7 @@ class TravelReadinessUtils {
       details,
       requestId: details.id,
       redirectLink:
-        `${process.env.REDIRECT_URL}`
+        `${process.env.REDIRECT_URL}/travel_readiness?id=${details.id}&type=${details.type}`
     };
     return mailBody;
   }
