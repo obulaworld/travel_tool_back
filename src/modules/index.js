@@ -12,6 +12,7 @@ import analyticsRouter from './analytics';
 import travelChecklistRouter from './travelChecklist';
 import documentsRouter from './documents';
 import travelReadinessRouter from './travelReadinessDocuments';
+import RemindersRouter from './reminders';
 
 
 const apiPrefix = '/api/v1';
@@ -31,6 +32,7 @@ const routes = (app) => {
   app.use(apiPrefix, analyticsRouter);
   app.use(apiPrefix, documentsRouter);
   app.use(apiPrefix, travelReadinessRouter);
+  app.use(apiPrefix, RemindersRouter);
   return app;
 };
 

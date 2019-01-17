@@ -74,6 +74,10 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'comments',
     });
+    User.hasMany(models.ReminderEmailTemplate, {
+      foreignKey: 'createdBy',
+      as: 'reminderEmailTemplates',
+    });
   };
   return User;
 };
