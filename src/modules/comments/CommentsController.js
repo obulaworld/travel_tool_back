@@ -8,10 +8,11 @@ class CommentsController {
   static async createComment(req, res) {
     try {
       const { requestId, documentId } = req.body;
+      const userIdInteger = await UserRoleController.getRecipient(null, req.user.UserInfo.id);
       const commentData = {
         ...req.body,
         id: Utils.generateUniqueId(),
-        userId: req.user.UserInfo.id
+        userId: userIdInteger.id
       };
       if (requestId) {
         const request = await models.Request.findById(requestId);
@@ -137,7 +138,8 @@ class CommentsController {
           error: 'Comment does not exist',
         });
       }
-      const isAllowed = req.user.UserInfo.id === foundComment.userId;
+      const userIdInteger = await UserRoleController.getRecipient(null, req.user.UserInfo.id);
+      const isAllowed = userIdInteger.id === foundComment.userId;
       if (isAllowed) {
         await foundComment.destroy();
         return res.status(200).json({
@@ -150,7 +152,7 @@ class CommentsController {
         message: 'You are not allowed to delete this comment',
       });
     } catch (error) { /* istanbul ignore next */
-      return Error.handleError('Server Error', res);
+      return Error.handleError('Server Error', 500, res);
     }
   }
 }

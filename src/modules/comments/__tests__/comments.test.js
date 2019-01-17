@@ -148,7 +148,7 @@ describe('Comments controller', () => {
           comment: {
             comment: "I thought we agreed you'd spend only two weeks",
             requestId: '-ss60B42oZ-a',
-            userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+            userId: 3
           }
         };
         request
@@ -247,6 +247,7 @@ describe('Comments controller', () => {
         done();
       });
       it('throws 401 if comment was created by a different user', async (done) => {
+        await models.User.create(mockData.otherUserMock);
         const expectedResponse = {
           success: false,
           message: 'You are not allowed to delete this comment',

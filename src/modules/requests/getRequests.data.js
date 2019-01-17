@@ -2,7 +2,14 @@
 const getRequests = (requestId, models) => models.Request.find({
   where: { id: requestId },
   include: [
-    'comments', {
+    {
+      model: models.Comment,
+      as: 'comments',
+      include: [{
+        model: models.User,
+        as: 'user',
+      }]
+    }, {
       model: models.Trip,
       as: 'trips',
       include: [{

@@ -6,7 +6,7 @@ module.exports = {
     queryInterface.addColumn('Comments', 'userEmail',
       {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       })
   )
 };
