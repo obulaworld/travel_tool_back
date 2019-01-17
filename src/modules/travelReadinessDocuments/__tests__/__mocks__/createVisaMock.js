@@ -12,7 +12,8 @@ const user = {
 const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
-    name: 'Samuel Kubai'
+    name: 'Samuel Kubai',
+    email: 'black.windows@andela.com',
   }
 };
 
@@ -76,6 +77,45 @@ const passport = {
   }
 };
 
+const travelTeamMember = {
+  id: 2000,
+  fullName: 'John kalyango',
+  email: 'john.kalyango@andela.com',
+  createdAt: '2019-01-04 012:11:52.181+01',
+  updatedAt: '2019-01-16 012:11:52.181+01',
+  userId: '-LJV4b1QTCYewOtk5F63',
+  gender: 'male',
+  location: 'Lagos',
+};
+
+const travelTeamMemberRole = {
+  id: 9000,
+  userId: 2000,
+  roleId: 339458,
+  centerId: 12345,
+  createdAt: '2019-01-04 012:11:52.181+01',
+  updatedAt: '2019-01-16 012:11:52.181+01',
+};
+const centers = [
+  {
+    id: 12345,
+    location: 'Lagos, Nigeria',
+    createdAt: '2018-11-12',
+    updatedAt: '2018-11-12'
+  },
+  {
+    id: 34567,
+    location: 'Kigali, Rwanda',
+    createdAt: '2018-11-12',
+    updatedAt: '2018-11-12'
+  },
+  {
+    id: 78901,
+    location: 'Austin, United States',
+    createdAt: '2018-11-12',
+    updatedAt: '2018-11-12'
+  }
+];
 export default {
-  user, payload, validVisa, validVisa2, invalidDocument, passport
+  user, payload, validVisa, validVisa2, invalidDocument, passport, travelTeamMember, travelTeamMemberRole, centers
 };

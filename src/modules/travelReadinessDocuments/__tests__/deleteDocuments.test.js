@@ -4,6 +4,7 @@ import models from '../../../database/models';
 import { role } from '../../userRole/__tests__/mocks/mockData';
 import createVisaMock from './__mocks__/createVisaMock';
 import Utils from '../../../helpers/Utils';
+import NotificationEngine from '../../notifications/NotificationEngine';
 
 import {
   travelAdmin,
@@ -20,6 +21,7 @@ const clearDatabase = async () => {
   await models.User.destroy({ force: true, truncate: { cascade: true } });
   await models.TravelReadinessDocuments.destroy({ force: true, truncate: { cascade: true } });
   await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+  await models.Center.destroy({ force: true, truncate: { cascade: true } });
 };
 
 describe('delete visa documents', () => {
@@ -27,7 +29,10 @@ describe('delete visa documents', () => {
     validVisa,
     validVisa2,
     user,
-    payload
+    payload,
+    travelTeamMember,
+    travelTeamMemberRole,
+    centers
   } = createVisaMock;
   const token = Utils.generateTestToken(payload);
   const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
@@ -38,6 +43,9 @@ describe('delete visa documents', () => {
     await models.Role.bulkCreate(role);
     await models.User.create(travelAdmin);
     await models.UserRole.create(travelAdminRole);
+    await models.User.create(travelTeamMember);
+    await models.Center.bulkCreate(centers);
+    await models.UserRole.create(travelTeamMemberRole);
   });
 
   afterAll(async () => {
@@ -80,6 +88,7 @@ describe('delete visa documents', () => {
     });
 
     it('should successfully delete a selected travel document', (done) => {
+      const sendMailSpy = jest.spyOn(NotificationEngine, 'sendMailToMany');
       request(app)
         .delete(`/api/v1/travelreadiness/documents/${documentId}`)
         .set('Content-Type', 'application/json')
@@ -88,6 +97,7 @@ describe('delete visa documents', () => {
           expect(res.statusCode).toEqual(200);
           expect(res.body.success).toEqual(true);
           expect(res.body.message).toEqual('Document successfully deleted');
+          expect(sendMailSpy).toHaveBeenCalled();
           done();
         });
     });
