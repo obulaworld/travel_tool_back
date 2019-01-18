@@ -207,15 +207,35 @@ export default class TravelReadinessController {
       };
 
       const updatedDocument = await foundDocument.update(documentUpdate);
+
+      await TravelReadinessController.sendEditMailNotification(req.user.UserInfo, updatedDocument);
       res.status(200).json({
         success: true,
         message: 'document successfully updated',
         updatedDocument,
       });
+
+
       return null;
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
+  }
+
+  static async sendEditMailNotification(user, document) {
+    // role id for travel team is 339458 and role id for travel admin role is 29187
+    const { users: travelTeamMembers } = await UserRoleController.calculateUserRole(339458);
+    const { users: travelAdmin } = await UserRoleController.calculateUserRole(29187);
+    const usersToReceiveEmail = [...travelTeamMembers, ...travelAdmin];
+    const topic = 'Travel Document Edit';
+    const type = 'Edit Travel Document';
+    const { id, type: documentType } = document;
+    const redirectLink = `${process.env.REDIRECT_URL}/travel-readiness/${user.id}?id=${id}&type=${documentType}`;
+    const details = { user };
+    const data = {
+      topic, type, redirectLink, details
+    };
+    NotificationEngine.sendMailToMany(usersToReceiveEmail, data);
   }
 
   static async deleteTravelReadinessDocument(req, res) {

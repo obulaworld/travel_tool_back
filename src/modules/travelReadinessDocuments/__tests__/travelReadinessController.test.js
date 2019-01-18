@@ -3,6 +3,7 @@ import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import models from '../../../database/models';
 import { role } from '../../userRole/__tests__/mocks/mockData';
+import NotificationEngine from '../../notifications/NotificationEngine';
 import {
   travelAdmin,
   travelAdminPayload,
@@ -11,6 +12,8 @@ import {
   documentsData,
   requesterPayload
 } from './__mocks__';
+import TravelReadiness from '../TravelReadinessController';
+import otherDocumentsMock from './__mocks__/otherDocumentsMock';
 
 const travelAdminToken = Utils.generateTestToken(travelAdminPayload);
 const requesterToken = Utils.generateTestToken(requesterPayload);
@@ -159,6 +162,16 @@ describe('TravelReadiness Controller', () => {
           expect(res.body.message).toEqual('Document with id NulI-D does not exist');
           done();
         });
+    });
+
+    it('should call this function and return undefined', async () => {
+      const sendMailToMany = jest.spyOn(NotificationEngine, 'sendMailToMany');
+      const { user } = otherDocumentsMock;
+      const document = { id: '1234', type: 'visa' };
+      const result = await TravelReadiness.sendEditMailNotification(user, document);
+
+      expect(sendMailToMany).toHaveBeenCalled();
+      expect(result).toBe(undefined);
     });
   });
 });
