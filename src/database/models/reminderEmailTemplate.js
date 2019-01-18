@@ -28,7 +28,10 @@ export default (sequelize, DataTypes) => {
     },
     cc: {
       allowNull: true,
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      get() {
+        return this.getDataValue('cc').split(',');
+      }
     },
     subject: {
       allowNull: false,
@@ -55,10 +58,7 @@ export default (sequelize, DataTypes) => {
   ReminderEmailTemplate.associate = (models) => {
     ReminderEmailTemplate.belongsTo(models.User, {
       foreignKey: 'createdBy',
-      as: 'reminderEmailTemplate'
-    });
-    ReminderEmailTemplate.hasMany(models.Reminder, {
-      foreignKey: 'reminderEmailTemplateId',
+      as: 'creator'
     });
   };
   return ReminderEmailTemplate;

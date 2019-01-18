@@ -5,7 +5,7 @@ export const reminderTemplates = [
     from: 'test.admin@andela.com',
     subject: 'Visa expiring',
     message: 'Your visa will soon expire',
-    createdBy: '-LMIzC-bCc10w7Uqc7-B'
+    createdBy: 8379,
   },
   {
     id: 301,
@@ -13,7 +13,7 @@ export const reminderTemplates = [
     from: 'test.admin@andela.com',
     subject: 'Passport expiring',
     message: 'Your passport is about to expire',
-    createdBy: '-LMIzC-bCc10w7Uqc7-B'
+    createdBy: 8379
   },
 ];
 

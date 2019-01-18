@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
-import models from '../../../database/models';
+import models from '../../../database/models/index';
 import { role } from '../../userRole/__tests__/mocks/mockData';
 import {
   travelAdmin,
@@ -9,7 +9,7 @@ import {
   usersData,
   travelAdminRole,
   requesterPayload
-} from '../../travelReadinessDocuments/__tests__/__mocks__';
+} from '../../travelReadinessDocuments/__tests__/__mocks__/index';
 import {
   reminderPayload,
   reminderPayloadWithoutTemplate,
