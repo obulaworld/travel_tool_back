@@ -40,14 +40,14 @@ module.exports = {
     },
     createdBy: {
       allowNull: false,
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       references: {
         model: 'Users',
-        key: 'id',
+        key: 'userId',
         onDelete: 'set null',
         as: 'creator'
       }
     }
   }),
-  down: queryInterface => queryInterface.dropTable('ReminderEmailTemplates', {})
+  down: queryInterface => queryInterface.dropTable('ReminderEmailTemplates')
 };
