@@ -42,6 +42,7 @@ describe('Comments controller', () => {
     await models.User.destroy({ truncate: true, cascade: true });
     await models.User.create(mockData.userMock);
     await models.Request.bulkCreate(mockData.requestsMock);
+    await models.TravelReadinessDocuments.destroy({ truncate: true, cascade: true });
     await models.TravelReadinessDocuments.create(mockData.documentMock);
     request
       .get('/api/v1/user')

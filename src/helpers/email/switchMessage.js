@@ -53,7 +53,8 @@ const switchMessage = (msgDetail) => {
     case 'Verified':
       return (`Your travel request <b>#${msgDetail.requestId}</b> was just verified by
           ${msgDetail.senderName}. Login to your travela account for details.`);
-    case 'Comments': return (attachCommentToMail(msgDetail));
+    case 'Request': return (attachCommentToMail(msgDetail));
+    case 'Document': return (attachCommentToMail(msgDetail));
     case 'Deleted Request': return deleteMessage(msgDetail);
     case 'Updated Request': return updateMessage(msgDetail);
     case 'Changed Room':
