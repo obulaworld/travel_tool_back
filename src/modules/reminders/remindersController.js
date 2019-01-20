@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import paginationHelper from '../../helpers/Pagination';
+import ReminderUtils from './ReminderUtils';
 
 export default class RemindersController {
   static async createReminder(req, res) {
@@ -148,6 +149,107 @@ export default class RemindersController {
         success: true,
         message: `${condition.conditionName} has been successfully enabled`,
         condition
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+  
+  static async updateMatchOrCreate(reminders, conditionId) {
+    const reminderIds = [];
+    await Promise.all(
+      await reminders.map(async (reminder) => {
+        if (reminder.id !== undefined) {
+          reminderIds.push(reminder.id);
+          const updatedReminder = await models.Reminder.update({
+            frequency: reminder.frequency,
+            reminderEmailTemplateId: reminder.reminderEmailTemplateId
+          }, {
+            where: {
+              conditionId,
+              id: reminder.id,
+            },
+            returning: true,
+          });
+          return updatedReminder[1][0];
+        }
+        const updatedReminder = await models.Reminder.create({
+          conditionId,
+          frequency: reminder.frequency,
+          reminderEmailTemplateId: reminder.reminderEmailTemplateId
+        });
+        reminderIds.push(updatedReminder.id);
+
+        return updatedReminder;
+      })
+    );
+    return reminderIds;
+  }
+
+  static async updateReminder(req, res) {
+    const { conditionId } = req.params;
+    const { reminders, ...conditionData } = req.body;
+
+    try {
+      await models.sequelize.transaction(async () => {
+        const reminderCondition = await RemindersController.updateReminderCondition(
+          res,
+          conditionData,
+          conditionId,
+        );
+
+        const reminderIds = await RemindersController
+          .updateMatchOrCreate(reminders, conditionId);
+
+        models.Reminder.destroy({
+          where: {
+            id: {
+              [Op.notIn]: reminderIds
+            },
+            conditionId
+          }
+        });
+        const updatedReminder = await models.Reminder.findAll({
+          where: { conditionId }
+        });
+        return ReminderUtils.sendSuccessResponse(res, reminderCondition, updatedReminder);
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+
+  static async updateReminderCondition(res, conditionData, conditionId) {
+    const reminderCondition = await models.Condition.findById(conditionId);
+    
+    const { conditionName, documentType } = conditionData;
+    await reminderCondition.update({
+      conditionName,
+      documentType,
+      where: { conditionId }
+    });
+    return reminderCondition;
+  }
+
+  static async getSingleReminder(req, res) {
+    const { conditionId } = req.params;
+    try {
+      const reminder = await models.Condition.findOne({
+        where: {
+          id: conditionId
+        },
+        include: [
+          {
+            model: models.Reminder,
+            as: 'reminders'
+          }
+        ]
+      });
+      res.status(201).json({
+        status: true,
+        message: 'Reminder found',
+        reminder
       });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);

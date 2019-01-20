@@ -133,9 +133,11 @@ const middleware = {
     validateUniqueReminderCondition: jest.fn(invokeNextMiddleware),
     checkIfConditionExists: jest.fn(invokeNextMiddleware),
     validateReason: jest.fn(invokeNextMiddleware),
-    checkIfEnabledConditionExists: jest.fn(invokeNextMiddleware),
-    checkIfDisabledConditionExists: jest.fn(invokeNextMiddleware)
-  }
+    checkIfDisabledConditionExists: jest.fn(invokeNextMiddleware),
+    checkReminderWithId: jest.fn(invokeNextMiddleware),
+    checkUniqueFrequency: jest.fn(invokeNextMiddleware),
+    getConditionById: jest.fn(invokeNextMiddleware),
+  },
 };
 
 export default middleware;
