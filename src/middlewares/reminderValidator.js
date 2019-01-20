@@ -78,6 +78,31 @@ class ReminderValidator {
     }
     next();
   }
+
+  static async checkIfConditionExists(req, res, next) {
+    const { conditionId } = req.params;
+
+    if (!Number.isInteger(Number(conditionId))) {
+      return res.status(422).json({ success: false, message: 'Condition ID is not an integer' });
+    }
+    const condition = await models.Condition.findOne({
+      where: { id: conditionId, disabled: false }
+    });
+
+    if (condition) {
+      return next();
+    }
+    return res.status(404).json({ success: false, message: 'Condition not found' });
+  }
+
+  static async validateReason(req, res, next) {
+    req.checkBody('reason', 'Reason for disabling is required')
+      .notEmpty().trim();
+    req.checkBody('reason', 'Reason must contain at least five characters')
+      .len({ min: 5 });
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
 }
 
 export default ReminderValidator;

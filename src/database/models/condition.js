@@ -26,6 +26,11 @@ export default (sequelize, DataTypes) => {
             msg: 'Document type cannot be empty'
           }
         }
+      },
+      disabled: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       }
     }, {}
   );
@@ -40,6 +45,10 @@ export default (sequelize, DataTypes) => {
     Condition.hasMany(models.Reminder, {
       foreignKey: 'conditionId',
       as: 'reminders',
+    });
+    Condition.hasMany(models.ReminderDisableReason, {
+      foreignKey: 'conditionId',
+      as: 'reasons'
     });
   };
 

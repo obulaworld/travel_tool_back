@@ -65,7 +65,7 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'createdBy',
       as: 'creator'
     });
-    ReminderEmailTemplate.hasMany(models.ReminderEmailTemplateDisableReason, {
+    ReminderEmailTemplate.hasMany(models.ReminderDisableReason, {
       foreignKey: 'emailTemplate',
       as: 'template'
     });
