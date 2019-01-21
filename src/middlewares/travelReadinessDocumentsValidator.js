@@ -51,7 +51,6 @@ export default class travelReadinessDocumentsValidator {
   static validateInput(req, res, next) {
     const validTypes = ['other', 'visa', 'passport'];
     const isType = Object.keys(req.body).filter(type => validTypes.includes(type)).length;
-   
     if (!isType) {
       return CustomError.handleError('Please provide a valid document type', 400, res);
     }
@@ -241,14 +240,28 @@ export default class travelReadinessDocumentsValidator {
 
   static validateDateWithExpiry(req, type) {
     req.checkBody(`${type}.dateOfIssue`, 'issue date date must be provided in the form  mm/dd/yyyy')
-      .notEmpty().ltrim().matches(checkDate);
+      .custom((date) => {
+        if (type === 'other' && !date) return true;
+        return checkDate.test(date);
+      });
+
+    if (type !== 'other') {
+      req.checkBody(
+        `${type}.dateOfIssue`,
+        'issue date date must be provided in the form  mm/dd/yyyy'
+      )
+        .notEmpty().ltrim().matches(checkDate);
+    }
+
     req.checkBody(`${type}.expiryDate`, 'expiry date date must be provided in the form mm/dd/yyyy')
       .notEmpty().ltrim().matches(checkDate);
     req.checkBody(`${type}.expiryDate`, 'expiry date should be greater than date of issue')
       .custom((date) => {
         const expiryDate = new Date(date);
-        const dateOfIssue = new Date(req.body[type].dateOfIssue);
-        return expiryDate > dateOfIssue;
+        const { dateOfIssue } = req.body[type];
+        if (type === 'other' && !dateOfIssue) return true;
+        const issueDate = new Date(dateOfIssue);
+        return expiryDate > issueDate;
       });
   }
 }
