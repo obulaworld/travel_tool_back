@@ -17,5 +17,13 @@ RemindersRouter.post(
   ReminderValidator.validateUniqueReminderCondition,
   RemindersController.createReminder,
 );
+RemindersRouter.get(
+  '/reminders',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  RemindersController.viewReminders
+);
 
 export default RemindersRouter;

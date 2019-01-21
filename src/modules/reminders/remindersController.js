@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 
@@ -27,6 +28,37 @@ export default class RemindersController {
         });
       });
     } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async viewReminders(req, res) {
+    try {
+      const documentType = req.query.document;
+      const query = {
+        include: [{
+          model: models.User,
+          as: 'user',
+          attributes: {
+            exclude: [
+              'passportName', 'department', 'occupation',
+              'manager', 'userId', 'gender', 'picture',
+              'location', 'updatedAt', 'createdAt', 'id', 'email']
+          }
+        }],
+        where: documentType ? {
+          documentType: {
+            [Op.iLike]: `%${documentType}%`
+          }
+        } : {}
+      };
+      const reminders = await models.Condition.findAll(query);
+      res.status(200).json({
+        success: true,
+        message: `Successfully retrieved ${documentType || 'reminder'}s`,
+        reminders
+      });
+    } catch (error) {
       CustomError.handleError(error.message, 500, res);
     }
   }

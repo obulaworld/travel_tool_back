@@ -34,6 +34,7 @@ export default (sequelize, DataTypes) => {
     Condition.belongsTo(models.User, {
       foreignKey: 'userId',
       as: 'user',
+      targetKey: 'userId'
     });
 
     Condition.hasMany(models.Reminder, {
