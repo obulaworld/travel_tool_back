@@ -40,7 +40,7 @@ export default class EmailTemplateController {
       CustomError.handleError(error.message, 500, res);
     }
   }
-  
+
   static async listEmailTemplates(req, res) {
     try {
       const limit = 6;
@@ -69,7 +69,45 @@ export default class EmailTemplateController {
       };
       res.status(200).json(output);
     } catch (error) {
-      /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async disableEmailTemplate(req, res) {
+    try {
+      const { templateId } = req.params;
+      const { reason } = req.body;
+      const emailTemplate = await models.ReminderEmailTemplate.findById(templateId);
+
+      if (!emailTemplate) {
+        return res.status(404).json({
+          success: false,
+          message: 'Email Template does not exist',
+        });
+      }
+
+      if (!reason || !reason.trim()) {
+        return res.status(409).json({
+          success: false,
+          message: 'Reason for disabling Email Template is required',
+        });
+      }
+
+      await emailTemplate.update({
+        disabled: true,
+      });
+
+      const Reason = await models.ReminderEmailTemplateDisableReason.create({
+        reason: req.body.reason.trim(),
+        reminderEmailTemplateId: emailTemplate.id
+      });
+      return res.status(200).json({
+        success: true,
+        message: `${emailTemplate.name} has been successfully disabled`,
+        updatedTemplate: emailTemplate,
+        reason: Reason
+      });
+    } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
   }

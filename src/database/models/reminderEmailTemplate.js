@@ -53,12 +53,21 @@ export default (sequelize, DataTypes) => {
         }
       }
     },
+    disabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
   }, { paranoid: true });
 
   ReminderEmailTemplate.associate = (models) => {
     ReminderEmailTemplate.belongsTo(models.User, {
       foreignKey: 'createdBy',
       as: 'creator'
+    });
+    ReminderEmailTemplate.hasMany(models.ReminderEmailTemplateDisableReason, {
+      foreignKey: 'emailTemplate',
+      as: 'template'
     });
   };
   return ReminderEmailTemplate;

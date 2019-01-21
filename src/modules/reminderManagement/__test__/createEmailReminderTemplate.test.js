@@ -43,22 +43,16 @@ const userMock = [
     updatedAt: '2018-08-16 012:11:52.181+01'
   }
 ];
-
-const userRole = [{
-  userId: 20000,
-  roleId: 29187
-}, {
+const userRole = [{ userId: 20000, roleId: 29187 }, {
   userId: 20001,
   roleId: 401938
 }];
-
 const token = Utils.generateTestToken(payload);
 const nonTravelAdminToken = Utils.generateTestToken(nonTravelAdmin);
 
 const createEmailTemplate = (data, done, expectedResponse, bodyField = null, authorizedToken = token) => {
   const call = request(app)
     .post('/api/v1/reminderManagement/emailTemplates');
-
   if (authorizedToken) {
     call.set('Authorization', authorizedToken);
   }
@@ -80,7 +74,6 @@ describe('Reminder Email Template Controller', () => {
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.ReminderEmailTemplate.destroy({ force: true, truncate: { cascade: true } });
-
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(userMock);
     await models.UserRole.bulkCreate(userRole);
@@ -243,6 +236,34 @@ describe('Reminder Email Template Controller', () => {
         .send(mockData.reminderEmailTemplate);
       expect(res.status).toEqual(409);
       expect(res.body.error).toEqual('Reminder email template names must be unique');
+    });
+  });
+
+  describe('PUT /api/v1/reminderManagement/emailTemplates/disable/:templateId', () => {
+    it('should disable a created email template successfully', async (done) => {
+      const res1 = await request(app)
+        .post('/api/v1/reminderManagement/emailTemplates')
+        .set('Authorization', token)
+        .send(mockData.reminderEmailTemplate);
+      const res = await request(app)
+        .put(`/api/v1/reminderManagement/emailTemplates/disable/ ${res1.body.reminderEmailTemplate.id}`)
+        .set('Authorization', token)
+        .send({ reason: 'I dont like it anymore' });
+      expect(res.status).toEqual(200);
+      expect(res.body.message).toEqual(`${res.body.updatedTemplate.name} has been successfully disabled`);
+      done();
+    });
+    it('should not disable an email template with an invalid id', async (done) => {
+      await request(app)
+        .post('/api/v1/reminderManagement/emailTemplates')
+        .set('Authorization', token)
+        .send(mockData.reminderEmailTemplate);
+      const res = await request(app)
+        .put(`/api/v1/reminderManagement/emailTemplates/disable/ ${30}`)
+        .set('Authorization', token)
+        .send({ reason: 'I dont like it anymore' });
+      expect(res.status).toEqual(404);
+      done();
     });
   });
 });

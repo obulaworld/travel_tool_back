@@ -47,7 +47,7 @@ module.exports = {
         onDelete: 'set null',
         as: 'creator'
       }
-    }
+    },
   }),
   down: queryInterface => queryInterface.dropTable('ReminderEmailTemplates')
 };
