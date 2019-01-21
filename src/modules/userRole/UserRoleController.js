@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import axios from 'axios';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import UserHelper from '../../helpers/user';
@@ -111,19 +110,14 @@ class UserRoleController {
     }
   }
 
-  static async getUserFromApi(url) {
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.USER_JW}`
+  static async createUserFromApi(email, userToken) {
+    const userEmailObject = {
+      dataValues: {
+        email
+      }
     };
-    const data = await axios.get(url, {
-      headers
-    });
-    return data;
-  }
-
-  static async createUserFromApi(url) {
-    const { data } = await UserRoleController.getUserFromApi(url);
+    UserHelper.authorizeRequests(userToken);
+    const { data } = await UserHelper.getUserOnProduction(userEmailObject);
     const user = data.values[0];
     if (data.total === 0) {
       return { found: false };
@@ -133,7 +127,7 @@ class UserRoleController {
       email: user.email,
       userId: user.id,
       picture: user.picture,
-      location: user.location.name
+      location: user.location ? user.location.name : 'kampala' // Fix location even for staging
     });
     return { createdUser, found: true };
   }
@@ -146,8 +140,9 @@ class UserRoleController {
         attributes: ['email', 'fullName', 'userId', 'id']
       });
       if (!findUser) {
-        const url = `${process.env.ANDELA_PROD_API}/users?email=${email}`;
-        const { found, createdUser } = await UserRoleController.createUserFromApi(url);
+        const { found, createdUser } = await UserRoleController.createUserFromApi(
+          email, req.userToken
+        );
         if (!found) {
           const message = 'Email does not exist';
           return CustomError.handleError(message, 404, res);
