@@ -1,5 +1,16 @@
 import checkoutTemplate from './checkoutTemplate';
 
+export const travelReadinessVerification = (msgDetail) => {
+  const messageInfo = 'Login to your travela account for details.';
+  const message = `has been verified by ${msgDetail.senderName} on
+   ${msgDetail.details.createdAt}. ${messageInfo}`;
+  const docType = `Your ${msgDetail.details.type}`;
+  if (msgDetail.details.type !== 'other') {
+    if (msgDetail.details.type === 'passport') return `${docType} with number ${msgDetail.details.data.passportNumber} ${message}`;
+    return `${docType} to ${msgDetail.details.data.country} ${message}`;
+  } return `${docType} document, ${msgDetail.details.data.name} ${message}`;
+};
+
 const attachCommentToMail = msgDetail => (
   `
   <b>${msgDetail.senderName}</b> posted a comment.
@@ -58,8 +69,7 @@ const switchMessage = (msgDetail) => {
     case 'Deleted Request': return deleteMessage(msgDetail);
     case 'Updated Request': return updateMessage(msgDetail);
     case 'Changed Room':
-      return (
-        `Your residence record for the travel request
+      return (`Your residence record for the travel request
         <a href="${process.env.REDIRECT_URL}/requests/${msgDetail.requestId}"><b>#
         ${msgDetail.requestId}</b></a> was updated by ${msgDetail.senderName}. <b>
         Login to your travela account for details.`);
@@ -72,10 +82,7 @@ const switchMessage = (msgDetail) => {
         `<b style="text-transform: capitalize">${msgDetail.senderName}</b> has checked in at ${msgDetail.guesthouseName} guesthouse at ${msgDetail.checkInTime} and would be spending ${msgDetail.durationOfStay} day(s). Click on the link below to view details`
       );
     case 'Guesthouse Check-out': return checKoutMessage(msgDetail);
-    case 'Travel Readiness Document Verified':
-      return (`Your ${msgDetail.details.type} ${msgDetail.details.type === 'passport' ? 'with number' : 'to'}
-          <b>${msgDetail.details.type === 'passport' ? msgDetail.details.data.passportNumber : msgDetail.details.data.country}</b>
-          has been verified by ${msgDetail.senderName} on ${msgDetail.details.createdAt}. Login to your travela account for details.`);
+    case 'Travel Readiness Document Verified': return travelReadinessVerification(msgDetail);
     case 'Edit Travel Document':
       return (`${msgDetail.details.user.name} just edited a travel document on Travela`);
     case 'Send delete email verification':

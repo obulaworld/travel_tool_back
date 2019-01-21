@@ -119,4 +119,18 @@ describe('switchMessage helper', () => {
     expect(editNoticeMessage.split(' ')).toContain('edited', 'document');
     done();
   });
+  it('should return document verification message for passport', (done) => {
+    const verifiedMessage = switchMessage({
+      type: 'Travel Readiness Document Verified', details: { type: 'passport', data: 'DFGHT' }
+    });
+    expect(verifiedMessage.split(' ')).toContain('verified');
+    done();
+  });
+  it('should return document verification message for other documents', (done) => {
+    const verifiedMessage = switchMessage({
+      type: 'Travel Readiness Document Verified', details: { type: 'other', data: { name: 'yellow fever' } }
+    });
+    expect(verifiedMessage.split(' ')).toContain('verified');
+    done();
+  });
 });
