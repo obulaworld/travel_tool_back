@@ -14,24 +14,31 @@ class CommentsController {
         id: Utils.generateUniqueId(),
         userId: userIdInteger.id
       };
+      let commentType;
+      let request;
       if (requestId) {
-        const request = await models.Request.findById(requestId);
-        return CommentsController.getReferenceIdFromTable(request, commentData, req, res);
+        commentType = 'Request';
+        request = await models.Request.findById(requestId);
       }
       if (documentId) {
-        const document = await models.TravelReadinessDocuments.findById(documentId);
-        return CommentsController.getReferenceIdFromTable(document, commentData, req, res);
+        commentType = 'Document';
+        request = await models.TravelReadinessDocuments.findById(documentId);
       }
+      return CommentsController.getReferenceIdFromTable(
+        request, commentData, req, res, commentType
+      );
     } catch (error) { /* istanbul ignore next */
       return Error.handleError('Server Error', 500, res);
     }
   }
 
-  static async getReferenceIdFromTable(request, commentData, req, res) {
+  static async getReferenceIdFromTable(request, commentData, req, res, commentType) {
     if (request) {
       const newComment = await models.Comment.create(commentData);
       const commentDetails = { ...newComment };
-      await CommentsController.createNotificationByManager(req, res, request, commentDetails);
+      await CommentsController.createNotificationByManager(
+        req, res, request, commentDetails, commentType
+      );
       return res.status(201).json({
         success: true,
         message: 'Comment created successfully',
@@ -41,11 +48,11 @@ class CommentsController {
     return Error.handleError('Request does not exist', 404, res);
   }
 
-  static async createNotificationByManager(req, res, request, comment) {
+  static async createNotificationByManager(req, res, request, comment, commentType) {
     try {
       const { name, picture } = req.user.UserInfo;
       const { id, userId } = request;
-      const manager = request.manager || req.user.UserInfo.name;
+      const manager = request.manager || name;
       const requesterDetails = await UserRoleController.getRecipient(null, userId);
       const managerDetail = await UserRoleController.getRecipient(manager);
       const newNotificationDetail = {
@@ -57,32 +64,47 @@ class CommentsController {
         senderName: name,
         senderImage: picture
       };
-      let redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/${id}`;
-      let recipientEmail = requesterDetails.email;
-      let recipientName = requesterDetails.fullName;
-      let recipientId = userId;
-      /* istanbul ignore next */
-      if (userId === req.user.UserInfo.id) {
-        redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/my-approvals/${id}`;
-        recipientEmail = managerDetail.email;
-        recipientName = manager;
-        recipientId = managerDetail.userId;
-      }
-      /* istanbul ignore next */
-      CommentsController.sendEmail(
-        req.user.UserInfo.id, recipientEmail, recipientName,
-        name, redirectLink, id, recipientId, comment, picture
+
+      return CommentsController.createRedirectLink(
+        req, res, userId, id, requesterDetails, managerDetail, manager,
+        request, commentType, name, comment, picture, newNotificationDetail
       );
-      /* istanbul ignore next */
-      if (managerDetail.userId === req.user.UserInfo.id) {
-        return NotificationEngine.notify(newNotificationDetail);
-      }
-    } catch (error) { /* istanbul ignore next */
+    } catch (error) { /* istanbul ignore next */ }
+  }
+
+  static createRedirectLink(
+    req, res, userId, id, requesterDetails, managerDetail, manager,
+    request, commentType, name, comment, picture, newNotificationDetail
+  ) {
+    let redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/${id}`;
+    let recipientEmail = requesterDetails.email;
+    let recipientName = requesterDetails.fullName;
+    let recipientId = userId;
+    /* istanbul ignore next */
+    if (userId === req.user.UserInfo.id) {
+      redirectLink = `${process.env.REDIRECT_URL}/redirect/requests/my-approvals/${id}`;
+      recipientEmail = managerDetail.email;
+      recipientName = manager;
+      recipientId = managerDetail.userId;
+    }
+    if (commentType === 'Document') {
+      const { type: documentType } = request;
+      redirectLink = `${process.env.REDIRECT_URL}/travel-readiness/${userId}?id=${id}&type=${documentType}`;
+    }
+    /* istanbul ignore next */
+    CommentsController.sendEmail(
+      req.user.UserInfo.id, recipientEmail, recipientName,
+      name, redirectLink, id, recipientId, comment, picture, commentType
+    );
+    /* istanbul ignore next */
+    if (managerDetail.userId === req.user.UserInfo.id) {
+      return NotificationEngine.notify(newNotificationDetail);
     }
   }
 
   static sendEmail(
-    senderId, recipientEmail, recipientName, name, redirectLink, id, recipientId, comment, picture
+    senderId, recipientEmail, recipientName, name, redirectLink,
+    id, recipientId, comment, picture, commentType
   ) {
     return NotificationEngine.sendMail({
       recipient: {
@@ -90,8 +112,8 @@ class CommentsController {
         name: recipientName
       },
       sender: name,
-      topic: `Travel Notification (#${id}#${senderId}#${recipientId}#)`,
-      type: 'Comments',
+      topic: `Travel Comment Notification (#${id}#${senderId}#${recipientId}#)`,
+      type: commentType,
       redirectLink,
       requestId: id,
       comment,

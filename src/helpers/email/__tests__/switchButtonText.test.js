@@ -5,6 +5,10 @@ describe('Switch Button helper', () => {
     expect(switchButtonText('New Request')).toEqual('View Request');
     done();
   });
+  it('should show View Document in case of new comment on a doucment', (done) => {
+    expect(switchButtonText('Document')).toEqual('View Document');
+    done();
+  });
   it('should return nothing if type is not available', (done) => {
     expect(switchButtonText('')).toEqual('View Request');
     done();
@@ -23,6 +27,18 @@ describe('Switch Button helper', () => {
   });
   it('should show View document in case of Document Edit', (done) => {
     expect(switchButtonText('Edit Travel Document')).toEqual('View Document');
+    done();
+  });
+  it('should show View Check Out Details in case of Guesthouse Check-out', (done) => {
+    expect(switchButtonText('Guesthouse Check-out')).toEqual('View Check Out Details');
+    done();
+  });
+  it('should show View Check In Details in case of Guesthouse Check-In', (done) => {
+    expect(switchButtonText('Guesthouse Check-In')).toEqual('View Check In Details');
+    done();
+  });
+  it('should show View Document in case of Travel Readiness Document Verified', (done) => {
+    expect(switchButtonText('Travel Readiness Document Verified')).toEqual('View Document');
     done();
   });
 });

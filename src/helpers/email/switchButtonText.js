@@ -2,6 +2,8 @@ const switchButtonText = (type) => {
   switch (type) {
     case 'New Request':
       return 'View Request';
+    case 'Document':
+      return 'View Document';
     case 'Trip Survey':
       return 'Start Survey';
     case 'Deleted Request':

@@ -42,7 +42,15 @@ describe('switchMessage helper', () => {
 
   it('should return posted comment message', (done) => {
     const receivedMessage = switchMessage(
-      { type: 'Comments', senderName: 'Tester', comment: { dataValues: { picture: 'fake' } } }
+      { type: 'Request', senderName: 'Tester', comment: { dataValues: { picture: 'fake' } } }
+    );
+    expect(receivedMessage.split(' ')).toContain('Login');
+    done();
+  });
+
+  it('should return posted comment message on a documemt', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'Document', senderName: 'Tester', comment: { dataValues: { picture: 'fake' } } }
     );
     expect(receivedMessage.split(' ')).toContain('Login');
     done();
@@ -59,6 +67,15 @@ describe('switchMessage helper', () => {
   it('should return update Request message', (done) => {
     const receivedMessage = switchMessage(
       { type: 'Updated Request', senderName: 'Malibua' }
+    );
+
+    expect(receivedMessage.split(' ')).toContain('Login');
+    done();
+  });
+
+  it('should return delete Request message', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'Deleted Request', senderName: 'Malibua' }
     );
 
     expect(receivedMessage.split(' ')).toContain('Login');
