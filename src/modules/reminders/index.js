@@ -17,6 +17,7 @@ RemindersRouter.post(
   ReminderValidator.validateUniqueReminderCondition,
   RemindersController.createReminder,
 );
+
 RemindersRouter.get(
   '/reminders',
   authenticate,
@@ -35,6 +36,16 @@ RemindersRouter.put(
   ReminderValidator.checkIfConditionExists,
   ReminderValidator.validateReason,
   RemindersController.disableReminderConditions,
+);
+
+RemindersRouter.put(
+  '/reminders/conditions/enable/:conditionId',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  ReminderValidator.checkIfDisabledConditionExists,
+  RemindersController.enableReminderConditions
 );
 
 export default RemindersRouter;

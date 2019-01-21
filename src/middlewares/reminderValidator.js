@@ -79,6 +79,24 @@ class ReminderValidator {
     next();
   }
 
+  static async checkIfDisabledConditionExists(req, res, next) {
+    const { conditionId } = req.params;
+
+    if (!Number.isInteger(Number(req.params.conditionId))) {
+      return res.status(422).json({ success: false, message: 'The Condition ID is not an integer' });
+    }
+    const condition = await models.Condition.findOne({
+      where: { id: conditionId, disabled: true }
+    });
+
+    if (condition) {
+      return next();
+    }
+
+    return res.status(404).json({ success: false, message: 'Condition not found' });
+  }
+
+
   static async checkIfConditionExists(req, res, next) {
     const { conditionId } = req.params;
 
