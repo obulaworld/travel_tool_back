@@ -1,4 +1,5 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
+import * as _ from 'lodash';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 
@@ -35,6 +36,11 @@ export default class RemindersController {
   static async viewReminders(req, res) {
     try {
       const documentType = req.query.document;
+      const documentCount = await models.Condition.findAll({
+        group: ['documentType'],
+        attributes: ['documentType', [Sequelize.fn('count', 'documentType'), 'count']],
+        raw: true
+      });
       const query = {
         include: [{
           model: models.User,
@@ -56,7 +62,8 @@ export default class RemindersController {
       res.status(200).json({
         success: true,
         message: `Successfully retrieved ${documentType || 'reminder'}s`,
-        reminders
+        reminders,
+        meta: { documentCount: _.mapValues(_.keyBy(documentCount, 'documentType'), 'count') }
       });
     } catch (error) {
       CustomError.handleError(error.message, 500, res);
