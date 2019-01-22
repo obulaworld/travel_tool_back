@@ -78,6 +78,8 @@ const switchMessage = (msgDetail) => {
           has been verified by ${msgDetail.senderName} on ${msgDetail.details.createdAt}. Login to your travela account for details.`);
     case 'Edit Travel Document':
       return (`${msgDetail.details.user.name} just edited a travel document on Travela`);
+    case 'Send delete email verification':
+      return `${msgDetail.senderName} Just deleted a travel document`;
     default: return '';
   }
 };

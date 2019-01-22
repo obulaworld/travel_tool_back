@@ -5,7 +5,7 @@ import switchButtonText from './switchButtonText';
 dotenv.config();
 
 const returnButton = (type, redirectLink) => {
-  const button = type !== 'Deleted Request' ? `<a
+  const button = type !== 'Deleted Request' && type !== 'Send delete email verification' ? `<a
   href="${redirectLink}"
   class="button"
   style="width: 174px;

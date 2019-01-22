@@ -241,7 +241,7 @@ export default class TravelReadinessController {
   static async deleteTravelReadinessDocument(req, res) {
     try {
       const { documentId } = req.params;
-      const { id } = req.user.UserInfo;
+      const { id, name, email } = req.user.UserInfo;
 
       const documentToBeDeleted = await models.TravelReadinessDocuments.findById(documentId);
 
@@ -261,6 +261,7 @@ export default class TravelReadinessController {
 
       if (!documentToBeDeleted.isVerified && documentToBeDeleted.userId === id) {
         documentToBeDeleted.destroy();
+        await TravelReadinessUtils.sendMailToTravelTeamMembers(name, email);
         return res.status(200).json({
           success: true,
           message: 'Document successfully deleted',
