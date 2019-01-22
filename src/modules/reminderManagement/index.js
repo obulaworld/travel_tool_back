@@ -35,4 +35,14 @@ ReminderManagementRouter.put(
   EmailTemplateController.disableEmailTemplate,
 );
 
+ReminderManagementRouter.put(
+  '/reminderManagement/emailTemplates/enable/:templateId',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator']
+  ),
+  ReminderEmailTemplateValidator.validateReqParams,
+  EmailTemplateController.enableEmailTemplate,
+);
+
 export default ReminderManagementRouter;

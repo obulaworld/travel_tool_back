@@ -120,7 +120,8 @@ const middleware = {
   ReminderEmailTemplateValidator: {
     validateUniqueName: jest.fn(invokeNextMiddleware),
     validateReminderEmailTemplate: jest.fn(invokeNextMiddleware),
-    validateCCEmails: jest.fn(invokeNextMiddleware)
+    validateCCEmails: jest.fn(invokeNextMiddleware),
+    validateReqParams: jest.fn(invokeNextMiddleware)
   },
   DocumentValidator: {
     validatInput: jest.fn(invokeNextMiddleware),

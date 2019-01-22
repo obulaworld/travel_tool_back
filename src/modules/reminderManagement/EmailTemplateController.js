@@ -72,7 +72,7 @@ export default class EmailTemplateController {
       CustomError.handleError(error.message, 500, res);
     }
   }
-
+  
   static async disableEmailTemplate(req, res) {
     try {
       const { templateId } = req.params;
@@ -108,6 +108,29 @@ export default class EmailTemplateController {
         reason: Reason
       });
     } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async enableEmailTemplate(req, res) {
+    try {
+      const { templateId } = req.params;
+      const emailTemplate = await models.ReminderEmailTemplate.findById(templateId);
+      if (!emailTemplate) {
+        return res.status(404).json({
+          success: false,
+          message: 'Reminder email Template does not exist',
+        });
+      }
+      await emailTemplate.update({
+        disabled: false,
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'Reminder email template has been successfully enabled',
+        updatedTemplate: emailTemplate,
+      });
+    } catch (error) {
       CustomError.handleError(error.message, 500, res);
     }
   }

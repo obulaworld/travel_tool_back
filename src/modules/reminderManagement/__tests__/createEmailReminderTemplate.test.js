@@ -3,7 +3,7 @@ import models from '../../../database/models';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import { role } from '../../userRole/__tests__/mocks/mockData';
-import mockData from './mocks/mockEmailTemplate';
+import mockData from './__mocks__/mockEmailTemplate';
 
 
 const request = supertest;
@@ -50,7 +50,8 @@ const userRole = [{ userId: 20000, roleId: 29187 }, {
 const token = Utils.generateTestToken(payload);
 const nonTravelAdminToken = Utils.generateTestToken(nonTravelAdmin);
 
-const createEmailTemplate = (data, done, expectedResponse, bodyField = null, authorizedToken = token) => {
+const createEmailTemplate = (data, done, expectedResponse,
+  bodyField = null, authorizedToken = token) => {
   const call = request(app)
     .post('/api/v1/reminderManagement/emailTemplates');
   if (authorizedToken) {
@@ -70,9 +71,9 @@ const createEmailTemplate = (data, done, expectedResponse, bodyField = null, aut
 
 describe('Reminder Email Template Controller', () => {
   beforeAll(async () => {
-    await models.User.destroy({ force: true, truncate: { cascade: true } });
-    await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.ReminderEmailTemplate.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(userMock);
@@ -246,7 +247,8 @@ describe('Reminder Email Template Controller', () => {
         .set('Authorization', token)
         .send(mockData.reminderEmailTemplate);
       const res = await request(app)
-        .put(`/api/v1/reminderManagement/emailTemplates/disable/ ${res1.body.reminderEmailTemplate.id}`)
+        .put(`/api/v1/reminderManagement/emailTemplates/disable/
+         ${res1.body.reminderEmailTemplate.id}`)
         .set('Authorization', token)
         .send({ reason: 'I dont like it anymore' });
       expect(res.status).toEqual(200);
@@ -262,6 +264,56 @@ describe('Reminder Email Template Controller', () => {
         .put(`/api/v1/reminderManagement/emailTemplates/disable/ ${30}`)
         .set('Authorization', token)
         .send({ reason: 'I dont like it anymore' });
+      expect(res.status).toEqual(404);
+      done();
+    });
+    it('should not disable an email template without a reason', async (done) => {
+      const res1 = await request(app)
+        .post('/api/v1/reminderManagement/emailTemplates')
+        .set('Authorization', token)
+        .send(mockData.reminderEmailTemplate);
+      const res = await request(app)
+        .put(`/api/v1/reminderManagement/emailTemplates/disable/
+        ${res1.body.reminderEmailTemplate.id}`)
+        .set('Authorization', token);
+      expect(res.status).toEqual(409);
+      expect(res.body.message).toEqual('Reason for disabling Email Template is required');
+      done();
+    });
+  });
+  describe('PUT /api/v1/reminderManagement/emailTemplates/enable/:templateId', () => {
+    it('should enable a created email template successfully', async (done) => {
+      const res1 = await request(app)
+        .post('/api/v1/reminderManagement/emailTemplates')
+        .set('Authorization', token)
+        .send(mockData.reminderEmailTemplate);
+      const templateId = res1.body.reminderEmailTemplate.id;
+      const res = await request(app)
+        .put(`/api/v1/reminderManagement/emailTemplates/enable/${templateId}`)
+        .set('Authorization', token);
+      expect(res.status).toEqual(200);
+      expect(res.body.message).toEqual('Reminder email template has been successfully enabled');
+      done();
+    });
+
+    it('should not enable a created email template if templateId is not a number', async (done) => {
+      await request(app)
+        .post('/api/v1/reminderManagement/emailTemplates')
+        .set('Authorization', token)
+        .send(mockData.reminderEmailTemplate);
+      const res = await request(app)
+        .put('/api/v1/reminderManagement/emailTemplates/enable/thhy')
+        .set('Authorization', token);
+      expect(res.status).toEqual(422);
+      expect(res.body.message).toEqual('Validation failed');
+      done();
+    });
+
+    it('should not enable an email template with an invalid id', async (done) => {
+      await request(app);
+      const res = await request(app)
+        .put(`/api/v1/reminderManagement/emailTemplates/enable/${30}`)
+        .set('Authorization', token);
       expect(res.status).toEqual(404);
       done();
     });
