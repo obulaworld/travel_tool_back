@@ -73,4 +73,15 @@ export default class ReminderEmailTemplateValidator {
       Validator.errorHandler(res, errors, next);
     }
   }
+
+  static async validateReqParams(req, res, next) {
+    req.check('templateId', 'templateId should be an integer').isInt();
+    if (req.validationErrors()) {
+      return req.getValidationResult().then((result) => {
+        const errors = result.array({ onlyFirstError: true });
+        return Validator.errorHandler(res, errors, next);
+      });
+    }
+    next();
+  }
 }
