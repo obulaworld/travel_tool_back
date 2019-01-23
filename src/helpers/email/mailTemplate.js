@@ -5,7 +5,12 @@ import switchButtonText from './switchButtonText';
 dotenv.config();
 
 const returnButton = (type, redirectLink) => {
-  const button = type !== 'Deleted Request' && type !== 'Send delete email verification' ? `<a
+  let typeText = 'not null';
+  if ((type === 'Deleted Request' && type === 'Send delete email verification')
+  || type === 'Reminder') {
+    typeText = null;
+  }
+  const button = typeText ? `<a
   href="${redirectLink}"
   class="button"
   style="width: 174px;
@@ -97,7 +102,18 @@ const mailTemplate = (
         margin: 0 auto 50px auto;"
     >
       ${switchMessage({
-    type, senderName, recipientName, requestId, comment, guesthouseName, checkInTime, durationOfStay, destination, checkoutTime, details, picture
+    type,
+    senderName,
+    recipientName,
+    requestId,
+    comment,
+    guesthouseName,
+    checkInTime,
+    durationOfStay,
+    destination,
+    checkoutTime,
+    details,
+    picture
   })}
     </p>
     ${returnButton(type, redirectLink)}

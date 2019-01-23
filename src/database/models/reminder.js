@@ -23,6 +23,7 @@ export default (sequelize, DataTypes) => {
   Reminder.associate = (models) => {
     Reminder.belongsTo(models.Condition, {
       foreignKey: 'conditionId',
+      as: 'condition'
     });
 
     Reminder.belongsTo(models.ReminderEmailTemplate, {

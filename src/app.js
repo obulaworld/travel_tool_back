@@ -9,6 +9,7 @@ import expressValidator from 'express-validator';
 import modules from './modules';
 import MailTravelMembers from './modules/userRole/MailTravelMembers';
 import CloudinaryDeletion from './modules/travelChecklist/CloudinaryDeletion';
+import ReminderEmails from './modules/reminders/reminderEmails';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use(morgan('dev'));
 app.use(passport.initialize());
 
 MailTravelMembers.sendMail();
+ReminderEmails.sendMail();
 
 
 CloudinaryDeletion.executeResourceDelete();
