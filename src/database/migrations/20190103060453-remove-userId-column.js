@@ -7,7 +7,7 @@ module.exports = {
       {
         type: Sequelize.STRING,
         onDelete: 'set null',
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'Users',
           key: 'userId',
