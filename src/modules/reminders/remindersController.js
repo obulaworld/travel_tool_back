@@ -33,6 +33,19 @@ export default class RemindersController {
     }
   }
 
+  static returnInclude() {
+    const include = [{
+      model: models.User,
+      as: 'user',
+      attributes: ['fullName']
+    }, {
+      model: models.ReminderDisableReason,
+      as: 'reasons',
+      attributes: ['reason', 'conditionId', 'createdAt']
+    }];
+    return include;
+  }
+
   static async viewReminders(req, res) {
     try {
       const documentType = req.query.document;
@@ -41,22 +54,15 @@ export default class RemindersController {
         attributes: ['documentType', [Sequelize.fn('count', 'documentType'), 'count']],
         raw: true
       });
+      const include = RemindersController.returnInclude();
       const query = {
-        include: [{
-          model: models.User,
-          as: 'user',
-          attributes: {
-            exclude: [
-              'passportName', 'department', 'occupation',
-              'manager', 'userId', 'gender', 'picture',
-              'location', 'updatedAt', 'createdAt', 'id', 'email']
-          }
-        }],
+        include,
         where: documentType ? {
           documentType: {
             [Op.iLike]: `%${documentType}%`
           }
-        } : {}
+        } : {},
+        order: [[{ model: models.ReminderDisableReason, as: 'reasons' }, 'createdAt', 'DESC']]
       };
       const reminders = await models.Condition.findAll(query);
       res.status(200).json({
@@ -65,8 +71,49 @@ export default class RemindersController {
         reminders,
         meta: { documentCount: _.mapValues(_.keyBy(documentCount, 'documentType'), 'count') }
       });
-    } catch (error) {
+    } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async createDisableReason(req, recordKey, record) {
+    const Reason = await models.ReminderDisableReason.create({
+      reason: req.body.reason.trim(),
+      [recordKey]: record.id
+    });
+    return Reason;
+  }
+
+  static async findCondition(req) {
+    const { conditionId } = req.params;
+    const include = RemindersController.returnInclude();
+    const condition = await models.Condition.findOne({
+      where: { id: conditionId },
+      include,
+      order: [[{ model: models.ReminderDisableReason, as: 'reasons' }, 'createdAt', 'DESC']]
+    });
+
+    return condition;
+  }
+
+  static async disableReminderConditions(req, res) {
+    try {
+      const condition = await RemindersController.findCondition(req);
+      await condition.update({ disabled: true });
+
+      await RemindersController.createDisableReason(
+        req, 'conditionId', condition
+      );
+
+      const updatedCondition = await RemindersController.findCondition(req);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Condition has been successfully disabled',
+        condition: updatedCondition,
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.stack, 500, res);
     }
   }
 }

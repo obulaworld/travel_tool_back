@@ -132,7 +132,9 @@ const middleware = {
     validateReminder: jest.fn(invokeNextMiddleware),
     validateReminderTemplates: jest.fn(invokeNextMiddleware),
     validateUniqueReminderCondition: jest.fn(invokeNextMiddleware),
-  }
+    checkIfConditionExists: jest.fn(invokeNextMiddleware),
+    validateReason: jest.fn(invokeNextMiddleware),
+  },
 };
 
 export default middleware;

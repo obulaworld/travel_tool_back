@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
+import RemindersController from '../reminders/remindersController';
 import {
   paginateTemplates,
   paginateWithQuery,
@@ -40,7 +41,7 @@ export default class EmailTemplateController {
       CustomError.handleError(error.message, 500, res);
     }
   }
-
+  
   static async listEmailTemplates(req, res) {
     try {
       const limit = 6;
@@ -97,10 +98,10 @@ export default class EmailTemplateController {
         disabled: true,
       });
 
-      const Reason = await models.ReminderEmailTemplateDisableReason.create({
-        reason: req.body.reason.trim(),
-        reminderEmailTemplateId: emailTemplate.id
-      });
+      const Reason = await RemindersController.createDisableReason(
+        req, 'reminderEmailTemplateId', emailTemplate
+      );
+
       return res.status(200).json({
         success: true,
         message: `${emailTemplate.name} has been successfully disabled`,

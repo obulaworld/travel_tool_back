@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.createTable('ReminderEmailTemplateDisableReasons', {
+  up: (queryInterface, Sequelize) => queryInterface.createTable('ReminderDisableReasons', {
     id: {
       allowNull: false,
       autoIncrement: true,
@@ -21,13 +21,23 @@ module.exports = {
     reminderEmailTemplateId: {
       type: Sequelize.INTEGER,
       onDelete: 'CASCADE',
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'ReminderEmailTemplates',
         key: 'id',
         as: 'reminderEmailTemplate',
       },
     },
+    conditionId: {
+      type: Sequelize.INTEGER,
+      onDelete: 'CASCADE',
+      allowNull: true,
+      references: {
+        model: 'Conditions',
+        key: 'id',
+        as: 'condition',
+      },
+    }
   }),
-  down: queryInterface => queryInterface.dropTable('ReminderEmailTemplateDisableReasons')
+  down: queryInterface => queryInterface.dropTable('ReminderDisableReasons')
 };

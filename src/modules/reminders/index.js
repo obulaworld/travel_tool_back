@@ -26,4 +26,15 @@ RemindersRouter.get(
   RemindersController.viewReminders
 );
 
+RemindersRouter.put(
+  '/reminders/conditions/disable/:conditionId',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  ReminderValidator.checkIfConditionExists,
+  ReminderValidator.validateReason,
+  RemindersController.disableReminderConditions,
+);
+
 export default RemindersRouter;

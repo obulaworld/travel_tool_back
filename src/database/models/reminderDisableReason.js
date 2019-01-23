@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const ReminderEmailTemplateDisableReason = sequelize.define('ReminderEmailTemplateDisableReason',
+  const ReminderDisableReason = sequelize.define('ReminderDisableReason',
     {
       id: {
         allowNull: false,
@@ -11,12 +11,16 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.STRING
       },
-    }, { paranoid: true });
-  ReminderEmailTemplateDisableReason.associate = (models) => {
-    ReminderEmailTemplateDisableReason.belongsTo(models.ReminderEmailTemplate, {
+    }, {});
+  ReminderDisableReason.associate = (models) => {
+    ReminderDisableReason.belongsTo(models.ReminderEmailTemplate, {
       foreignKey: 'reminderEmailTemplateId',
       as: 'reminderEmailTemplate'
     });
+    ReminderDisableReason.belongsTo(models.Condition, {
+      foreignKey: 'conditionId',
+      as: 'reasons'
+    });
   };
-  return ReminderEmailTemplateDisableReason;
+  return ReminderDisableReason;
 };
