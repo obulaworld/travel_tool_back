@@ -2,6 +2,7 @@ import { Op, Sequelize } from 'sequelize';
 import * as _ from 'lodash';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
+import paginationHelper from '../../helpers/Pagination';
 
 export default class RemindersController {
   static async createReminder(req, res) {
@@ -64,12 +65,21 @@ export default class RemindersController {
         } : {},
         order: [[{ model: models.ReminderDisableReason, as: 'reasons' }, 'createdAt', 'DESC']]
       };
-      const reminders = await models.Condition.findAll(query);
+
+      const count = await models.Condition.count(query);
+      const initialPage = paginationHelper.initializePagination(req);
+      const { page, limit } = initialPage;
+      const paginationData = paginationHelper.getPaginationData(page, limit, count);
+      const { pageCount, currentPage } = paginationData;
+      const reminders = await models.Condition.findAll({ ...query, ...initialPage });
       res.status(200).json({
         success: true,
         message: `Successfully retrieved ${documentType || 'reminder'}s`,
         reminders,
-        meta: { documentCount: _.mapValues(_.keyBy(documentCount, 'documentType'), 'count') }
+        meta: {
+          documentCount: _.mapValues(_.keyBy(documentCount, 'documentType'), 'count'),
+          pagination: { pageCount, currentPage }
+        }
       });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
