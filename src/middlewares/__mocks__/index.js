@@ -39,8 +39,7 @@ const middleware = {
     checkSignedInUser: jest.fn(invokeNextMiddleware),
     checkSignedInUserOrAdmin: jest.fn(invokeNextMiddleware),
     validateNewCentre: jest.fn(invokeNextMiddleware),
-    validateTeamMemberLocation: jest.fn(invokeNextMiddleware),
-
+    validateTeamMemberLocation: jest.fn(invokeNextMiddleware)
   },
   RoleValidator: {
     validateUpdateRole: jest.fn(invokeNextMiddleware),
@@ -57,7 +56,7 @@ const middleware = {
     validateDestinationNameQuery: jest.fn(invokeNextMiddleware),
     validateMaintainanceRecord: jest.fn(invokeNextMiddleware),
     validateUser: jest.fn(invokeNextMiddleware),
-    validatePersonalInformation: jest.fn(invokeNextMiddleware),
+    validatePersonalInformation: jest.fn(invokeNextMiddleware)
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),
@@ -90,7 +89,7 @@ const middleware = {
     validateSubmission: jest.fn(invokeNextMiddleware),
     validateTrip: jest.fn(invokeNextMiddleware),
     validateUniqueItem: jest.fn(invokeNextMiddleware),
-    getChecklistItem: jest.fn(invokeNextMiddleware),
+    getChecklistItem: jest.fn(invokeNextMiddleware)
   },
   guestHouseValidator: {
     checkRoom: jest.fn(invokeNextMiddleware),
@@ -101,7 +100,7 @@ const middleware = {
     checkDate: jest.fn(invokeNextMiddleware),
     validateGuestHouseDataSet: jest.fn(invokeNextMiddleware),
     validateAvailableRooms: jest.fn(invokeNextMiddleware),
-    validateImage: jest.fn(invokeNextMiddleware),
+    validateImage: jest.fn(invokeNextMiddleware)
   },
   RequestValidator: {
     checkTripBeds: jest.fn(invokeNextMiddleware),
@@ -109,7 +108,7 @@ const middleware = {
     checkStatusIsApproved: jest.fn(invokeNextMiddleware),
     validateRequestHasTrips: jest.fn(invokeNextMiddleware),
     validateDepartureDate: jest.fn(invokeNextMiddleware),
-    validateCheckListComplete: jest.fn(invokeNextMiddleware),
+    validateCheckListComplete: jest.fn(invokeNextMiddleware)
   },
   TravelReadinessDocumentValidator: {
     validateInput: jest.fn(invokeNextMiddleware),
@@ -134,7 +133,9 @@ const middleware = {
     validateUniqueReminderCondition: jest.fn(invokeNextMiddleware),
     checkIfConditionExists: jest.fn(invokeNextMiddleware),
     validateReason: jest.fn(invokeNextMiddleware),
-  },
+    checkIfEnabledConditionExists: jest.fn(invokeNextMiddleware),
+    checkIfDisabledConditionExists: jest.fn(invokeNextMiddleware)
+  }
 };
 
 export default middleware;

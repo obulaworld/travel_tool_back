@@ -116,4 +116,31 @@ export default class RemindersController {
       CustomError.handleError(error.stack, 500, res);
     }
   }
+
+  static async enableReminderConditions(req, res) {
+    try {
+      const { conditionId } = req.params;
+
+      const condition = await models.Condition.findOne({
+        where: { id: conditionId },
+        include: {
+          model: models.User,
+          as: 'user',
+          attributes: ['fullName']
+        }
+      });
+
+      await condition.update({
+        disabled: false
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `${condition.conditionName} has been successfully enabled`,
+        condition
+      });
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
 }
