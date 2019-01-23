@@ -79,7 +79,7 @@ export default class TravelReadinessController {
       // check if logged in user/admin is the one requesting this resource
       if (req.user.UserInfo.id !== document.userId) {
         return RoleValidator.checkUserRole(
-          ['Super Administrator', 'Travel Administrator']
+          ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
         )(req, res, handleResponse);
       }
 
