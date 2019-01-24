@@ -5,12 +5,20 @@ import Validator from './Validator';
 export default class ReminderEmailTemplateValidator {
   static async validateUniqueName(req, res, next) {
     const { body: { name: reminderName } } = req;
+    const { params: { templateId } } = req;
+    const name = {
+      [Op.iLike]: reminderName
+    };
+
     const template = await models.ReminderEmailTemplate
       .findAll({
         where: {
-          name: {
-            [Op.iLike]: reminderName
-          }
+          [templateId ? Op.and : 'name']: (templateId ? {
+            id: {
+              [Op.ne]: templateId,
+            },
+            name
+          } : name)
         }
       });
     if (template.length === 0) {

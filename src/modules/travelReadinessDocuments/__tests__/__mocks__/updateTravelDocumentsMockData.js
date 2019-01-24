@@ -5,12 +5,12 @@ export const documentsSeeder = [
     data: {
       visaType: 'H-2A',
       entryType: 'Multiple',
-      country: 'Kenya',
+      country: 'Nigeria',
       dateOfIssue: '02-01-2018',
       expiryDate: '06-01-2018',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     },
-    userId: '-FCbaka-ljvhsus83-B',
+    userId: '-LMIzC-bCc10w7Uqr7-B',
     createdAt: '2019-01-04 012:11:52.181+01',
     updatedAt: '2019-01-16 012:11:52.181+01',
   },
@@ -40,7 +40,7 @@ export const documentsSeeder = [
       expiryDate: '06-01-2018',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     },
-    userId: '-FCbaka-ljvhsus83-B',
+    userId: '-LMIzC-bCc10w7Uqr7-B',
     createdAt: '2019-01-04 012:11:52.181+01',
     updatedAt: '2019-01-16 012:11:52.181+01',
   },
@@ -56,7 +56,7 @@ export const documentsSeeder = [
       expiryDate: '06-01-2022',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     },
-    userId: '-FCbaka-ljvhsus83-B',
+    userId: '-LMIzC-bCc10w7Uqr7-B',
     createdAt: '2019-01-04 012:11:52.181+01',
     updatedAt: '2019-01-16 012:11:52.181+01',
   },
@@ -73,7 +73,7 @@ export const documentsSeeder = [
       expiryDate: '2029-11-01',
       cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky2'
     },
-    userId: '-FCbaka-ljvhsus83-B',
+    userId: '-LMIzC-bCc10w7Uqr7-B',
     createdAt: '2019-01-04 012:11:52.181+01',
     updatedAt: '2019-01-16 012:11:52.181+01',
   },
@@ -90,7 +90,7 @@ export const documentsSeeder = [
       expiryDate: '2029-11-01',
       cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky2'
     },
-    userId: '-FCbaka-ljvhsus83-B',
+    userId: '-LMIzC-bCc10w7Uqr7-B',
     createdAt: '2019-01-04 012:11:52.181+01',
     updatedAt: '2019-01-16 012:11:52.181+01',
   },
@@ -103,7 +103,7 @@ export const documentsSeeder = [
       expiryDate: '06-01-2018',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     },
-    userId: '-FCbaka-ljvhsus83-B',
+    userId: '-LMIzC-bCc10w7Uqr7-B',
     createdAt: '2019-01-04 012:11:52.181+01',
     updatedAt: '2019-01-16 012:11:52.181+01',
   },
@@ -116,7 +116,7 @@ export const documentsSeeder = [
       expiryDate: '06-01-2018',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     },
-    userId: '-FCbaka-ljvhsus83-B',
+    userId: '-LMIzC-bCc10w7Uqr7-B',
     createdAt: '2019-01-04 012:11:52.181+01',
     updatedAt: '2019-01-16 012:11:52.181+01',
   }
@@ -160,7 +160,7 @@ export const existingPassportData = {
 export const existingOtherData = {
   other:
     {
-      name: 'Permit',
+      name: 'Autograph',
       dateOfIssue: '02-01-2018',
       expiryDate: '06-01-2018',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
