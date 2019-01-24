@@ -25,19 +25,6 @@ ReminderManagementRouter.get(
   ),
   EmailTemplateController.listEmailTemplates,
 );
-  
-ReminderManagementRouter.put(
-  '/reminderManagement/emailTemplates/:templateId',
-  authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
-  ReminderEmailTemplateValidator.validateReminderEmailTemplate,
-  ReminderEmailTemplateValidator.validateCCEmails,
-  ReminderEmailTemplateValidator.validateUniqueName,
-  EmailTemplateController.updateEmailTemplate
-
-);
 
 ReminderManagementRouter.put(
   '/reminderManagement/emailTemplates/disable/:templateId',
@@ -45,17 +32,7 @@ ReminderManagementRouter.put(
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
-  EmailTemplateController.disableEmailTemplate
-);
-
-ReminderManagementRouter.get(
-  '/reminderManagement/emailTemplates/:templateId',
-  authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
-  EmailTemplateController.getEmailTemplate
-
+  EmailTemplateController.disableEmailTemplate,
 );
 
 ReminderManagementRouter.put(

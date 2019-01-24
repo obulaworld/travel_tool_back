@@ -8,9 +8,7 @@ import {
   travelAdminPayload,
   usersData,
   travelAdminRole,
-  requesterPayload,
-  requester,
-  requesterRole
+  requesterPayload
 } from '../../travelReadinessDocuments/__tests__/__mocks__/index';
 import {
   reminderPayload,
@@ -39,8 +37,6 @@ describe('Reminders Controller', () => {
     await models.Role.bulkCreate(role);
     await models.User.create(travelAdmin);
     await models.UserRole.create(travelAdminRole);
-    await models.User.create(requester);
-    await models.UserRole.create(requesterRole);
     await models.User.bulkCreate(usersData);
     await models.ReminderEmailTemplate.bulkCreate(reminderTemplates);
   });
