@@ -17,9 +17,13 @@ class UserRoleController {
 
   static async getAllUser(req, res) {
     const result = await models.User.findAll({
-      include: [{
-        model: models.Role, as: 'roles', through: { attributes: [] }
-      }]
+      include: [
+        {
+          model: models.Role,
+          as: 'roles',
+          through: { attributes: [] }
+        }
+      ]
     });
     const message = [200, 'data', true];
     UserRoleController.response(res, message, result);
@@ -29,21 +33,25 @@ class UserRoleController {
     const { id } = req.user;
     const result = await models.User.findOne({
       where: { userId: req.params.id },
-      include: [{
-        model: models.Role,
-        as: 'roles',
-        attributes: ['roleName', 'description'],
-        through: { attributes: [] },
-        include: [{
-          model: models.Center,
-          as: 'centers',
-          attributes: ['id', 'location'],
-          through: {
-            attributes: [],
-            where: { userId: id },
-          }
-        }]
-      }],
+      include: [
+        {
+          model: models.Role,
+          as: 'roles',
+          attributes: ['roleName', 'description'],
+          through: { attributes: [] },
+          include: [
+            {
+              model: models.Center,
+              as: 'centers',
+              attributes: ['id', 'location'],
+              through: {
+                attributes: [],
+                where: { userId: id }
+              }
+            }
+          ]
+        }
+      ]
     });
     const message = [200, 'data', true];
     UserRoleController.response(res, message, result);
@@ -81,7 +89,7 @@ class UserRoleController {
       const [result] = await models.User.findOrCreate({
         where: {
           email: req.user.UserInfo.email,
-          userId: req.user.UserInfo.id,
+          userId: req.user.UserInfo.id
         },
         defaults: {
           picture: req.user.UserInfo.picture,
@@ -94,11 +102,24 @@ class UserRoleController {
       const message = [201, 'User created successfully', true];
       UserHelper.authorizeRequests(req.userToken);
       const userOnProduction = await UserHelper.getUserOnProduction(result);
-      const userOnBamboo = await UserHelper.getUserOnBamboo(userOnProduction.data.values[0].bamboo_hr_id);
+      const userOnBamboo = await UserHelper.getUserOnBamboo(
+        userOnProduction.data.values[0].bamboo_hr_id
+      );
       const managerOnBamboo = await UserHelper.getUserOnBamboo(userOnBamboo.data.supervisorEId);
       const managerOnProduction = await UserHelper.getUserOnProduction(managerOnBamboo);
       const travelaUser = UserHelper.generateTravelaUser(managerOnProduction, managerOnBamboo);
-      const [managerResult] = await models.User.findOrCreate({ where: travelaUser, });
+      const [managerResult] = await models.User.findOrCreate({
+        where: {
+          email: travelaUser.email,
+          userId: travelaUser.userId
+        },
+        defaults: {
+          picture: travelaUser.picture,
+          fullName: travelaUser.fullName,
+          location: travelaUser.location,
+        }
+      });
+
       await managerResult.addRole(53019);
       result.dataValues.manager = travelaUser.fullName;
       await result.update({
@@ -108,7 +129,8 @@ class UserRoleController {
         passportName: userOnProduction.data.values[0].name
       });
       return UserRoleController.response(res, message, result);
-    } catch (error) { /* istanbul ignore next */
+    } catch (error) {
+      /* istanbul ignore next */
       return CustomError.handleError(error.toString(), 500, res);
     }
   }
@@ -142,7 +164,11 @@ class UserRoleController {
 
   static async updateUserRole(req, res) {
     try {
-      const { roleId, centerId, body: { email, center } } = req;
+      const {
+        roleId,
+        centerId,
+        body: { email, center }
+      } = req;
       let findUser = await models.User.findOne({
         where: { email },
         attributes: ['email', 'fullName', 'userId', 'id']
@@ -171,14 +197,14 @@ class UserRoleController {
       findUser.dataValues.centers = [{ id: result.centerId, location: center }];
       const message = [200, 'Role updated successfully', true];
       UserRoleController.response(res, message, findUser);
-    } catch (error) { /* istanbul ignore next */
+    } catch (error) {
+      /* istanbul ignore next */
       res.status(500).json({
         message: 'error',
         error
       });
     }
   }
-
 
   static async addRole(req, res) {
     try {
@@ -193,17 +219,15 @@ class UserRoleController {
 
   static async getRoles(req, res) {
     const result = await models.Role.findAll({
-      order: [
-        ['createdAt', 'DESC']
-      ],
+      order: [['createdAt', 'DESC']],
       include: [
         {
           model: models.User,
           as: 'users',
           attributes: ['email', 'userId'],
           through: { attributes: [] }
-        },
-      ],
+        }
+      ]
     });
     const message = [200, 'data', true];
     UserRoleController.response(res, message, result);
@@ -223,15 +247,14 @@ class UserRoleController {
 
   static async calculateUserRole(roleId) {
     const result = await models.Role.findById(roleId, {
-      order: [[{ model: models.User, as: 'users' },
-        models.UserRole, 'createdAt', 'DESC']],
+      order: [[{ model: models.User, as: 'users' }, models.UserRole, 'createdAt', 'DESC']],
       include: [
         {
           model: models.User,
           as: 'users',
           attributes: ['email', 'fullName', 'userId', 'id'],
           through: {
-            attributes: [],
+            attributes: []
           },
           include: [
             {
@@ -243,9 +266,9 @@ class UserRoleController {
                 where: { roleId }
               }
             }
-          ],
-        },
-      ],
+          ]
+        }
+      ]
     });
     return result;
   }
@@ -262,11 +285,7 @@ class UserRoleController {
         UserRoleController.response(res, message);
       } else {
         await findUser.addRole(10948);
-        const message = [
-          200,
-          'Your role has been Updated to a Super Admin',
-          true,
-        ];
+        const message = [200, 'Your role has been Updated to a Super Admin', true];
         UserRoleController.response(res, message);
       }
     } catch (error) {
@@ -298,13 +317,16 @@ class UserRoleController {
       }
       const query = { where: { userId, roleId } };
       const deletedRole = await models.UserRole.destroy(query);
-      const msg = `User can no longer perform operations associated with the role: '${req.roleName}'`; // eslint-disable-line
+      const msg = `User can no longer perform operations associated with the role: '${
+        req.roleName
+      }'`; // eslint-disable-line
       const message = [200, msg, true];
       if (deletedRole) return UserRoleController.response(res, message);
 
       const error = `User with the role: '${req.roleName}' does not exist`;
       if (!deletedRole) return CustomError.handleError(error, 404, res);
-    } catch (error) { /* istanbul ignore next */
+    } catch (error) {
+      /* istanbul ignore next */
       return CustomError.handleError(error, 500, res);
     }
   }
