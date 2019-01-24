@@ -3,15 +3,13 @@ import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import models from '../../../database/models';
 import { role } from '../../userRole/__tests__/mocks/mockData';
-import {
-  usersData, requesterPayload, requester, requesterRole
-} from './__mocks__';
+import { usersData, requesterPayload } from './__mocks__';
 import {
   documentsSeeder,
   documentUpdateData,
   existingVisaData,
   existingPassportData,
-  existingOtherData,
+  existingOtherData
 } from './__mocks__/updateTravelDocumentsMockData';
 
 const requesterToken = Utils.generateTestToken(requesterPayload);
@@ -28,8 +26,6 @@ describe('TravelReadiness Controller', () => {
     await setUp();
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(usersData);
-    await models.UserRole.create(requesterRole);
-    await models.User.create(requester);
     await models.TravelReadinessDocuments.bulkCreate(documentsSeeder);
   });
 
@@ -83,7 +79,7 @@ describe('TravelReadiness Controller', () => {
     it(`should throw an error message when a user tries to update unique 
       values already existing in another record (for visas)`, (done) => {
       request(app)
-        .put('/api/v1/travelreadiness/documents/SyOyr_BtB')
+        .put('/api/v1/travelreadiness/documents/SyOyr_AtC')
         .set('Content-Type', 'application/json')
         .set('authorization', requesterToken)
         .send(existingVisaData)
@@ -115,7 +111,7 @@ describe('TravelReadiness Controller', () => {
     it(`should throw an error message when a user tries to update unique 
       values already existing in another record (for other documents)`, (done) => {
       request(app)
-        .put('/api/v1/travelreadiness/documents/pk42Dr90ops')
+        .put('/api/v1/travelreadiness/documents/pk42DLnujg')
         .set('Content-Type', 'application/json')
         .set('authorization', requesterToken)
         .send(existingOtherData)
