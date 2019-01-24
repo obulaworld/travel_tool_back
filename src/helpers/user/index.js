@@ -19,12 +19,13 @@ class UserHelper {
 
   static getUserOnProduction(res) {
     const workEmail = res.dataValues ? res.dataValues.email : res.data.workEmail;
-    return axios.get(
-      `${process.env.ANDELA_PROD_API}/users?email=${workEmail}`
-    );
+    return axios.get(`${process.env.ANDELA_PROD_API}/users?email=${workEmail}`);
   }
 
   static generateTravelaUser(productionUser, bambooUser) {
+    const locations = productionUser.data.values[0].location != null
+      ? productionUser.data.values[0].location.name
+      : 'Lagos';
     const travelaUser = {
       fullName: productionUser.data.values[0].name,
       email: productionUser.data.values[0].email,
@@ -32,7 +33,7 @@ class UserHelper {
       passportName: productionUser.data.values[0].name,
       department: bambooUser.data.department,
       occupation: bambooUser.data.jobTitle,
-      location: productionUser.data.values[0].location.name,
+      location: locations,
       picture: productionUser.data.values[0].picture,
       manager: bambooUser.data.supervisor
     };
