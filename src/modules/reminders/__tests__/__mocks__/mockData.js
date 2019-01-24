@@ -94,3 +94,81 @@ export const reminderPayloadWithInvalidFrequency = {
   }
   ]
 };
+
+export const reminderPayloadTwo = {
+  condition: {
+    conditionName: 'Passport renewal reminder',
+    documentType: 'Passport',
+  },
+  reminders: [
+    {
+      frequency: '2 Weeks',
+      id: 50,
+      reminderEmailTemplateId: '300'
+    },
+    {
+      frequency: '5 Days',
+      id: 200,
+      reminderEmailTemplateId: '301'
+    }
+  ]
+};
+
+export const updateReminderPayloads = {
+  getReminderToUpdateOne: (reminderId1, reminderId2, {
+    conditionName,
+    documentType,
+    frequency1,
+    frequency2
+  }) => ({
+    conditionName,
+    documentType,
+    reminders: [{
+      frequency: frequency1,
+      id: reminderId1,
+      reminderEmailTemplateId: '300'
+    },
+    {
+      frequency: frequency2,
+      id: reminderId2,
+      reminderEmailTemplateId: '301'
+    }
+    ]
+  }),
+
+  addNewFrequency: (reminderId1, reminderId2, {
+    conditionName,
+    documentType,
+    frequency1,
+    frequency2
+  }) => ({
+    conditionName,
+    documentType,
+    reminders: [{
+      frequency: frequency1,
+      id: reminderId1,
+      reminderEmailTemplateId: '300'
+    },
+    {
+      frequency: frequency2,
+      id: reminderId2,
+      reminderEmailTemplateId: '301'
+    },
+    {
+      frequency: '15 Weeks',
+      reminderEmailTemplateId: '301'
+    }
+    ]
+  }),
+
+  singleFrequency: id => ({
+    conditionName: 'Visa readiness',
+    documentType: 'Passport',
+    reminders: [{
+      frequency: '11 Weeks',
+      id,
+      reminderEmailTemplateId: '300'
+    }
+    ]
+  }),
+};

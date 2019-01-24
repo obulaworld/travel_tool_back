@@ -60,11 +60,24 @@ class ReminderValidator {
   }
 
   static async validateUniqueReminderCondition(req, res, next) {
+    const { conditionId } = req.params;
     const { conditionName } = req.body;
-    const existingCondition = await models.Condition.findOne({
-      where: {
+    const { Op } = models.Sequelize;
+    let where = {
+      conditionName,
+    };
+
+    if (req.method === 'PUT' && conditionId) {
+      where = {
         conditionName,
-      }
+        id: {
+          [Op.ne]: conditionId
+        }
+      };
+    }
+
+    const existingCondition = await models.Condition.findOne({
+      where
     });
 
     if (existingCondition) {
@@ -120,6 +133,131 @@ class ReminderValidator {
       .len({ min: 5 });
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
+  }
+  
+  static checkDuplicateId(reminders) {
+    const idArrays = [];
+    let duplicate = null;
+    reminders.forEach((reminderId) => {
+      if (idArrays.indexOf(reminderId) !== -1) {
+        duplicate = reminderId;
+        return;
+      }
+      idArrays.push(reminderId);
+    });
+    return duplicate;
+  }
+
+  static async getConditionById(req, res, next) {
+    const { method, params: { conditionId } } = req;
+    if (method === 'GET') {
+      req.check('conditionId', 'ConditionId should be a number').isInt();
+      const errors = req.validationErrors();
+      if (errors.length) {
+        return Validator.errorHandler(res, errors, next);
+      }
+    }
+    const condition = await models.Reminder.findOne({
+      where: {
+        conditionId
+      }
+    });
+
+    if (condition === null) {
+      return res.status(404).json({
+        success: false,
+        message: 'Reminder doesn\'t exist',
+      });
+    }
+    return method === 'GET' ? next() : false;
+  }
+
+  static getDuplicatedId(reminders) {
+    const reminderRequestIdArray = reminders
+      .filter(reminder => reminder.id !== undefined)
+      .map(reminder => reminder.id);
+    const duplicateId = ReminderValidator
+      .checkDuplicateId(reminderRequestIdArray);
+    return {
+      reminderRequestIdArray,
+      duplicateId
+    };
+  }
+
+  static async checkReminderWithId(req, res, next) {
+    const { reminders } = req.body;
+    const { conditionId } = req.params;
+    const errors = [];
+    const isFound = await ReminderValidator.getConditionById(req, res, next);
+    if (isFound) {
+      return isFound;
+    }
+    const { duplicateId, reminderRequestIdArray } = ReminderValidator.getDuplicatedId(reminders);
+    if (duplicateId) {
+      return Validator.errorHandler(res, [
+        {
+          msg: `Duplicate id ${duplicateId} in reminders`,
+          param: 'Reminder frequency error'
+        }
+      ], next);
+    }
+
+    const allReminders = await models.Reminder.findAll({
+      where: {
+        conditionId
+      }
+    });
+    const allReminderId = allReminders.map(reminder => reminder.id);
+    reminderRequestIdArray.forEach((id) => {
+      if (allReminderId.indexOf(id) === -1) {
+        const error = {
+          msg: `Reminder with id ${id} doesn't belong to this reminder condition`,
+          param: 'Reminder condition error'
+        };
+        errors.push(error);
+      }
+    });
+    if (errors.length) {
+      return Validator.errorHandler(res, errors, next);
+    }
+    next();
+  }
+
+  static async checkUniqueFrequency(req, res, next) {
+    const { Op } = models.Sequelize;
+    const { reminders } = req.body;
+    const { conditionId } = req.params;
+    const errors = [];
+
+    await Promise.all(
+      reminders.map(async (reminder) => {
+        const { frequency, id } = reminder;
+        const where = {
+          conditionId,
+          frequency,
+        };
+
+        if (reminder.id !== undefined) {
+          where.id = {
+            [Op.ne]: id,
+          };
+        }
+        const foundReminder = await models.Reminder.findOne({
+          where
+        });
+        if (foundReminder) {
+          const error = {
+            msg: `${reminder.frequency} frequency already exists for this reminder`,
+            param: 'Reminder Frequency error'
+          };
+          errors.push(error);
+        }
+      })
+    );
+    if (errors.length) {
+      return Validator.errorHandler(res, errors, next);
+    }
+    next();
   }
 }
 
