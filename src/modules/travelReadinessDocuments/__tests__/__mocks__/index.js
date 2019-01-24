@@ -19,12 +19,23 @@ export const travelAdminPayload = {
   }
 };
 
+export const requester = {
+  id: 9378,
+  fullName: 'Super Modo',
+  email: 'super.modo@andela.com',
+  createdAt: '2019-01-04 012:11:52.181+01',
+  updatedAt: '2019-01-16 012:11:52.181+01',
+  userId: '-LMIzC-bCc10w7Uqr7-B',
+  gender: 'male',
+  location: 'Lagos',
+};
+
 export const requesterPayload = {
   UserInfo: {
-    id: '-FCbaka-ljvhsus83-B',
-    fullName: 'Jeremy Pink',
-    email: 'jeremy.pink@andela.com',
-    name: 'Jeremy',
+    id: '-LMIzC-bCc10w7Uqr7-B',
+    fullName: 'Super Modo',
+    email: 'super.modo@andela.com',
+    name: 'Super',
     picture: ''
   },
 };
@@ -66,6 +77,14 @@ export const travelAdminRole = {
   id: 8378,
   userId: 8378,
   roleId: 29187,
+  createdAt: '2019-01-04 012:11:52.181+01',
+  updatedAt: '2019-01-16 012:11:52.181+01',
+};
+
+export const requesterRole = {
+  id: 9378,
+  userId: 9378,
+  roleId: 401938,
   createdAt: '2019-01-04 012:11:52.181+01',
   updatedAt: '2019-01-16 012:11:52.181+01',
 };

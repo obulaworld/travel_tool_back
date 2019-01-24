@@ -5,11 +5,37 @@ const validccEmails = [
 ];
 
 const reminderEmailTemplate = {
+  id: 1,
   name: 'Visa Template',
   from: 'moses.gitau@andela.com',
   cc: validccEmails,
   subject: 'Your VISA will expire soon',
   message: 'Kindly update your VISA details. You are required to do so in the next 4 months'
+};
+
+const disabledReminderEmailTemplate = {
+  id: 40,
+  name: 'Disabled Visa Template',
+  from: 'super.modon@andela.com',
+  cc: validccEmails,
+  subject: 'Your VISA will expire soon',
+  message: 'Kindly update your VISA details. You are required to do so in the next 4 months',
+  disabled: true
+};
+
+const reminderEmailTemplatePayload = {
+  ...reminderEmailTemplate,
+  cc: validccEmails.join(','),
+  createdBy: 8378
+};
+
+
+const updatedReminderEmailTemplate = {
+  name: 'Updated Visa Template',
+  from: 'super.modo@andela.com',
+  cc: validccEmails,
+  subject: 'Your VISA will expire very soon',
+  message: 'Kindly update your VISA details. You are required to do so in the next 3 months'
 };
 
 const successResponse = {
@@ -55,5 +81,8 @@ export default {
   validccEmails,
   reminderEmailTemplate,
   successResponse,
-  emptyFieldsResponse
+  emptyFieldsResponse,
+  updatedReminderEmailTemplate,
+  reminderEmailTemplatePayload,
+  disabledReminderEmailTemplate
 };

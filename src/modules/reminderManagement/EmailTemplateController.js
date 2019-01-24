@@ -70,6 +70,47 @@ export default class EmailTemplateController {
       };
       res.status(200).json(output);
     } catch (error) {
+      /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async updateEmailTemplate(req, res) {
+    try {
+      const { params: { templateId } } = req;
+      const templateData = {
+        ...req.body
+      };
+      templateData.cc = templateData.cc.join(',');
+
+      const reminderEmailTemplate = await models.ReminderEmailTemplate.findById(templateId, {
+        returning: true
+      });
+
+      if (!reminderEmailTemplate) {
+        return CustomError.handleError('Email template does not exist!', 404, res);
+      }
+      if (reminderEmailTemplate.disabled) {
+        return CustomError.handleError(
+          `${reminderEmailTemplate.name} has been disabled`, 400, res
+        );
+      }
+      await reminderEmailTemplate.update(
+        templateData,
+        {
+          where: { id: templateId },
+          fields: [
+            'name', 'from', 'cc', 'message', 'subject'
+          ]
+        }
+      );
+      return res.status(200).json({
+        success: true,
+        message: 'Email template updated successfully',
+        reminderEmailTemplate
+      });
+    } catch (error) {
+      /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
   }
@@ -108,7 +149,42 @@ export default class EmailTemplateController {
         updatedTemplate: emailTemplate,
         reason: Reason
       });
-    } catch (error) { /* istanbul ignore next */
+    } catch (error) {
+      /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async getEmailTemplate(req, res) {
+    try {
+      const { templateId } = req.params;
+
+      const reminderEmailTemplate = await models.ReminderEmailTemplate.findById(templateId, {
+        include: [
+          {
+            model: models.User,
+            as: 'creator',
+            attributes: [
+              'id', 'fullName', 'email',
+              'department'
+            ]
+          }
+        ]
+      });
+
+      if (!reminderEmailTemplate) {
+        return res.status(404).json({
+          success: false,
+          message: 'Email template does not exist!'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        reminderEmailTemplate
+      });
+    } catch (error) {
+      /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
   }
@@ -132,6 +208,7 @@ export default class EmailTemplateController {
         updatedTemplate: emailTemplate,
       });
     } catch (error) {
+      /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
   }

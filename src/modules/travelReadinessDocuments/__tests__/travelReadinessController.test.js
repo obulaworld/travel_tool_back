@@ -10,7 +10,9 @@ import {
   usersData,
   travelAdminRole,
   documentsData,
-  requesterPayload
+  requesterPayload,
+  requester,
+  requesterRole
 } from './__mocks__';
 import TravelReadiness from '../TravelReadinessController';
 import otherDocumentsMock from './__mocks__/otherDocumentsMock';
@@ -31,6 +33,8 @@ describe('TravelReadiness Controller', () => {
     await models.Role.bulkCreate(role);
     await models.User.create(travelAdmin);
     await models.UserRole.create(travelAdminRole);
+    await models.User.create(requester);
+    await models.UserRole.create(requesterRole);
     await models.User.bulkCreate(usersData);
     await models.TravelReadinessDocuments.bulkCreate(documentsData);
   });
