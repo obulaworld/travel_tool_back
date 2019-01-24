@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import axios from 'axios';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import UserHelper from '../../helpers/user';
@@ -79,12 +80,14 @@ class UserRoleController {
       }
       const [result] = await models.User.findOrCreate({
         where: {
-          fullName: req.user.UserInfo.name,
           email: req.user.UserInfo.email,
           userId: req.user.UserInfo.id,
-          picture: req.user.UserInfo.picture,
-          location
         },
+        defaults: {
+          picture: req.user.UserInfo.picture,
+          fullName: req.user.UserInfo.name,
+          location
+        }
       });
       const [userRole] = await result.addRole(401938);
       result.dataValues.roles = userRole;
@@ -110,14 +113,19 @@ class UserRoleController {
     }
   }
 
-  static async createUserFromApi(email, userToken) {
-    const userEmailObject = {
-      dataValues: {
-        email
-      }
+  static async getUserFromApi(url) {
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.USER_JW}`
     };
-    UserHelper.authorizeRequests(userToken);
-    const { data } = await UserHelper.getUserOnProduction(userEmailObject);
+    const data = await axios.get(url, {
+      headers
+    });
+    return data;
+  }
+
+  static async createUserFromApi(url) {
+    const { data } = await UserRoleController.getUserFromApi(url);
     const user = data.values[0];
     if (data.total === 0) {
       return { found: false };
@@ -127,7 +135,7 @@ class UserRoleController {
       email: user.email,
       userId: user.id,
       picture: user.picture,
-      location: user.location ? user.location.name : 'kampala' // Fix location even for staging
+      location: user.location.name
     });
     return { createdUser, found: true };
   }
@@ -140,9 +148,8 @@ class UserRoleController {
         attributes: ['email', 'fullName', 'userId', 'id']
       });
       if (!findUser) {
-        const { found, createdUser } = await UserRoleController.createUserFromApi(
-          email, req.userToken
-        );
+        const url = `${process.env.ANDELA_PROD_API}/users?email=${email}`;
+        const { found, createdUser } = await UserRoleController.createUserFromApi(url);
         if (!found) {
           const message = 'Email does not exist';
           return CustomError.handleError(message, 404, res);
