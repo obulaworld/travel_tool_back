@@ -89,4 +89,16 @@ describe('Reminders Controller', () => {
         done();
       });
   });
+
+  it('should fetch reminders in page=1', (done) => {
+    request(app)
+      .get(`${URI}?document?page=1`)
+      .set('Content-Type', 'application/json')
+      .set('authorization', travelAdminToken)
+      .end((err, res) => {
+        expect(res.status).toBe(200);
+        expect(res.body.message).toBe('Successfully retrieved reminders');
+        done();
+      });
+  });
 });
