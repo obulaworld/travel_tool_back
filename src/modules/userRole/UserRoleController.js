@@ -172,7 +172,10 @@ class UserRoleController {
       const message = [200, 'Role updated successfully', true];
       UserRoleController.response(res, message, findUser);
     } catch (error) { /* istanbul ignore next */
-      return CustomError.handleError(error.toString(), 500, res);
+      res.status(500).json({
+        message: 'error',
+        error
+      });
     }
   }
 
