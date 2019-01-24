@@ -11,7 +11,15 @@ const include = [{
       'location', 'picture', 'gender', 'passportName'
     ]
   }
+}, {
+  model: models.ReminderDisableReason,
+  as: 'disableReasons',
 }];
+
+const order = [['id', 'DESC'], [{
+  model: models.ReminderDisableReason,
+  as: 'disableReasons',
+}, 'createdAt', 'DESC']];
 
 export const searchEmailTemplates = search => ({
   paranoid: false,
@@ -23,7 +31,7 @@ export const searchEmailTemplates = search => ({
       { subject: { [Op.iLike]: `${search}` } },
       { message: { [Op.iLike]: `${search}` } },
     ]
-  }
+  },
 });
 
 export const paginateTemplates = async (limit, offset) => {
@@ -32,14 +40,15 @@ export const paginateTemplates = async (limit, offset) => {
     include,
     offset,
     limit,
-    order: [['id', 'DESC']],
+    order
   });
+
   return templates;
 };
 
 export const paginateWithQuery = async (limit, offset, search) => {
   const templates = await models.ReminderEmailTemplate.findAll({
-    order: [['id', 'DESC']],
+    order,
     ...searchEmailTemplates(search),
     paranoid: false,
     include,

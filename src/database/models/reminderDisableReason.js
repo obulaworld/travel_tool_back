@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   ReminderDisableReason.associate = (models) => {
     ReminderDisableReason.belongsTo(models.ReminderEmailTemplate, {
       foreignKey: 'reminderEmailTemplateId',
-      as: 'reminderEmailTemplate'
+      as: 'disableReasons'
     });
     ReminderDisableReason.belongsTo(models.Condition, {
       foreignKey: 'conditionId',

@@ -66,8 +66,8 @@ export default (sequelize, DataTypes) => {
       as: 'creator'
     });
     ReminderEmailTemplate.hasMany(models.ReminderDisableReason, {
-      foreignKey: 'emailTemplate',
-      as: 'template'
+      foreignKey: 'reminderEmailTemplateId',
+      as: 'disableReasons'
     });
   };
   return ReminderEmailTemplate;
