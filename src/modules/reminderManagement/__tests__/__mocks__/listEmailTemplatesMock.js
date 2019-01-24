@@ -229,6 +229,22 @@ const listEmailTemplatesMock = {
       createdBy: 1000
     },
   ],
+  disabled: [
+    {
+      id: 1,
+      reason: 'This was disabled just because I felt like it',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      reminderEmailTemplate: 19
+    },
+    {
+      id: 2,
+      reason: 'This was disabled just because I felt like it',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      reminderEmailTemplate: 19
+    },
+  ]
 };
 
 const user = {

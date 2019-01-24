@@ -48,7 +48,11 @@ export default class EmailTemplateController {
       const { query: { page, search } } = req;
       const data = search
         ? await models.ReminderEmailTemplate.findAndCountAll(searchEmailTemplates(search))
-        : await models.ReminderEmailTemplate.findAndCountAll({ paranoid: false });
+        : await models.ReminderEmailTemplate.findAndCountAll(
+          {
+            paranoid: false,
+          }
+        );
       const { count } = data;
       const pageCount = Math.ceil(count / limit);
       const currentPage = page < 1 || !page || pageCount === 0 ? 1 : Math.min(page, pageCount);

@@ -13,6 +13,7 @@ describe('list Email Templates', () => {
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.ReminderEmailTemplate.destroy({ force: true, truncate: { cascade: true } });
+    await models.ReminderDisableReason.destroy({ force: true, truncate: { cascade: true } });
   };
 
   const {
@@ -26,6 +27,7 @@ describe('list Email Templates', () => {
     await models.UserRole.bulkCreate(userRole);
     await models.ReminderEmailTemplate.bulkCreate(list.templates);
   });
+
   afterAll(async () => {
     await destroyTables();
   });
@@ -53,6 +55,28 @@ describe('list Email Templates', () => {
       const { body: { metaData: { pagination: { totalCount } } } } = res;
       expect(totalCount).toEqual(1);
       done();
+    });
+  });
+
+  const disableTemplate = () => request(app)
+    .put('/api/v1/reminderManagement/emailTemplates/disable/19')
+    .set('Authorization', token)
+    .send({
+      reason: 'Some reason'
+    });
+  
+  it('fetches the reminder together with a list of disable reasons', (done) => {
+    disableTemplate().end(() => {
+      const url = '/api/v1/reminderManagement/emailTemplates';
+      request(app)
+        .get(url)
+        .set('Authorization', token)
+        .end((err, res) => {
+          if (err) done(err);
+          const { body: { metaData: { templates } } } = res;
+          expect(templates.find(template => template.id === 19).disableReasons.length).toEqual(1);
+          done();
+        });
     });
   });
 });
