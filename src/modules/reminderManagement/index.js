@@ -3,7 +3,9 @@ import middleware from '../../middlewares';
 import EmailTemplateController from './EmailTemplateController';
 
 const ReminderManagementRouter = express.Router();
-const { authenticate, RoleValidator, ReminderEmailTemplateValidator } = middleware;
+const {
+  authenticate, RoleValidator, ReminderEmailTemplateValidator, ReminderValidator
+} = middleware;
 
 ReminderManagementRouter.post(
   '/reminderManagement/emailTemplates',
@@ -25,7 +27,7 @@ ReminderManagementRouter.get(
   ),
   EmailTemplateController.listEmailTemplates,
 );
-  
+
 ReminderManagementRouter.put(
   '/reminderManagement/emailTemplates/:templateId',
   authenticate,
@@ -45,6 +47,8 @@ ReminderManagementRouter.put(
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator']
   ),
+  ReminderValidator.validateReason,
+  ReminderValidator.validateDisability,
   EmailTemplateController.disableEmailTemplate
 );
 

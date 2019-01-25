@@ -12,7 +12,7 @@
     "start:dev": "NODE_ENV=development  DEBUG=log  nodemon --exec babel-node src/index.js",
     "lint": "node_modules/.bin/eslint ./src",
     "pretest": "NODE_ENV=test yarn db:migrate",
-    "test": "jest --no-cache  --detectOpenHandles --runInBand --forceExit",
+    "test": "jest --no-cache  --detectOpenHandles --runInBand --forceExit ",
     "db:seed": "node_modules/.bin/sequelize db:seed:all $* --seeders-path src/database/seeders/default",
     "db:seed:unittest": "node_modules/.bin/sequelize db:seed:all $* --seeders-path src/database/seeders/unittesting",
     "db:seed:e2e": "node_modules/.bin/sequelize db:seed:all $* --seeders-path src/database/seeders/e2e",

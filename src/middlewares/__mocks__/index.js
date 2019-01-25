@@ -137,6 +137,7 @@ const middleware = {
     checkReminderWithId: jest.fn(invokeNextMiddleware),
     checkUniqueFrequency: jest.fn(invokeNextMiddleware),
     getConditionById: jest.fn(invokeNextMiddleware),
+    validateDisability: jest.fn(invokeNextMiddleware),
   },
 };
 
