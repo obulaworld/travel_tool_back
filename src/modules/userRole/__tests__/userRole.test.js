@@ -305,19 +305,7 @@ describe('User Role Test', () => {
       });
   });
 
-  it('should get all users in the database', (done) => {
-    request(app)
-      .get('/api/v1/user')
-      .set('Content-Type', 'application/json')
-      .set('authorization', token)
-      .expect(200)
-      .end((err, res) => {
-        expect(res.body.success).toEqual(true);
-        if (err) return done(err);
-        done();
-      });
-  });
-
+ 
   it('should return only one user from the database', (done) => {
     request(app)
       .get('/api/v1/user/JNDVNFSFDK')
@@ -461,6 +449,32 @@ describe('User Role Test', () => {
       .end((err, res) => {
         expect(res.body.success).toEqual(false);
         expect(res.body.message).toEqual('You cannot perform this operation');
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should get all users in the database', (done) => {
+    request(app)
+      .get('/api/v1/user')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(true);
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should get all users emails in the database', (done) => {
+    request(app)
+      .get('/api/v1/user')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(true);
         if (err) return done(err);
         done();
       });
