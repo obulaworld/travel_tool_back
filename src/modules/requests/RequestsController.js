@@ -91,6 +91,22 @@ class RequestsController {
     }
   }
 
+  static async sendNotificationToRequester(
+    req,
+    res,
+    request,
+    message,
+    mailTopic,
+    mailType
+  ) {
+    const { userId } = request;
+    const recipient = await UserRoleController.getRecipient(null, userId);
+
+    return NotificationEngine.sendMail(RequestUtils.getMailData(
+      request, recipient, mailTopic, mailType, null, false
+    ));
+  }
+
   static async sendNotificationToManager(
     req,
     res,

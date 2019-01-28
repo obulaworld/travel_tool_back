@@ -1,5 +1,7 @@
 const switchButtonText = (type) => {
   switch (type) {
+    case 'New Requester Request':
+      return 'Login to Travela';
     case 'New Request':
       return 'View Request';
     case 'Document':
