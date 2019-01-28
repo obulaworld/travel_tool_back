@@ -6,7 +6,7 @@ describe('switchMessage helper', () => {
       { type: 'New Request', senderName: 'Tester' }
     );
 
-    expect(receivedMessage.split(' ')).toContain('Login');
+    expect(receivedMessage.split(' ')).toContain('Travela');
     done();
   });
 
