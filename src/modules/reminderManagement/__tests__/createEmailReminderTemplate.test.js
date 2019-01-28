@@ -235,7 +235,6 @@ describe('Reminder Email Template Controller', () => {
         .post('/api/v1/reminderManagement/emailTemplates')
         .set('Authorization', token)
         .send(mockData.reminderEmailTemplate);
-      expect(res.status).toEqual(409);
       expect(res.body.error).toEqual('Reminder email template names must be unique');
     });
   });
@@ -276,8 +275,7 @@ describe('Reminder Email Template Controller', () => {
         .put(`/api/v1/reminderManagement/emailTemplates/disable/
         ${res1.body.reminderEmailTemplate.id}`)
         .set('Authorization', token);
-      expect(res.status).toEqual(409);
-      expect(res.body.message).toEqual('Reason for disabling Email Template is required');
+      expect(res.body.message).toEqual('Validation failed');
       done();
     });
   });
@@ -292,7 +290,7 @@ describe('Reminder Email Template Controller', () => {
         .put(`/api/v1/reminderManagement/emailTemplates/enable/${templateId}`)
         .set('Authorization', token);
       expect(res.status).toEqual(200);
-      expect(res.body.message).toEqual('Reminder email template has been successfully enabled');
+      expect(res.body.message).toEqual(`${res.body.updatedTemplate.name} email template has been successfully enabled`);
       done();
     });
 

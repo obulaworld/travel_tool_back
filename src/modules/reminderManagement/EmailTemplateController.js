@@ -5,7 +5,9 @@ import RemindersController from '../reminders/remindersController';
 import {
   paginateTemplates,
   paginateWithQuery,
-  searchEmailTemplates
+  searchEmailTemplates,
+  include,
+  order
 } from '../../helpers/reminderManagement/emailTemplatePagination';
 
 export default class EmailTemplateController {
@@ -41,7 +43,7 @@ export default class EmailTemplateController {
       CustomError.handleError(error.message, 500, res);
     }
   }
-  
+
   static async listEmailTemplates(req, res) {
     try {
       const limit = 6;
@@ -118,39 +120,26 @@ export default class EmailTemplateController {
       CustomError.handleError(error.message, 500, res);
     }
   }
-  
+
   static async disableEmailTemplate(req, res) {
     try {
       const { templateId } = req.params;
-      const { reason } = req.body;
-      const emailTemplate = await models.ReminderEmailTemplate.findById(templateId);
-
-      if (!emailTemplate) {
-        return res.status(404).json({
-          success: false,
-          message: 'Email Template does not exist',
-        });
-      }
-
-      if (!reason || !reason.trim()) {
-        return res.status(409).json({
-          success: false,
-          message: 'Reason for disabling Email Template is required',
-        });
-      }
-
-      await emailTemplate.update({
-        disabled: true,
+      const emailTemplate = await models.ReminderEmailTemplate.findOne({
+        where: { id: parseInt(templateId, 10) }
       });
-
       const Reason = await RemindersController.createDisableReason(
         req, 'reminderEmailTemplateId', emailTemplate
       );
-
+      await emailTemplate.update({ disabled: true, });
+      const disabledTemplate = await models.ReminderEmailTemplate.findOne({
+        where: { id: parseInt(templateId, 10) },
+        include,
+        order
+      });
       return res.status(200).json({
         success: true,
         message: `${emailTemplate.name} has been successfully disabled`,
-        updatedTemplate: emailTemplate,
+        updatedTemplate: disabledTemplate,
         reason: Reason
       });
     } catch (error) {
@@ -208,7 +197,7 @@ export default class EmailTemplateController {
       });
       return res.status(200).json({
         success: true,
-        message: 'Reminder email template has been successfully enabled',
+        message: `${emailTemplate.name} email template has been successfully enabled`,
         updatedTemplate: emailTemplate,
       });
     } catch (error) {

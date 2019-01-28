@@ -18,7 +18,6 @@ class ReminderValidator {
     Validator.errorHandler(res, errors, next);
   }
 
-
   static async validateReminderTemplates(req, res, next) {
     const { reminders } = req.body;
     const reminderTemplates = await models.ReminderEmailTemplate.findAll({
@@ -42,7 +41,6 @@ class ReminderValidator {
       }
 
       const [length, period] = reminder.frequency.split(' ');
-
       const isNumber = /^\d+$/.test(length);
       const isValidPeriod = validPeriods.includes(period);
 
@@ -63,16 +61,11 @@ class ReminderValidator {
     const { conditionId } = req.params;
     const { conditionName } = req.body;
     const { Op } = models.Sequelize;
-    let where = {
-      conditionName,
-    };
+    let where = { conditionName };
 
     if (req.method === 'PUT' && conditionId) {
       where = {
-        conditionName,
-        id: {
-          [Op.ne]: conditionId
-        }
+        conditionName, id: { [Op.ne]: conditionId }
       };
     }
 
@@ -105,7 +98,6 @@ class ReminderValidator {
     if (condition) {
       return next();
     }
-
     return res.status(404).json({ success: false, message: 'Condition not found' });
   }
 
@@ -120,9 +112,7 @@ class ReminderValidator {
       where: { id: conditionId, disabled: false }
     });
 
-    if (condition) {
-      return next();
-    }
+    if (condition) { return next(); }
     return res.status(404).json({ success: false, message: 'Condition not found' });
   }
 
@@ -134,7 +124,27 @@ class ReminderValidator {
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);
   }
-  
+
+  static async validateDisability(req, res, next) {
+    const emailTemplate = await models.ReminderEmailTemplate.findOne({
+      where: { id: parseInt(req.params.templateId, 10) }
+    });
+    if (!emailTemplate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Reminder doesn\'t exist',
+      });
+    }
+
+    if (emailTemplate.disabled === true) {
+      return res.status(401).json({
+        success: false,
+        message: 'Email Template is already disabled',
+      });
+    }
+    return next();
+  }
+
   static checkDuplicateId(reminders) {
     const idArrays = [];
     let duplicate = null;
@@ -260,5 +270,4 @@ class ReminderValidator {
     next();
   }
 }
-
 export default ReminderValidator;

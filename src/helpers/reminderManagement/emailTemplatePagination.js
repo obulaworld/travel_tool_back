@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import models from '../../database/models';
 
-const include = [{
+export const include = [{
   model: models.User,
   as: 'creator',
   attributes: {
@@ -16,7 +16,7 @@ const include = [{
   as: 'disableReasons',
 }];
 
-const order = [['id', 'DESC'], [{
+export const order = [['id', 'DESC'], [{
   model: models.ReminderDisableReason,
   as: 'disableReasons',
 }, 'createdAt', 'DESC']];
