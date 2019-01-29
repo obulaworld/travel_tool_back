@@ -15,8 +15,8 @@ describe('switchMessage helper', () => {
       { type: 'Approved', senderName: 'An_Jin', requestId: '36Ydgha42e' }
     );
 
-    expect(receivedMessage.split(' ')).toContain('An_Jin.');
-    expect(receivedMessage.split(' ')[3]).toEqual('<b>#36Ydgha42e</b>');
+    expect(receivedMessage.split(' ')).toContain('Travela');
+    expect(receivedMessage.split(' ')[1]).toEqual('manager,');
     done();
   });
 
@@ -128,7 +128,8 @@ describe('switchMessage helper', () => {
   });
   it('should return document verification message for other documents', (done) => {
     const verifiedMessage = switchMessage({
-      type: 'Travel Readiness Document Verified', details: { type: 'other', data: { name: 'yellow fever' } }
+      type: 'Travel Readiness Document Verified',
+      details: { type: 'other', data: { name: 'yellow fever' } }
     });
     expect(verifiedMessage.split(' ')).toContain('verified');
     done();
