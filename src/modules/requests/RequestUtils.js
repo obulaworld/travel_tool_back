@@ -53,17 +53,21 @@ export default class RequestUtils {
     return rooms;
   }
 
-  static getMailData(request, recipient, topic, type, redirectPath) {
-    const redirect = redirectPath || '/redirect/requests/my-approvals/';
+  static getMailData(request, recipient, topic, type, redirectPath, toManager = true) {
+    const redirect = redirectPath || (
+      toManager ? `/redirect/requests/my-approvals/${request.id}`
+        : `/redirect/requests/${request.id}/checklist`);
     return {
-      recipient: { name: request.manager, email: recipient.email },
-      sender: request.name,
+      recipient: { name: toManager ? request.manager : request.name, email: recipient.email },
+      sender: toManager ? request.name : request.manager,
       requestId: request.id,
       topic,
       type,
-      redirectLink: `${process.env.REDIRECT_URL}${redirect}${request.id}`,
+      redirectLink:
+        `${process.env.REDIRECT_URL}${redirect}`,
     };
   }
+  
 
   static async getRequest(requestId, userId) {
     const request = await models.Request.find({

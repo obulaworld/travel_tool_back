@@ -24,15 +24,7 @@ export default class RequestTransactions {
       const approval = await ApprovalsController.createApproval(request);
       request.dataValues.trips = requestTrips;
 
-      const message = 'created a new travel request';
-      RequestsController.sendNotificationToManager(
-        req,
-        res,
-        request,
-        message,
-        'New Travel Request',
-        'New Request',
-      );
+      this.sendNotification(req, res, request);
 
       return res.status(201).json({
         success: true,
@@ -41,6 +33,26 @@ export default class RequestTransactions {
         approval,
       });
     });
+  }
+
+  static sendNotification(req, res, request) {
+    const message = 'created a new travel request';
+    RequestsController.sendNotificationToManager(
+      req,
+      res,
+      request,
+      message,
+      'New Travel Request',
+      'New Request',
+    );
+    RequestsController.sendNotificationToRequester(
+      req,
+      res,
+      request,
+      message,
+      'New Travel Request',
+      'New Requester Request'
+    );
   }
 
   static async updateRequestTrips(trips, tripData, requestId) {

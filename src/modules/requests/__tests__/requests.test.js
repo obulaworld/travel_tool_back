@@ -1715,6 +1715,27 @@ describe('Requests Controller', () => {
       done();
     });
 
+    describe('RequestController.sendNotificationToRequester', () => {
+      beforeAll(() => {
+        UserRoleController.getRecipient = jest.fn()
+          .mockReturnValue({ userId: '00023' });
+        NotificationEngine.sendMail = jest.fn();
+      });
+
+      it('should send email notification to user when the request is created.',
+        async (done) => {
+          const {
+            req, res, travelRequest, message, mailTopic
+          } = generateMock.mailData('New Request');
+
+          await RequestsController.sendNotificationToRequester(
+            req, res, travelRequest, message, mailTopic, 'New Requester Request'
+          );
+          expect(NotificationEngine.sendMail).toHaveBeenCalled();
+          done();
+        });
+    });
+
     describe('An authenticated user', () => {
       it('should delete the request and return 200 ', async (done) => {
         request(app)

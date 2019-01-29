@@ -35,6 +35,18 @@ const attachCommentToMail = msgDetail => (
   `
 );
 
+const attachRequesterToMail = msgDetail => (
+  `Your travel request <b>${msgDetail.requestId}</b> has been sent to your manager
+    <b>${msgDetail.senderName}</b> for approval. Please follow up with your manager.
+    <br><br>
+    <span style="color: #4f4f4f">
+    While you wait for your manager's approval, you can login to Travela and view
+    the checklist you will be required to fulfil as you plan your trip.</span>
+    <br><br>
+    <span style="color: #4f4f4f ">Thank you.</span>
+  `
+);
+
 const deleteMessage = msgDetail => `The travel request\
 <b> #${msgDetail.requestId}</b> was just deleted
   by ${msgDetail.senderName}. Login to your travela account for details.`;
@@ -68,6 +80,7 @@ const switchMessage = (msgDetail) => {
     case 'Document': return (attachCommentToMail(msgDetail));
     case 'Deleted Request': return deleteMessage(msgDetail);
     case 'Updated Request': return updateMessage(msgDetail);
+    case 'New Requester Request': return (attachRequesterToMail(msgDetail));
     case 'Changed Room':
       return (`Your residence record for the travel request
         <a href="${process.env.REDIRECT_URL}/requests/${msgDetail.requestId}"><b>#
