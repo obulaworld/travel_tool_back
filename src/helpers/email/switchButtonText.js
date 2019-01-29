@@ -18,6 +18,8 @@ const switchButtonText = (type) => {
       return 'View Document';
     case 'Edit Travel Document':
       return 'View Document';
+    case 'Send role assignment email notification':
+      return 'Login';
     default:
       return 'View Request';
   }

@@ -87,6 +87,9 @@ const switchMessage = (msgDetail) => {
       return (`${msgDetail.details.user.name} just edited a travel document on Travela`);
     case 'Send delete email verification':
       return `${msgDetail.senderName} Just deleted a travel document`;
+    case 'Send role assignment email notification':
+      return `Congratulations you have just been assigned the role of <b>${msgDetail.details.role.toLowerCase()}</b> on Travela by <b>${msgDetail.details.assignerName}</b>.
+      Kindly login for a new experience.`;
     default: return '';
   }
 };
