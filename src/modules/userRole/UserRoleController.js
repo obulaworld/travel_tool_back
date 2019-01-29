@@ -16,14 +16,21 @@ class UserRoleController {
   }
 
   static async getAllUser(req, res) {
+    const allowedField = ['email'];
+    const field = allowedField.includes(req.query.field);
+    const filter = field ? req.query.field : '';
+    const include = !field ? [
+      {
+        model: models.Role,
+        as: 'roles',
+        through: { attributes: [] }
+      }
+    ] : '';
+    const attributes = filter ? ['fullName', `${filter}`] : '';
+    
     const result = await models.User.findAll({
-      include: [
-        {
-          model: models.Role,
-          as: 'roles',
-          through: { attributes: [] }
-        }
-      ]
+      attributes,
+      include
     });
     const message = [200, 'data', true];
     UserRoleController.response(res, message, result);

@@ -7,7 +7,13 @@ import UpdateUserRoleController from './UpdateRoleController';
 const { authenticate, Validator, RoleValidator } = middlewares;
 const Router = express.Router();
 
-Router.get('/user', authenticate, UserRoleController.getAllUser);
+Router.get('/user',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  UserRoleController.getAllUser);
+
 Router.get('/user/roles', authenticate, UserRoleController.getRoles);
 Router.put('/user/admin', authenticate, UserRoleController.autoAdmin);
 Router.get('/user/:id',
