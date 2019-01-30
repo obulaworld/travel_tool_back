@@ -14,6 +14,7 @@ import {
 } from '../../travelReadinessDocuments/__tests__/__mocks__/index';
 import {
   reminderPayload,
+  duplicateFrequencyReminder,
   reminderPayloadTwo,
   reminderPayloadWithoutTemplate,
   reminderPayloadWithInvalidTemplate,
@@ -168,6 +169,22 @@ describe('Reminders Controller', () => {
         });
     });
 
+    it('should throw an error if there are duplicated frequencies', (done) => {
+      request(app)
+        .post(URI)
+        .set('Content-Type', 'application/json')
+        .set('authorization', travelAdminToken)
+        .send(duplicateFrequencyReminder)
+        .end((err, res) => {
+          expect(res.status).toEqual(422);
+          expect(res.body.errors).toEqual([{
+            message: 'Duplicate frequencies for reminders is not allowed',
+            name: 'Reminder Frequency error'
+          }]);
+          done();
+        });
+    });
+
     it('should throw an error if email template is not assigned to a reminder item', (done) => {
       request(app)
         .post(URI)
@@ -285,7 +302,7 @@ describe('Reminders Controller', () => {
           done();
         });
     });
-  
+
     it('should update a reminder with valid name and frequency', (done) => {
       request(app)
         .put(`${URI}/${conditonIdTwo}`)
@@ -329,7 +346,7 @@ describe('Reminders Controller', () => {
         .end((err, res) => {
           expect(res.status).toEqual(422);
           expect(res.body.errors).toEqual([{
-            message: '10 Weeks frequency already exists for this reminder',
+            message: 'Duplicate frequencies for reminders is not allowed',
             name: 'Reminder Frequency error'
           }]);
           done();
