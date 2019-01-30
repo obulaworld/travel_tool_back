@@ -28,8 +28,8 @@ describe('TravelReadiness Controller', () => {
     await setUp();
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(usersData);
-    await models.UserRole.create(requesterRole);
     await models.User.create(requester);
+    await models.UserRole.create(requesterRole);
     await models.TravelReadinessDocuments.bulkCreate(documentsSeeder);
   });
 

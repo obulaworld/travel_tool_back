@@ -69,10 +69,10 @@ const passport = {
     name: 'Mike',
     passportNumber: 'ABC123ab',
     nationality: 'Kenyan ',
-    dateOfBirth: '2018/11/02',
-    dateOfIssue: '2017/11/01',
+    dateOfBirth: '11/02/2010',
+    dateOfIssue: '11/02/2017',
     placeOfIssue: 'Kenya',
-    expiryDate: '2018/11/01',
+    expiryDate: '11/02/2018',
     cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky24f/image/upload/v1543520867/oga8ewofyyirrlk9hv.jpg'
   }
 };

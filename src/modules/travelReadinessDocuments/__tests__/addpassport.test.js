@@ -184,15 +184,15 @@ describe('Create passport', () => {
       message: 'Validation failed',
       errors: [
         {
-          message: 'The date of birth format you provided is not valid, use: YYYY/DD/MM',
+          message: 'The date of birth format you provided is not valid, use: MM/DD/YYYY',
           name: 'passport.dateOfBirth'
         },
         {
-          message: 'The date of issue format you provided is not valid, use: YYYY/DD/MM',
+          message: 'The date of issue format you provided is not valid, use: MM/DD/YYYY',
           name: 'passport.dateOfIssue'
         },
         {
-          message: 'The date of issue format you provided is not valid, use: YYYY/DD/MM',
+          message: 'The date of issue format you provided is not valid, use: MM/DD/YYYY',
           name: 'passport.expiryDate'
         }
       ]

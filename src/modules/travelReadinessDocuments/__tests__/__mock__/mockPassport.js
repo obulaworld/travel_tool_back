@@ -3,10 +3,10 @@ const passportDetail = {
     name: 'Michael Nthiwa',
     passportNumber: 'ABC123abc',
     nationality: 'kenyan',
-    dateOfBirth: '1970/01/01',
-    dateOfIssue: '2018/11/01',
+    dateOfBirth: '11/06/1970',
+    dateOfIssue: '11/06/1979',
     placeOfIssue: 'Kenya',
-    expiryDate: '2020/11/01',
+    expiryDate: '06/22/2018',
     cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky24f/image/upload/v1543520867/oga7x8ewofyyirrlk9hv.jpg'
   }
 };
@@ -15,10 +15,10 @@ const invalidPassportDetail = {
     name: 'Michael',
     passportNumber: 'A',
     nationality: 'kenyan',
-    dateOfBirth: '1970/01/01',
-    dateOfIssue: '2018/11/01',
+    dateOfBirth: '11/06/1970',
+    dateOfIssue: '11/06/1979',
     placeOfIssue: 'Kenya',
-    expiryDate: '2029/11/01',
+    expiryDate: '06/22/2018',
     cloudinaryUrl: 'https://res.cloudinary.com/dbk8ky24f/image/upload/v1543520867/oga7x8ewofyyirrlk9hv.jpg'
   }
 };
@@ -40,10 +40,10 @@ const invalidCloudinaryPassportDetail = {
     name: 'Michael',
     passportNumber: 'ABC123abc',
     nationality: 'kenyan',
-    dateOfBirth: '1970/01/01',
-    dateOfIssue: '2018/11/01',
+    dateOfBirth: '11/06/1970',
+    dateOfIssue: '11/06/1979',
     placeOfIssue: 'Kenya',
-    expiryDate: '2029/11/01',
+    expiryDate: '06/22/2018',
     cloudinaryUrl: 'https://farm4.staticflickr.com/3894/15008518202_c265dfa55f_h'
   }
 };
