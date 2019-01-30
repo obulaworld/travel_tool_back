@@ -3,6 +3,7 @@ import axios from 'axios';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import UserHelper from '../../helpers/user';
+import NotificationEngine from '../notifications/NotificationEngine';
 
 dotenv.config();
 
@@ -174,36 +175,39 @@ class UserRoleController {
       const {
         roleId,
         centerId,
-        body: { email, center }
+        body: { email, center, roleName },
+        user: { UserInfo: { name } }
       } = req;
-      let findUser = await models.User.findOne({
+      let user = await models.User.findOne({
         where: { email },
         attributes: ['email', 'fullName', 'userId', 'id']
       });
-      if (!findUser) {
+      if (!user) {
         const url = `${process.env.ANDELA_PROD_API}/users?email=${email}`;
         const { found, createdUser } = await UserRoleController.createUserFromApi(url);
         if (!found) {
           const message = 'Email does not exist';
           return CustomError.handleError(message, 404, res);
         }
-        findUser = createdUser;
+        user = createdUser;
       }
       if (!centerId && roleId === 339458) {
         const message = [400, 'Please provide center', false];
         return UserRoleController.response(res, message);
       }
       const hasRole = await models.UserRole.find({
-        where: { roleId, userId: findUser.id }
+        where: { roleId, userId: user.id }
       });
       const error = 'User already has this role';
       if (hasRole) return CustomError.handleError(error, 409, res);
-      const [[result]] = await findUser.addRole(roleId, {
+      const [[result]] = await user.addRole(roleId, {
         through: { centerId }
       });
-      findUser.dataValues.centers = [{ id: result.centerId, location: center }];
+      user.dataValues.centers = [{ id: result.centerId, location: center }];
       const message = [200, 'Role updated successfully', true];
-      UserRoleController.response(res, message, findUser);
+      
+      await UserRoleController.sendNotificationEmail(user, roleName, name);
+      UserRoleController.response(res, message, user);
     } catch (error) {
       /* istanbul ignore next */
       res.status(500).json({
@@ -336,6 +340,18 @@ class UserRoleController {
       /* istanbul ignore next */
       return CustomError.handleError(error, 500, res);
     }
+  }
+
+  static async sendNotificationEmail(user, roleName, name) {
+    const { email, fullName } = user;
+    const data = {
+      recipient: { name: fullName, email },
+      topic: 'Assignment of new role',
+      type: 'Send role assignment email notification',
+      redirectLink: `${process.env.REDIRECT_URL}`,
+      details: { role: roleName, assignerName: name }
+    };
+    NotificationEngine.sendMail(data);
   }
 }
 
