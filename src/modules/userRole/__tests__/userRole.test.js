@@ -430,7 +430,7 @@ describe('User Role Test', () => {
       .set('Content-Type', 'application/json')
       .set('authorization', token)
       .send(profile.profile1)
-      .expect(201)
+      .expect(200)
       .end((err, res) => {
         expect(res.body.success).toEqual(true);
         expect(res.body.message).toEqual('Profile updated successfully');
@@ -439,6 +439,20 @@ describe('User Role Test', () => {
       });
   });
 
+  it('should update user profile including their location', (done) => {
+    request(app)
+      .put('/api/v1/user/-MUyHJmKrxA90lPNQ1FOLNm/profile')
+      .set('authorization', token)
+      .send({ ...profile.profile1, location: 'San Fransisco' })
+      .expect(200)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(true);
+        expect(res.body.message).toEqual('Profile updated successfully');
+        expect(res.body.result.location).toEqual('San Fransisco');
+        if (err) return done(err);
+        done();
+      });
+  });
   it('should not update user profile of another user', (done) => {
     request(app)
       .put('/api/v1/user/-MUyHJmKrxA/profile')

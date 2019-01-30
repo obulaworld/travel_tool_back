@@ -80,9 +80,10 @@ class UserRoleController {
       department: req.body.department || user.department,
       occupation: req.body.occupation || user.occupation,
       manager: req.body.manager || user.manager,
-      gender: req.body.gender || user.gender
+      gender: req.body.gender || user.gender,
+      location: req.body.location || user.location
     });
-    const message = [201, 'Profile updated successfully', true];
+    const message = [200, 'Profile updated successfully', true];
     UserRoleController.response(res, message, result);
   }
 
