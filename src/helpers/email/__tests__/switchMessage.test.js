@@ -56,6 +56,14 @@ describe('switchMessage helper', () => {
     done();
   });
 
+  it('should return reminder email template message', (done) => {
+    const receivedMessage = switchMessage(
+      { type: 'Reminder', senderName: 'Tester', details: 'message details' }
+    );
+    expect(receivedMessage.split(' ')).toContain('details.');
+    done();
+  });
+
   it('should return nothing for non-available type', (done) => {
     const receivedMessage = switchMessage(
       { type: 'notification', senderName: 'Tester' }

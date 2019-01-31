@@ -62,6 +62,9 @@ const checKoutMessage = msgDetail => (
 
 const switchMessage = (msgDetail) => {
   switch (msgDetail.type) {
+    case 'Reminder':
+      return (
+        `<b style="text-transform: capitalize"></b> ${msgDetail.details}.`);
     case 'New Request':
       return (
         `Your direct report <b style="text-transform: capitalize">${msgDetail.senderName}</b> has

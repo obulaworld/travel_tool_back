@@ -76,7 +76,7 @@ export default class NotificationEngine {
       recipientVars[recipient.email] = {
         name: recipient.fullName,
       };
-      return recipient.email;
+      return recipient.email || recipient.user.email;
     });
     return { emails, recipientVars };
   }
@@ -108,5 +108,36 @@ export default class NotificationEngine {
     };
 
     NotificationEngine.dispatchEmail(mailData);
+  }
+
+  static async sendReminderEmail(userGroup, emailTemplates) {
+    emailTemplates.map(async (data, index) => {
+      if (userGroup[index].length < 1) { return; }
+      userGroup[index].map((users) => {
+        const mailData = {
+          from: `Travela <${process.env.MAIL_SENDER}>`,
+          to: users.user.email,
+          cc: data.emailTemplate.cc,
+          subject: data.emailTemplate.subject,
+          html: mailTemplate(
+            {
+              recipientName: users.user.fullName,
+              senderName: data.emailTemplate.name,
+              type: 'Reminder',
+              redirectLink: '',
+              requestId: '',
+              comment: '',
+              guesthouseName: '',
+              checkInTime: '',
+              durationOfStay: '',
+              destination: '',
+              checkoutTime: '',
+              details: data.emailTemplate.message,
+            }
+          )
+        };
+        return NotificationEngine.dispatchEmail(mailData);
+      });
+    });
   }
 }

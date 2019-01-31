@@ -22,7 +22,9 @@ export default (sequelize, DataTypes) => {
   TravelReadinessDocuments.associate = (models) => {
     // associations can be defined here
     TravelReadinessDocuments.belongsTo(models.User, {
-      foreignKey: 'userId'
+      foreignKey: 'userId',
+      as: 'user',
+      targetKey: 'userId',
     });
     TravelReadinessDocuments.hasMany(models.Comment, {
       foreignKey: 'documentId',
