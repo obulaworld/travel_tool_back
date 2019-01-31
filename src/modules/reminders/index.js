@@ -15,6 +15,7 @@ RemindersRouter.post(
   ReminderValidator.validateReminder,
   ReminderValidator.validateReminderTemplates,
   ReminderValidator.validateUniqueReminderCondition,
+  ReminderValidator.checkUniqueFrequency,
   RemindersController.createReminder,
 );
 

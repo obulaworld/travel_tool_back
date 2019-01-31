@@ -1,5 +1,6 @@
 import Validator from './Validator';
 import models from '../database/models';
+import checkDuplicates from '../helpers/reminderManagement/checkDuplicate';
 
 class ReminderValidator {
   static validateReminder(req, res, next) {
@@ -238,23 +239,24 @@ class ReminderValidator {
     const { reminders } = req.body;
     const { conditionId } = req.params;
     const errors = [];
-
+    const checkForDuplicates = checkDuplicates(reminders);
+    if (checkForDuplicates) {
+      errors.push(
+        {
+          msg: 'Duplicate frequencies for reminders is not allowed',
+          param: 'Reminder Frequency error'
+        }
+      );
+      return Validator.errorHandler(res, errors, next);
+    }
     await Promise.all(
       reminders.map(async (reminder) => {
         const { frequency, id } = reminder;
-        const where = {
-          conditionId,
-          frequency,
-        };
-
-        if (reminder.id !== undefined) {
-          where.id = {
-            [Op.ne]: id,
-          };
+        const where = { conditionId, frequency, };
+        if (id) {
+          where.id = { [Op.ne]: id };
         }
-        const foundReminder = await models.Reminder.findOne({
-          where
-        });
+        const foundReminder = await models.Reminder.findOne({ where });
         if (foundReminder) {
           const error = {
             msg: `${reminder.frequency} frequency already exists for this reminder`,

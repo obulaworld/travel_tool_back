@@ -31,6 +31,20 @@ export const reminderPayload = {
   ]
 };
 
+export const duplicateFrequencyReminder = {
+  conditionName: 'Travel Readiness reminder with duplicate frequency',
+  documentType: 'Passport',
+  reminders: [{
+    frequency: '2 Weeks',
+    reminderEmailTemplateId: '300'
+  },
+  {
+    frequency: '2 Weeks',
+    reminderEmailTemplateId: '301'
+  }
+  ]
+};
+
 export const reminderPayloadWithInvalidTemplate = {
   conditionName: 'Travel Readiness reminder',
   documentType: 'Passport',
