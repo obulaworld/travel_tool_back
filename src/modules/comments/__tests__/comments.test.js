@@ -149,7 +149,7 @@ describe('Comments controller', () => {
           comment: {
             comment: "I thought we agreed you'd spend only two weeks",
             requestId: '-ss60B42oZ-a',
-            userId: 3
+            userId: 10
           }
         };
         request
@@ -173,11 +173,44 @@ describe('Comments controller', () => {
             done();
           });
       });
+
+      it('returns 201 and creates a new comment for a document', (done) => {
+        const expectedResponse = {
+          success: true,
+          message: 'Comment created successfully',
+          comment: {
+            comment: "I thought we agreed you'd spend only two weeks",
+            documentId: 'ss60B42oZd',
+            userId: 10
+          }
+        };
+        request
+          .post('/api/v1/comments')
+          .set('authorization', token)
+          .send({
+            comment: "I thought we agreed you'd spend only two weeks",
+            documentId: 'ss60B42oZd',
+          })
+          .end((err, res) => {
+            if (err) done(err);
+            const {
+              comment, documentId, userId
+            } = res.body.comment;
+            expect(res.statusCode).toEqual(201);
+            expect(res.body.success).toBe(true);
+            expect(res.body.message).toEqual(expectedResponse.message);
+            expect(comment).toEqual(expectedResponse.comment.comment);
+            expect(documentId).toEqual(expectedResponse.comment.documentId);
+            expect(userId).toEqual(expectedResponse.comment.userId);
+            done();
+          });
+      });
     });
     describe('PUT api/v1/comments/:id', () => {
       beforeAll(async () => {
         await models.Comment.destroy({ truncate: true, cascade: true });
         await models.Comment.create(mockData.commentMock);
+        await models.Comment.create(mockData.commentMockDocument);
       });
       it('throws 404 if the requestId does not match', (done) => {
         const expectedResponse = {
@@ -225,6 +258,21 @@ describe('Comments controller', () => {
           .send({
             requestId: '-ss60B42oZ-a',
             comment: "I thought we agreed you'd spend only one week",
+          })
+          .end((err, response) => {
+            if (err) done(err);
+            expect(response.statusCode).toEqual(200);
+            done();
+          });
+      });
+      it('returns 200 and updates a comment for a document', (done) => {
+        const { id } = mockData.commentMockDocument;
+        request
+          .put(`/api/v1/comments/${id}`)
+          .set('authorization', token)
+          .send({
+            requestId: 'ss60B42oZd',
+            comment: "I thought we agreed you'd spend only one week doc",
           })
           .end((err, response) => {
             if (err) done(err);

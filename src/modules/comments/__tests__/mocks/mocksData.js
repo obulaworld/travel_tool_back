@@ -56,18 +56,18 @@ const mockData = {
     },
   ],
   documentMock: {
-    id: '-ss60B42oZ-d',
+    id: 'ss60B42oZd',
     type: 'visa',
     data: {
       country: 'Kenya',
       visaType: 'H-2A',
       entryType: 'Multiple',
-      expiryDate: '03-01-2018',
-      dateOfIssue: '02-01-2018',
+      expiryDate: '03/01/2018',
+      dateOfIssue: '02/01/2018',
       cloudinaryUrl: 'https://res.cloudinary.com/ined/image/upload/v1538568663/Logo_blue_2x.png'
     },
     isVerified: 'FALSE',
-    userId: '-LHJmKrxA8SlPNQFOVVm',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     createdAt: '2018-08-16 012:11:52.181+01',
     updatedAt: '2018-08-16 012:11:52.181+01',
   },
@@ -82,7 +82,20 @@ const mockData = {
     createdAt: '2018-08-16 012:11:52.181+01',
     updatedAt: '2018-08-16 012:11:52.181+01',
     documentId: null,
-    userId: 3,
+    userId: 10,
+  },
+  commentMockDocument: {
+    id: 'DOCstrangeDoc',
+    comment: "I thought we agreed you'd spend only two weeks doc",
+    isEdited: false,
+    requestId: null,
+    userName: 'Doctor Strange',
+    userEmail: 'doctor.strange@andela.com',
+    picture: 'fakepicture.png',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+    documentId: 'ss60B42oZd',
+    userId: 10,
   }
 };
 
