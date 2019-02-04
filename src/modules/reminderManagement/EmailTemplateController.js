@@ -18,13 +18,7 @@ export default class EmailTemplateController {
         where: {
           userId: id,
         },
-        attributes: {
-          exclude: [
-            'manager', 'occupation', 'department',
-            'createdAt', 'updatedAt',
-            'location', 'picture', 'gender', 'passportName'
-          ]
-        }
+        attributes: ['id', 'fullName', 'email', 'userId']
       });
       const data = {
         ...req.body,

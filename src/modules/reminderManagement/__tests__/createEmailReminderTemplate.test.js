@@ -146,7 +146,7 @@ describe('Reminder Email Template Controller', () => {
         errors: [
           {
             message: 'Sender email should not exist in the cc',
-            name: 'from'
+            name: 'cc'
           }
         ]
       }, 'errors');
@@ -206,21 +206,6 @@ describe('Reminder Email Template Controller', () => {
           {
             message: 'Email subject should be more than 10 characters.',
             name: 'subject'
-          }
-        ]
-      }, 'errors');
-    });
-
-    it('should ensure the message cannot be less than 20 characters', (done) => {
-      createEmailTemplate({
-        ...mockData.reminderEmailTemplate,
-        message: 'abcdef'
-      }, done, {
-        status: 422,
-        errors: [
-          {
-            message: 'Email message should be more than 20 characters.',
-            name: 'message'
           }
         ]
       }, 'errors');

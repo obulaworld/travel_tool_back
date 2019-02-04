@@ -44,9 +44,7 @@ export default class ReminderEmailTemplateValidator {
       .len({ min: 10 })
       .withMessage('Email subject should be more than 10 characters.');
 
-    req.checkBody('message', 'Email template message is required').notEmpty()
-      .len({ min: 20 })
-      .withMessage('Email message should be more than 20 characters.');
+    req.checkBody('message', 'Email template message is required').notEmpty();
 
     if (req.validationErrors()) {
       req.getValidationResult().then((result) => {
@@ -71,7 +69,7 @@ export default class ReminderEmailTemplateValidator {
     if (emails.some(email => email === from)) {
       errors.push({
         msg: 'Sender email should not exist in the cc',
-        param: 'from'
+        param: 'cc'
       });
     }
 
