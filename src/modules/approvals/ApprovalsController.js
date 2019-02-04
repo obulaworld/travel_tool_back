@@ -225,7 +225,7 @@ class ApprovalsController {
       topic: `Travela ${request.status} Request`,
       type: request.status,
       redirectLink:
-      `${process.env.REDIRECT_URL}/redirect/requests/${request.id}`,
+      `${process.env.REDIRECT_URL}/redirect/requests/${request.id}/checklist`,
       requestId: request.id
     };
   }

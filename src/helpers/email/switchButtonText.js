@@ -22,6 +22,8 @@ const switchButtonText = (type) => {
       return 'View Document';
     case 'Send role assignment email notification':
       return 'Login';
+    case 'Approved':
+      return 'Fill Checklist';
     default:
       return 'View Request';
   }

@@ -6,7 +6,9 @@ export const travelReadinessVerification = (msgDetail) => {
    ${msgDetail.details.createdAt}. ${messageInfo}`;
   const docType = `Your ${msgDetail.details.type}`;
   if (msgDetail.details.type !== 'other') {
-    if (msgDetail.details.type === 'passport') return `${docType} with number ${msgDetail.details.data.passportNumber} ${message}`;
+    if (msgDetail.details.type === 'passport') {
+      return `${docType} with number ${msgDetail.details.data.passportNumber} ${message}`;
+    }
     return `${docType} to ${msgDetail.details.data.country} ${message}`;
   } return `${docType} document, ${msgDetail.details.data.name} ${message}`;
 };
@@ -71,8 +73,8 @@ const switchMessage = (msgDetail) => {
         just submitted a travel request. Please login to Travela to take an approval decision.`);
     case 'Approved':
       return (
-        `Your manager, <b style="text-transform: capitalize">${msgDetail.senderName}</b>
-        has approved your travel request. Please login to Travela to plan your trip.`);
+        `Congratulations, your travel request has just been approved by your manager on Travela.
+        Kindly fill out your travel checklist items by clicking on the button below.`);
     case 'Rejected':
       return (`Your travel request <b>#${msgDetail.requestId}</b> was rejected by
         ${msgDetail.senderName}. Login to your travela account for details.`);

@@ -15,8 +15,8 @@ describe('switchMessage helper', () => {
       { type: 'Approved', senderName: 'An_Jin', requestId: '36Ydgha42e' }
     );
 
-    expect(receivedMessage.split(' ')).toContain('Travela');
-    expect(receivedMessage.split(' ')[1]).toEqual('manager,');
+    expect(receivedMessage.split(' ')).toContain('travel');
+    expect(receivedMessage.split(' ')[0]).toEqual('Congratulations,');
     done();
   });
 
