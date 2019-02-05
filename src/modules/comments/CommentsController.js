@@ -51,16 +51,19 @@ class CommentsController {
   static async createNotificationByManager(req, res, request, comment, commentType) {
     try {
       const { name, picture } = req.user.UserInfo;
-      const { id, userId } = request;
+      const { id, userId, type: documentType } = request;
       const manager = request.manager || name;
       const requesterDetails = await UserRoleController.getRecipient(null, userId);
       const managerDetail = await UserRoleController.getRecipient(manager);
+      const linkType = commentType === 'Document'
+        ? `/travel-readiness/${userId}?id=${id}&type=${documentType}`
+        : `/requests/${id}`;
       const newNotificationDetail = {
         senderId: managerDetail.userId,
         recipientId: request.userId,
         notificationType: 'general',
         message: 'posted a comment',
-        notificationLink: `/requests/${id}`,
+        notificationLink: linkType,
         senderName: name,
         senderImage: picture
       };
@@ -124,19 +127,24 @@ class CommentsController {
 
   static async editComment(req, res) {
     try {
+      const userIdInteger = await UserRoleController.getRecipient(null, req.user.UserInfo.id);
       const { requestId } = req.body;
       const commentId = req.params.id;
-      const { name, email, picture } = req.user.UserInfo;
       const commentData = {
-        ...req.body, userName: name, userEmail: email, picture, isEdited: true
+        ...req.body, userId: userIdInteger.id, isEdited: true, documentId: null
       };
-      const request = await models.Request.findById(requestId);
+      const request = await models.Request.findById(requestId)
+      || await models.TravelReadinessDocuments.findById(requestId);
       if (!request) {
         return Error.handleError('Request does not exist', 404, res);
       }
       const foundComment = await models.Comment.findById(commentId);
       if (!foundComment) {
         return Error.handleError('Comment does not exist', 404, res);
+      }
+      if (foundComment.documentId) {
+        commentData.requestId = null;
+        commentData.documentId = requestId;
       }
       const editedComment = await models.Comment.update(commentData,
         { where: { id: commentId }, returning: true, plain: true });

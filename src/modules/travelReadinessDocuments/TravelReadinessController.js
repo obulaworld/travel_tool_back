@@ -153,7 +153,7 @@ export default class TravelReadinessController {
     try {
       const { documentId } = req.params;
 
-      const travelReadiness = await models.TravelReadinessDocuments.findById(documentId);
+      const travelReadiness = await getTravelDocument(documentId, models);
 
       if (!travelReadiness) {
         return res.status(404).json({
