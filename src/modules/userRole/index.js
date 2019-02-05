@@ -60,9 +60,11 @@ Router.patch(
 Router.put(
   '/user/role/update',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   RoleValidator.validateUpdateRole,
   Validator.checkEmail,
   RoleValidator.roleExists,
@@ -76,9 +78,11 @@ Router.get('/user/roles/:id', authenticate, UserRoleController.getOneRole);
 Router.delete(
   '/user/roles/:userId/:roleId',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   RoleValidator.roleExists,
   UserRoleController.deleteUserRole
 );

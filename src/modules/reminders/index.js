@@ -22,9 +22,11 @@ RemindersRouter.post(
 RemindersRouter.get(
   '/reminders',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   RemindersController.viewReminders
 );
 

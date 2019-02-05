@@ -11,7 +11,7 @@ ReminderManagementRouter.post(
   '/reminderManagement/emailTemplates',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   ReminderEmailTemplateValidator.validateReminderEmailTemplate,
   ReminderEmailTemplateValidator.validateCCEmails,
@@ -23,7 +23,7 @@ ReminderManagementRouter.get(
   '/reminderManagement/emailTemplates',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   EmailTemplateController.listEmailTemplates,
 );
@@ -32,7 +32,7 @@ ReminderManagementRouter.put(
   '/reminderManagement/emailTemplates/:templateId',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   ReminderEmailTemplateValidator.validateReminderEmailTemplate,
   ReminderEmailTemplateValidator.validateCCEmails,
@@ -45,7 +45,7 @@ ReminderManagementRouter.put(
   '/reminderManagement/emailTemplates/disable/:templateId',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   ReminderValidator.validateReason,
   ReminderValidator.validateDisability,
@@ -56,7 +56,7 @@ ReminderManagementRouter.get(
   '/reminderManagement/emailTemplates/:templateId',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   EmailTemplateController.getEmailTemplate
 
@@ -66,7 +66,7 @@ ReminderManagementRouter.put(
   '/reminderManagement/emailTemplates/enable/:templateId',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   ReminderEmailTemplateValidator.validateReqParams,
   EmailTemplateController.enableEmailTemplate,

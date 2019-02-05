@@ -12,7 +12,11 @@ Router.patch(
   authenticate,
   RoleValidator.validateUpdateCenter,
   RoleValidator.validateUpdateCenterBody,
-  RoleValidator.checkUserRole(['Super Administrator', 'Travel Administrator']),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   Validator.centerExists,
   CentersController.changeCenter
 );
