@@ -24,23 +24,27 @@ TravelChecklistRouter.get(
 TravelChecklistRouter.delete(
   '/checklists/:checklistId',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   deleteChecklistItem,
   Validator.validateRequest,
-  TravelChecklistController.deleteChecklistItem,
+  TravelChecklistController.deleteChecklistItem
 );
 
 TravelChecklistRouter.post(
   '/checklists',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   validateChecklistItem,
   Validator.validateRequest,
-  TravelChecklistController.createChecklistItem,
+  TravelChecklistController.createChecklistItem
 );
 
 TravelChecklistRouter.get(
@@ -52,12 +56,14 @@ TravelChecklistRouter.get(
 TravelChecklistRouter.put(
   '/checklists/:checklistId',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   validateChecklistItem,
   Validator.validateRequest,
-  TravelChecklistController.updateChecklistItem,
+  TravelChecklistController.updateChecklistItem
 );
 
 TravelChecklistRouter.post(

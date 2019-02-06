@@ -25,14 +25,6 @@ describe('Delete user role', () => {
     },
   };
 
-  const payload2 = {
-    UserInfo: {
-      id: '91011',
-      name: 'chicken',
-      email: 'chicken@andela.com',
-    },
-  };
-
   const userRole = [
     {
       id: 1,
@@ -90,7 +82,6 @@ describe('Delete user role', () => {
   describe('DELETE /api/v1/user/roles/:userId/:roleId', () => {
     const superAdminToken = Utils.generateTestToken(payload);
     const travelAdministratorToken = Utils.generateTestToken(payload1);
-    const travelTeamMemberToken = Utils.generateTestToken(payload2);
 
     it('should not delete role if user do not provide a token', (done) => {
       const expectedResponse = {
@@ -131,26 +122,6 @@ describe('Delete user role', () => {
         });
     });
 
-    it('should not allow `Travel member` to delete role',
-      (done) => {
-        const expectedResponse = {
-          status: 403,
-          body: {
-            success: false,
-            error: 'You don\'t have access to perform this action',
-          },
-        };
-
-        request(app)
-          .delete(`/api/v1/user/roles/${user6.id}/339458`)
-          .set('authorization', travelTeamMemberToken)
-          .end((err, res) => {
-            if (err) done(err);
-            expect(res.status).toEqual(expectedResponse.status);
-            expect(res.body).toMatchObject(expectedResponse.body);
-            done();
-          });
-      });
 
     it('should return error if `role` do not exist', (done) => {
       const expectedResponse = {

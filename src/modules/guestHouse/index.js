@@ -10,18 +10,22 @@ const Router = express.Router();
 Router.get(
   '/guesthouses',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseController.getGuestHouses
 );
 
 Router.post(
   '/guesthouses',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseValidator.validateImage,
   GuestHouseValidator.validateGuestHouse,
   GuestHouseValidator.validateGuestHouseDataSet,
@@ -38,9 +42,11 @@ Router.get(
 Router.put(
   '/room/:id',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseValidator.checkFaultRoomStatus,
   GuestHouseController.updateRoomFaultyStatus
 );
@@ -48,7 +54,7 @@ Router.put(
 Router.put('/guesthouses/:id',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   GuestHouseValidator.validateImage,
   GuestHouseValidator.validateGuestHouse,
@@ -60,7 +66,7 @@ Router.get(
   authenticate,
   GuestHouseValidator.checkDate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   GuestHouseController.getGuestHouseDetails
 );
@@ -68,20 +74,24 @@ Router.get(
 Router.post(
   '/room/:id/maintainance',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseValidator.validateMaintainanceRecord,
   GuestHouseValidator.checkRoom,
-  GuestHouseController.createMaintainanceRecord,
+  GuestHouseController.createMaintainanceRecord
 );
 
 Router.put(
   '/room/:id/maintainance',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseValidator.validateMaintainanceRecord,
   GuestHouseValidator.checkRoom,
   GuestHouseValidator.checkMaintenanceRecord,
@@ -91,9 +101,11 @@ Router.put(
 Router.delete(
   '/room/:id/maintainance',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseValidator.checkRoom,
   GuestHouseValidator.checkMaintenanceRecord,
   GuestHouseController.deleteMaintenanceRecord
@@ -102,18 +114,22 @@ Router.delete(
 Router.put(
   '/guesthouse/:id',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseController.disableOrRestoreGuesthouse
 );
 
 Router.get(
   '/disabledguesthouses',
   authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator']
-  ),
+  RoleValidator.checkUserRole([
+    'Super Administrator',
+    'Travel Administrator',
+    'Travel Team Member'
+  ]),
   GuestHouseController.getDisabledGuestHouses
 );
 
