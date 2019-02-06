@@ -117,6 +117,7 @@ class UserRoleController {
       const managerOnBamboo = await UserHelper.getUserOnBamboo(userOnBamboo.data.supervisorEId);
       const managerOnProduction = await UserHelper.getUserOnProduction(managerOnBamboo);
       const travelaUser = UserHelper.generateTravelaUser(managerOnProduction, managerOnBamboo);
+      const userLocation = UserHelper.getUserLocation(userOnBamboo.data.location);
       const [managerResult] = await models.User.findOrCreate({
         where: {
           email: travelaUser.email,
@@ -126,17 +127,25 @@ class UserRoleController {
           picture: travelaUser.picture,
           fullName: travelaUser.fullName,
           location: travelaUser.location,
+          gender: travelaUser.gender
         }
       });
 
-      await managerResult.addRole(53019);
-      result.dataValues.manager = travelaUser.fullName;
-      await result.update({
+      const updateData = {
         department: userOnBamboo.data.department,
         occupation: userOnBamboo.data.jobTitle,
         manager: managerOnBamboo.data.displayName,
-        passportName: userOnProduction.data.values[0].name
-      });
+        passportName: userOnProduction.data.values[0].name,
+      };
+      if (!userOnProduction.data.values[0].location && !result.dataValues.location) {
+        updateData.location = userLocation;
+      }
+      if (!result.dataValues.gender) {
+        updateData.gender = userOnBamboo.data.gender;
+      }
+      await managerResult.addRole(53019);
+      result.dataValues.manager = travelaUser.fullName;
+      await result.update(updateData);
       return UserRoleController.response(res, message, result);
     } catch (error) {
       /* istanbul ignore next */

@@ -25,7 +25,7 @@ class UserHelper {
   static generateTravelaUser(productionUser, bambooUser) {
     const locations = productionUser.data.values[0].location != null
       ? productionUser.data.values[0].location.name
-      : 'Lagos';
+      : UserHelper.getUserLocation(bambooUser.data.location);
     const travelaUser = {
       fullName: productionUser.data.values[0].name,
       email: productionUser.data.values[0].email,
@@ -35,9 +35,21 @@ class UserHelper {
       occupation: bambooUser.data.jobTitle,
       location: locations,
       picture: productionUser.data.values[0].picture,
-      manager: bambooUser.data.supervisor
+      manager: bambooUser.data.supervisor,
+      gender: bambooUser.data.gender,
     };
     return travelaUser;
+  }
+
+  static getUserLocation(country) {
+    const countries = {
+      Nigeria: 'Lagos',
+      Kenya: 'Nairobi',
+      Uganda: 'Kampala',
+      Rwanda: 'Kigali',
+      USA: 'New York'
+    };
+    return countries[country] ? countries[country] : country;
   }
 }
 export default UserHelper;

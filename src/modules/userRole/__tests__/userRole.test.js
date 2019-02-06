@@ -234,8 +234,10 @@ describe('User Role Test', () => {
         expect(res.body.result).toHaveProperty('userId');
         expect(res.body.result).toHaveProperty('fullName');
         expect(res.body.result).toHaveProperty('email');
+        expect(res.body.result).toHaveProperty('location');
         expect(res.body.result.email).toEqual(user.user1.email);
         expect(res.body.result.fullName).toEqual(user.user1.fullName);
+        expect(res.body.result.location).toEqual(user.user1.location);
         expect(res.body.success).toEqual(true);
         if (err) return done(err);
         done();
