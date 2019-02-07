@@ -40,22 +40,32 @@ export default class EmailTemplateController {
 
   static async listEmailTemplates(req, res) {
     try {
-      const limit = 10;
-      const { query: { page, search } } = req;
-      const data = search
-        ? await models.ReminderEmailTemplate.findAndCountAll(searchEmailTemplates(search))
-        : await models.ReminderEmailTemplate.findAndCountAll(
+      let limit = req.query.limit || 10;
+      const {
+        query: {
+          page, search, disabled, paginate
+        }
+      } = req;
+      const where = disabled === undefined ? {} : {
+        disabled,
+      };
+      const count = search
+        ? await models.ReminderEmailTemplate.count(searchEmailTemplates(search))
+        : await models.ReminderEmailTemplate.count(
           {
+            where,
             paranoid: false,
           }
         );
-      const { count } = data;
+      if (paginate === false) {
+        limit = count;
+      }
       const pageCount = Math.ceil(count / limit);
       const currentPage = page < 1 || !page || pageCount === 0 ? 1 : Math.min(page, pageCount);
       const offset = limit * (currentPage - 1);
       const templates = search
         ? await paginateWithQuery(limit, offset, search)
-        : await paginateTemplates(limit, offset);
+        : await paginateTemplates(limit, offset, _.omitBy({ disabled }, _.isNil));
       const output = {
         success: true,
         message: 'success',

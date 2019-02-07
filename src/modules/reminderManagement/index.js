@@ -1,4 +1,5 @@
 import express from 'express';
+import { sanitizeQuery } from 'express-validator/filter';
 import middleware from '../../middlewares';
 import EmailTemplateController from './EmailTemplateController';
 
@@ -25,6 +26,8 @@ ReminderManagementRouter.get(
   RoleValidator.checkUserRole(
     ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
+  sanitizeQuery('paginate').toBoolean(),
+  sanitizeQuery('disabled').toBoolean(),
   EmailTemplateController.listEmailTemplates,
 );
 

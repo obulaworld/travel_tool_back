@@ -228,6 +228,19 @@ const listEmailTemplatesMock = {
       deletedAt: null,
       createdBy: 1000
     },
+    {
+      id: 20,
+      name: 'visa',
+      from: 'Super Modo',
+      cc: 'sup3r.m0d0@andela.com',
+      subject: 'Disabled Template',
+      message: 'This is a template that has been disabled by the admin',
+      disabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      createdBy: 1000
+    },
   ],
   disabled: [
     {
@@ -244,6 +257,13 @@ const listEmailTemplatesMock = {
       updatedAt: new Date(),
       reminderEmailTemplate: 19
     },
+    {
+      id: 3,
+      reason: 'This was disabled to test the filter query',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      reminderEmailTemplate: 20
+    }
   ]
 };
 

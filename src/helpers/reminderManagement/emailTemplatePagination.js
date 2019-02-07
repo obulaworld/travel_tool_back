@@ -34,8 +34,9 @@ export const searchEmailTemplates = search => ({
   },
 });
 
-export const paginateTemplates = async (limit, offset) => {
+export const paginateTemplates = async (limit, offset, where) => {
   const templates = await models.ReminderEmailTemplate.findAll({
+    where,
     paranoid: false,
     include,
     offset,
