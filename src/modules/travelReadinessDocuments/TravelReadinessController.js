@@ -5,8 +5,7 @@ import NotificationEngine from '../notifications/NotificationEngine';
 import TravelReadinessUtils from './TravelReadinessUtils';
 import UserRoleController from '../userRole/UserRoleController';
 import RoleValidator from '../../middlewares/RoleValidator';
-import getTravelDocument from './getTravelDocument.data';
-
+import { getTravelDocument, getSearchQuery } from './getTravelDocument.data';
 
 export default class TravelReadinessController {
   static getDocumentType(req) {
@@ -90,9 +89,12 @@ export default class TravelReadinessController {
   }
 
   static async getAllUsersReadiness(req, res) {
+    const { searchQuery } = req.query;
+    const query = searchQuery ? await getSearchQuery(searchQuery) : {};
+    query.location = req.user.location;
     try {
       const users = await models.User.findAll({
-        where: { location: req.user.location },
+        where: query,
         include: [
           {
             model: models.TravelReadinessDocuments,
