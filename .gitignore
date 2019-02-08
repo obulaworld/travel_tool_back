@@ -31,8 +31,3 @@ Analytics.zip
 Average Travel Duration.csv
 Average Travel Lead Time.csv
 Travel Analysis Report.csv
-
-/migrator/**/*.log
-/migrator/**/*.json
-/migrator/**/*.txt
-/migrator/**/*.csv
