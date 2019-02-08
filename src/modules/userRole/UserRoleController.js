@@ -28,7 +28,7 @@ class UserRoleController {
       }
     ] : '';
     const attributes = filter ? ['fullName', `${filter}`] : '';
-    
+
     const result = await models.User.findAll({
       attributes,
       include
@@ -153,10 +153,19 @@ class UserRoleController {
     }
   }
 
-  static async getUserFromApi(url) {
+  static async getUserFromApi(req) {
+    const {
+      body: { email },
+      userToken
+    } = req;
+    const baseUrL = process.env.NODE_ENV === 'production'
+      ? process.env.ANDELA_PROD_API
+      : process.env.ANDELA_STAGING_API;
+
+    const url = `${baseUrL}/users?email=${email}`;
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.USER_JW}`
+      Authorization: `Bearer ${userToken}`
     };
     const data = await axios.get(url, {
       headers
@@ -164,8 +173,8 @@ class UserRoleController {
     return data;
   }
 
-  static async createUserFromApi(url) {
-    const { data } = await UserRoleController.getUserFromApi(url);
+  static async createUserFromApi(req) {
+    const { data } = await UserRoleController.getUserFromApi(req);
     const user = data.values[0];
     if (data.total === 0) {
       return { found: false };
@@ -175,7 +184,7 @@ class UserRoleController {
       email: user.email,
       userId: user.id,
       picture: user.picture,
-      location: user.location.name
+      location: user.location ? user.location.name : ''
     });
     return { createdUser, found: true };
   }
@@ -193,8 +202,7 @@ class UserRoleController {
         attributes: ['email', 'fullName', 'userId', 'id']
       });
       if (!user) {
-        const url = `${process.env.ANDELA_PROD_API}/users?email=${email}`;
-        const { found, createdUser } = await UserRoleController.createUserFromApi(url);
+        const { found, createdUser } = await UserRoleController.createUserFromApi(req);
         if (!found) {
           const message = 'Email does not exist';
           return CustomError.handleError(message, 404, res);
@@ -215,7 +223,7 @@ class UserRoleController {
       });
       user.dataValues.centers = [{ id: result.centerId, location: center }];
       const message = [200, 'Role updated successfully', true];
-      
+
       await UserRoleController.sendNotificationEmail(user, roleName, name);
       UserRoleController.response(res, message, user);
     } catch (error) {
