@@ -70,6 +70,19 @@ describe('TravelReadiness Controller', () => {
         });
     });
 
+    it('should get the list of users and filter down data when a searchTerm is provided',
+      (done) => {
+        request(app)
+          .get('/api/v1/travelreadiness/users?searchQuery=uchechukwu')
+          .set('Content-Type', 'application/json')
+          .set('authorization', travelAdminToken)
+          .end((err, res) => {
+            expect(res.status).toBe(200);
+            expect(res.body.users).toBeDefined();
+            done();
+          });
+      });
+
     it("should fetch the list of users from an admin's center", (done) => {
       request(app)
         .get('/api/v1/travelreadiness/users')

@@ -1,4 +1,3 @@
-import Sequelize from 'sequelize';
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import Utils from '../../helpers/Utils';
@@ -6,9 +5,7 @@ import NotificationEngine from '../notifications/NotificationEngine';
 import TravelReadinessUtils from './TravelReadinessUtils';
 import UserRoleController from '../userRole/UserRoleController';
 import RoleValidator from '../../middlewares/RoleValidator';
-import getTravelDocument from './getTravelDocument.data';
-
-const { Op } = Sequelize;
+import { getTravelDocument, getSearchQuery } from './getTravelDocument.data';
 
 export default class TravelReadinessController {
   static getDocumentType(req) {
@@ -93,25 +90,10 @@ export default class TravelReadinessController {
 
   static async getAllUsersReadiness(req, res) {
     const { searchQuery } = req.query;
-    let query = {};
-    if (searchQuery) {
-      query = {
-        [Op.and]: {
-          [Op.or]: {
-            fullName: {
-              $ilike: `${searchQuery}%`
-            },
-            department: {
-              $ilike: `${searchQuery}%`
-            }
-          }
-        }
-      };
-    }
+    const query = searchQuery ? await getSearchQuery(searchQuery) : {};
     query.location = req.user.location;
     try {
       const users = await models.User.findAll({
-        // where: searchClause,
         where: query,
         include: [
           {
