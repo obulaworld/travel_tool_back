@@ -1,6 +1,7 @@
 import NotificationEngine from '../notifications/NotificationEngine';
 import UserRoleController from '../userRole/UserRoleController';
 import Validator from '../../middlewares/Validator';
+import paginationHelper from '../../helpers/Pagination';
 
 class TravelReadinessUtils {
   static getMailData(details, user, topic, type, travelAdmin) {
@@ -43,6 +44,17 @@ class TravelReadinessUtils {
         data
       );
     }
+  }
+
+  static getPaginationParams(req, count) {
+    const initialPage = paginationHelper.initializePagination(req);
+    const { page, limit } = initialPage;
+    const { currentPage, pageCount } = paginationHelper.getPaginationData(page, limit, count);
+    return {
+      currentPage,
+      pageCount,
+      initialPage
+    };
   }
 }
 

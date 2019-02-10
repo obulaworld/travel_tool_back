@@ -70,6 +70,38 @@ describe('TravelReadiness Controller', () => {
         });
     });
 
+    it('should get a paginated list of users', (done) => {
+      request(app)
+        .get('/api/v1/travelreadiness/users')
+        .set('Content-Type', 'application/json')
+        .set('authorization', travelAdminToken)
+        .end((err, res) => {
+          const { pageCount, currentPage } = res.body.meta;
+          expect(pageCount).toBe(1);
+          expect(currentPage).toBe(1);
+          expect(res.status).toBe(200);
+          expect(res.body.users).toBeDefined();
+          expect(res.body.meta).toBeDefined();
+          done();
+        });
+    });
+
+    it('should get second page from paginated list of users', (done) => {
+      request(app)
+        .get('/api/v1/travelreadiness/users?page=2')
+        .set('Content-Type', 'application/json')
+        .set('authorization', travelAdminToken)
+        .end((err, res) => {
+          const { pageCount, currentPage } = res.body.meta;
+          expect(pageCount).toBe(1);
+          expect(currentPage).toBe(2);
+          expect(res.status).toBe(200);
+          expect(res.body.users).toBeDefined();
+          expect(res.body.meta).toBeDefined();
+          done();
+        });
+    });
+
     it('should get the list of users and filter down data when a searchTerm is provided',
       (done) => {
         request(app)

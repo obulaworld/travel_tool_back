@@ -91,10 +91,18 @@ export default class TravelReadinessController {
   static async getAllUsersReadiness(req, res) {
     const { searchQuery } = req.query;
     const query = searchQuery ? await getSearchQuery(searchQuery) : {};
+
     query.location = req.user.location;
     try {
+      const count = await models.User.count({
+        where: query,
+      });
+
+      const { pageCount, currentPage, initialPage } = TravelReadinessUtils
+        .getPaginationParams(req, count);
       const users = await models.User.findAll({
         where: query,
+        ...initialPage,
         include: [
           {
             model: models.TravelReadinessDocuments,
@@ -102,10 +110,16 @@ export default class TravelReadinessController {
           },
         ]
       });
+
       return res.status(200).json({
         success: true,
         message: 'Fetched users successfully',
         users,
+        meta: {
+          count,
+          pageCount,
+          currentPage,
+        }
       });
     } catch (error) { /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
