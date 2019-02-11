@@ -150,7 +150,7 @@ describe('Travel team role test', () => {
         });
     });
     it('should return 404 error if the email does not exist', (done) => {
-      moxios.stubRequest(`${process.env.ANDELA_PROD_API}/users?email=someEmail@andela.com`, {
+      moxios.stubRequest(`${process.env.ANDELA_STAGING_API}/users?email=someEmail@andela.com`, {
         status: 200,
         response: {
           values: [],

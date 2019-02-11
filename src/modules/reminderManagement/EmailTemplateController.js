@@ -40,7 +40,7 @@ export default class EmailTemplateController {
 
   static async listEmailTemplates(req, res) {
     try {
-      const limit = 6;
+      const limit = 10;
       const { query: { page, search } } = req;
       const data = search
         ? await models.ReminderEmailTemplate.findAndCountAll(searchEmailTemplates(search))
