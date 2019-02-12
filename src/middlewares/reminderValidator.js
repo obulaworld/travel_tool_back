@@ -25,7 +25,10 @@ class ReminderValidator {
       attributes: ['id', 'name']
     });
 
-    const validPeriods = ['Days', 'Weeks', 'Months', 'Years'];
+    const validPeriods = [
+      'Days', 'Weeks', 'Months', 'Years',
+      'Day', 'Week', 'Month', 'Year'
+    ];
     const errors = [];
 
     reminders.forEach((reminder, index) => {
