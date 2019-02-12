@@ -509,5 +509,32 @@ describe('Reminders Controller', () => {
           done();
         });
     });
+
+    it('should create a new reminder with singular dates and return a success message', (done) => {
+      request(app)
+        .post(URI)
+        .set('Content-Type', 'application/json')
+        .set('authorization', travelAdminToken)
+        .send({
+          ...reminderPayload,
+          conditionName: 'This is another condition',
+          reminders: [{
+            frequency: '1 Week',
+            reminderEmailTemplateId: '300'
+          },
+          {
+            frequency: '1 Day',
+            reminderEmailTemplateId: '301'
+          }
+          ]
+        })
+        .end((err, res) => {
+          expect(res.status).toEqual(201);
+          expect(res.body.success).toEqual(true);
+          expect(res.body.reminder).toHaveProperty('condition');
+          expect(res.body.reminder).toHaveProperty('reminders');
+          done();
+        });
+    });
   });
 });
