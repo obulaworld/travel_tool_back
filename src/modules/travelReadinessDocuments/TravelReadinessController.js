@@ -3,6 +3,7 @@ import CustomError from '../../helpers/Error';
 import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
 import TravelReadinessUtils from './TravelReadinessUtils';
+import Pagination from '../../helpers/Pagination';
 import UserRoleController from '../userRole/UserRoleController';
 import RoleValidator from '../../middlewares/RoleValidator';
 import { getTravelDocument, getSearchQuery } from './getTravelDocument.data';
@@ -98,7 +99,7 @@ export default class TravelReadinessController {
         where: query,
       });
 
-      const { pageCount, currentPage, initialPage } = TravelReadinessUtils
+      const { pageCount, currentPage, initialPage } = Pagination
         .getPaginationParams(req, count);
       const users = await models.User.findAll({
         where: query,

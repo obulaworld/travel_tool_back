@@ -4,6 +4,8 @@ import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import UserHelper from '../../helpers/user';
 import NotificationEngine from '../notifications/NotificationEngine';
+import UserRoleUtils from './UserRoleUtils';
+
 
 dotenv.config();
 
@@ -12,7 +14,7 @@ class UserRoleController {
     return res.status(message[0]).json({
       success: message[2],
       message: message[1],
-      result
+      result,
     });
   }
 
@@ -263,14 +265,38 @@ class UserRoleController {
   }
 
   static async getOneRole(req, res) {
-    const { id } = req.params;
-    try {
-      const result = await UserRoleController.calculateUserRole(id);
-      const message = [200, 'data', true];
-      UserRoleController.response(res, message, result);
-    } catch (error) {
+    const { id: roleId } = req.params;
+
+    if (!Number.isInteger(Number.parseInt(roleId, 10))) {
       const message = [400, 'Params must be an integer', false];
-      UserRoleController.response(res, message);
+      return UserRoleController.response(res, message);
+    }
+    
+    try {
+      const roles = await UserRoleController.calculateUserRole(roleId);
+
+      if (!roles) {
+        const message = [404, 'Role does not exist', false];
+        return UserRoleController.response(res, message);
+      }
+      
+      const count = roles.users.length;
+      const {
+        roleData,
+        paginationData: { currentPage, pageCount, pagintedUsersRole }
+      } = UserRoleUtils.getPaginatedRoles(req, count, roles);
+
+      const meta = { count, currentPage, pageCount };
+      const message = [200, 'data', true];
+
+      UserRoleController.response(res, message, {
+        ...roleData,
+        users: pagintedUsersRole,
+        meta,
+      });
+    } catch (error) {
+      /* istanbul ignore next */
+      CustomError.handleError(error, 500, res);
     }
   }
 
