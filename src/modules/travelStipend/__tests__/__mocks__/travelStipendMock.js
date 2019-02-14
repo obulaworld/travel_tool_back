@@ -1,41 +1,40 @@
-const listTravelStipendMock = {
-  travelStipends: [
-    {
-      id: 1,
-      stipend: 75,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      createdBy: '-MUyHJmKrxA90lPNQ1FOLNm',
-      centerId: 12345
-    },
-    {
-      id: 2,
-      stipend: 75,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      createdBy: '-MUyHJmKrxA90lPNQ1FOLNm',
-      centerId: 23456
-    }
-  ]
-
-};
-
-const user = {
-  id: 1,
-  fullName: 'Samuel Kubai',
-  email: 'sam.kubai@andela.com',
-  userId: '-MUyHJmKrxA90lPNQ1FOLNm',
-  picture: 'Picture',
-  location: 'Lagos',
-  createdAt: '2019-02-11 012:11:52.181+01',
-  updatedAt: '2019-02-11 012:11:52.181+01'
-};
+const user = [
+  {
+    id: 1,
+    fullName: 'Samuel Kubai',
+    email: 'sam.kubai@andela.com',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+    picture: 'Picture',
+    location: 'Lagos',
+    createdAt: '2019-02-11 012:11:52.181+01',
+    updatedAt: '2019-02-11 012:11:52.181+01'
+  },
+  {
+    id: 2,
+    fullName: 'Esther Mukungu',
+    email: 'esther.muk@andela.com',
+    userId: '-LMgZQKq6MXAj_41iRWi',
+    picture: 'Picture',
+    location: 'Lagos',
+    createdAt: '2019-02-11 012:11:52.181+01',
+    updatedAt: '2019-02-11 012:11:52.181+01'
+  }
+];
 
 const payload = {
   UserInfo: {
     id: '-MUyHJmKrxA90lPNQ1FOLNm',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm',
     email: 'sam.kubai@andela.com',
     name: 'Samuel Kubai'
+  }
+};
+
+const payloadNotAdmin = {
+  UserInfo: {
+    userId: '-LMgZQKq6MXAj_41iRWi',
+    email: 'esther.muk@andela.com',
+    name: 'Esther Mukungu'
   }
 };
 
@@ -46,7 +45,16 @@ const userRole = [{
   centerId: 12345,
   createdAt: new Date(),
   updatedAt: new Date()
-}];
+},
+{
+  id: 2,
+  userId: 2,
+  roleId: 401938,
+  centerId: 12345,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}
+];
 
 const listOfStipends = [
   {
@@ -89,5 +97,5 @@ const centers = [
 ];
 
 export default {
-  listTravelStipendMock, user, payload, userRole, centers, listOfStipends
+  user, payload, userRole, centers, listOfStipends, payloadNotAdmin
 };

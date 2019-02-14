@@ -1,37 +1,23 @@
 import supertest from 'supertest';
 import app from '../../../app';
-import models from '../../../database/models';
-import { role } from '../../userRole/__tests__/mocks/mockData';
-import mockData from './__mocks__/travelStipendMock';
 import Utils from '../../../helpers/Utils';
+import TestSetup from './helper';
+import mockData from './__mocks__/travelStipendMock';
+
 
 const request = supertest(app);
 const url = '/api/v1/travelStipend';
 
 describe('TravelStipends', () => {
-  const destroyTables = async () => {
-    await models.TravelStipends.destroy({ force: true, truncate: { cascade: true } });
-    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
-    await models.Center.destroy({ truncate: true, cascade: true });
-    await models.Role.destroy({ truncate: { cascade: true }, force: true });
-    await models.User.destroy({ truncate: { cascade: true }, force: true });
-  };
-
-  const {
-    user, payload, userRole, centers, listOfStipends
-  } = mockData;
+  const { payload } = mockData;
 
   beforeAll(async () => {
-    await destroyTables();
-    await models.User.create(user);
-    await models.Role.bulkCreate(role);
-    await models.Center.bulkCreate(centers);
-    await models.UserRole.bulkCreate(userRole);
-    await models.TravelStipends.bulkCreate(listOfStipends);
+    await TestSetup.destoryTables();
+    await TestSetup.createTables();
   });
 
   afterAll(async () => {
-    await destroyTables();
+    await TestSetup.destoryTables();
   });
 
   const token = Utils.generateTestToken(payload);

@@ -20,4 +20,11 @@ TravelStipendRouter.post(
   TravelStipendController.createTravelStipend,
 );
 
+TravelStipendRouter.get('/travelStipend',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  TravelStipendController.getAllTravelStipends);
+  
 export default TravelStipendRouter;

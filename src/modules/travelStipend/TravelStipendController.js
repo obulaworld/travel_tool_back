@@ -27,4 +27,31 @@ export default class TravelStipendController {
       CustomError.handleError(error.message, 500, res);
     }
   }
+
+  static async getAllTravelStipends(req, res) {
+    try {
+      const stipends = await models.TravelStipends.findAll({
+        
+        include: [{
+          model: models.User,
+          as: 'creator',
+          attributes: ['fullName', 'id']
+        },
+        {
+          model: models.Center,
+          as: 'center',
+          attributes: ['location']
+        }],
+        attributes: ['id', 'amount']
+      });
+      return res.status(200).json({
+        success: true,
+        message: 'Travel Stipends retrieved successfully',
+        stipends
+      });
+    } catch (error) {
+      /* istanbul ignore next */
+      CustomError.handleError(error, 500, res);
+    }
+  }
 }
