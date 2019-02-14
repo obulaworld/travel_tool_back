@@ -14,6 +14,7 @@ import documentsRouter from './documents';
 import travelReadinessRouter from './travelReadinessDocuments';
 import reminderManagementRouter from './reminderManagement';
 import remindersRouter from './reminders';
+import travelReasons from './travelReasons';
 
 
 const apiPrefix = '/api/v1';
@@ -35,7 +36,8 @@ const routes = [
   documentsRouter,
   travelReadinessRouter,
   reminderManagementRouter,
-  remindersRouter
+  remindersRouter,
+  travelReasons,
 ];
 export default (app) => {
   routes.forEach(route => app.use(apiPrefix, route));

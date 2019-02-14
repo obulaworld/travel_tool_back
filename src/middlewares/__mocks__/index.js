@@ -137,8 +137,13 @@ const middleware = {
     checkReminderWithId: jest.fn(invokeNextMiddleware),
     checkUniqueFrequency: jest.fn(invokeNextMiddleware),
     getConditionById: jest.fn(invokeNextMiddleware),
-    validateDisability: jest.fn(invokeNextMiddleware),
+    validateDisability: jest.fn(invokeNextMiddleware)
   },
+  TravelReasonsValidator: {
+    verifyTravelReasonBody: jest.fn(invokeNextMiddleware),
+    verifyTitle: jest.fn(invokeNextMiddleware),
+    verifyId: jest.fn(invokeNextMiddleware),
+  }
 };
 
 export default middleware;
