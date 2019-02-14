@@ -66,6 +66,10 @@ export default (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 'false',
         type: DataTypes.ENUM('true', 'false')
+      },
+      otherTravelReasons: {
+        allowNull: true,
+        type: DataTypes.STRING
       }
     },
     { paranoid: true }
@@ -89,6 +93,10 @@ export default (sequelize, DataTypes) => {
     Trip.hasMany(models.ChangedRoom, {
       foreignKey: 'tripId',
       as: 'changedRooms'
+    });
+    Trip.belongsTo(models.TravelReason, {
+      foreignKey: 'travelReasons',
+      targetId: 'id'
     });
   };
   return Trip;

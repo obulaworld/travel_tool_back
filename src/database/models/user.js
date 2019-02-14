@@ -82,6 +82,10 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'userId',
       sourceKey: 'userId'
     });
+    User.hasMany(models.TravelReason, {
+      foreignKey: 'createdBy',
+      sourceKey: 'id'
+    });
   };
   return User;
 };

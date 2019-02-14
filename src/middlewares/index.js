@@ -11,6 +11,7 @@ import RequestValidator from './RequestValidator';
 import TravelReadinessDocumentValidator from './travelReadinessDocumentsValidator';
 import ReminderEmailTemplateValidator from './reminderEmailTemplateValidator';
 import ReminderValidator from './reminderValidator';
+import TravelReasonsValidator from './travelReasonsValidator';
 
 const middleware = {
   authenticate,
@@ -25,7 +26,8 @@ const middleware = {
   RequestValidator,
   TravelReadinessDocumentValidator,
   ReminderValidator,
-  ReminderEmailTemplateValidator
+  ReminderEmailTemplateValidator,
+  TravelReasonsValidator
 };
 
 export default middleware;
