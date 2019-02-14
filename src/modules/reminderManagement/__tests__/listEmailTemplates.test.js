@@ -6,6 +6,7 @@ import mockData from './__mocks__/listEmailTemplatesMock';
 import Utils from '../../../helpers/Utils';
 
 const request = supertest;
+const url = '/api/v1/reminderManagement/emailTemplates';
 
 describe('list Email Templates', () => {
   const destroyTables = async () => {
@@ -35,7 +36,7 @@ describe('list Email Templates', () => {
   const token = Utils.generateTestToken(payload);
 
   it('gets the count of all templates', (done) => {
-    request(app).get('/api/v1/reminderManagement/emailTemplates')
+    request(app).get(url)
       .set('Authorization', token)
       .end((err, res) => {
         if (err) done(err);
@@ -46,20 +47,43 @@ describe('list Email Templates', () => {
   });
 
   it('searches if provided with search parameter', (done) => {
-    const url = '/api/v1/reminderManagement/emailTemplates?search=visa';
     const test = request(app)
-      .get(url)
+      .get(`${url}?search=visa`)
       .set('Authorization', token);
     test.end((err, res) => {
       if (err) done(err);
       const { body: { metaData: { pagination: { totalCount } } } } = res;
-      expect(totalCount).toEqual(1);
+      expect(totalCount).toEqual(2);
+      done();
+    });
+  });
+
+  it('filters by disabled status if provided with search query', (done) => {
+    const test = request(app)
+      .get(`${url}?disabled=true`)
+      .set('Authorization', token);
+    test.end((err, res) => {
+      if (err) done(err);
+      const { body: { metaData: { templates } } } = res;
+      expect(templates[0].disabled).toEqual(true);
+      done();
+    });
+  });
+
+  it('paginates results on request as provided in the search query', (done) => {
+    const test = request(app)
+      .get(`${url}?paginate=true`)
+      .set('Authorization', token);
+    test.end((err, res) => {
+      if (err) done(err);
+      const { body: { metaData: { pagination: { pageCount } } } } = res;
+      expect(pageCount).toEqual(2);
       done();
     });
   });
 
   const disableTemplate = () => request(app)
-    .put('/api/v1/reminderManagement/emailTemplates/disable/19')
+    .put(`${url}/disable/19`)
     .set('Authorization', token)
     .send({
       reason: 'Some reason'
@@ -67,7 +91,6 @@ describe('list Email Templates', () => {
   
   it('fetches the reminder together with a list of disable reasons', (done) => {
     disableTemplate().end(() => {
-      const url = '/api/v1/reminderManagement/emailTemplates';
       request(app)
         .get(url)
         .set('Authorization', token)

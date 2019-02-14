@@ -21,11 +21,14 @@ export default class ReminderEmails {
           {
             model: models.Condition,
             as: 'condition',
+            where: { disabled: false },
           }, {
             model: models.ReminderEmailTemplate,
-            as: 'emailTemplate'
+            as: 'emailTemplate',
+            where: { disabled: false }
           }]
       });
+
       const userGroup = await Promise.all(reminders.map(async (reminder) => {
         const usergroup = await models.TravelReadinessDocuments.findAll({
           where: {

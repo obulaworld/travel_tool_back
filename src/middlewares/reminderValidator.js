@@ -270,6 +270,7 @@ class ReminderValidator {
       })
     );
     if (errors.length) {
+      /* istanbul ignore next */
       return Validator.errorHandler(res, errors, next);
     }
     next();
