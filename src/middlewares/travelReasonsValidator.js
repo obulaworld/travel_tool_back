@@ -57,6 +57,32 @@ class TravelReasonsValidator {
       return CustomError.handleError('An error occurred', 400, res);
     }
   }
+
+  static checkField(query, field, error) {
+    return new Promise(
+      (resolve, reject) => {
+        if (query[field] && Number.isNaN(Number(query[field]))) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      }
+    );
+  }
+
+  static async validateParams(req, res, next) {
+    const { query } = req;
+    try {
+      await TravelReasonsValidator.checkField(query, 'page', 'Invalid page number');
+      await TravelReasonsValidator.checkField(query, 'limit', 'Invalid limit');
+    } catch (error) {
+      return res.status(422).json({
+        success: false,
+        error
+      });
+    }
+    return next();
+  }
 }
 
 export default TravelReasonsValidator;

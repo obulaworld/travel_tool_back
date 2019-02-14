@@ -19,7 +19,8 @@ export default (sequelize, DataTypes) => {
   TravelReason.associate = (models) => {
     TravelReason.belongsTo(models.User, {
       foreignKey: 'createdBy',
-      targetKey: 'id'
+      targetKey: 'id',
+      as: 'creator'
     });
     TravelReason.hasMany(models.Trip, {
       foreignKey: 'travelReasons',

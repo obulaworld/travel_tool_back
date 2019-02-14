@@ -17,4 +17,14 @@ TravelReasonsRouter.post(
   TravelReasonsController.createTravelReason,
 );
 
+TravelReasonsRouter.get(
+  '/request/reasons',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  TravelReasonsValidator.validateParams,
+  TravelReasonsController.getTravelReasons,
+);
+
 export default TravelReasonsRouter;

@@ -1,3 +1,6 @@
+import { Op } from 'sequelize';
+import models from '../database/models';
+
 class Pagination {
   static initializePagination(req) {
     const page = req.query.page || 1;
@@ -19,6 +22,30 @@ class Pagination {
       dataCount: count,
     };
     return pagination;
+  }
+
+  static options(req) {
+    const { query: { search } } = req;
+    const countOptions = search ? {
+      where: {
+        [Op.or]: [
+          { title: { [Op.iLike]: `${search}` } },
+          { description: { [Op.iLike]: `${search}` } },
+        ]
+      }
+    } : {};
+    const findOptions = {
+      ...countOptions,
+      include: [{
+        model: models.User,
+        as: 'creator',
+        attributes: ['email', 'fullName', 'userId']
+      }]
+    };
+    return {
+      countOptions,
+      findOptions
+    };
   }
 }
 
