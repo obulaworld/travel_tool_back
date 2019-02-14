@@ -16,6 +16,7 @@ import reminderManagementRouter from './reminderManagement';
 import remindersRouter from './reminders';
 import travelReasons from './travelReasons';
 
+import travelStipendRouter from './travelStipend';
 
 const apiPrefix = '/api/v1';
 
@@ -38,6 +39,7 @@ const routes = [
   reminderManagementRouter,
   remindersRouter,
   travelReasons,
+  travelStipendRouter
 ];
 export default (app) => {
   routes.forEach(route => app.use(apiPrefix, route));
