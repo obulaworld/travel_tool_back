@@ -715,7 +715,7 @@ describe('User Role Test', () => {
 
     it('should return only one role from the database', (done) => {
       request(app)
-        .get('/api/v1/user/roles/1')
+        .get('/api/v1/user/roles/10948')
         .set('Content-Type', 'application/json')
         .set('authorization', token)
         .expect(200)

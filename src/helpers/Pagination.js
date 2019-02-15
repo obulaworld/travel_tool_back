@@ -47,6 +47,17 @@ class Pagination {
       findOptions
     };
   }
+  
+  static getPaginationParams(req, count) {
+    const initialPage = Pagination.initializePagination(req);
+    const { page, limit } = initialPage;
+    const { currentPage, pageCount } = Pagination.getPaginationData(page, limit, count);
+    return {
+      currentPage,
+      pageCount,
+      initialPage
+    };
+  }
 }
 
 export default Pagination;
