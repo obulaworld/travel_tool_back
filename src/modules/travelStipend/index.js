@@ -26,5 +26,14 @@ TravelStipendRouter.get('/travelStipend',
     ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
   ),
   TravelStipendController.getAllTravelStipends);
+
+TravelStipendRouter.delete(
+  '/travelStipend/:id',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  TravelStipendController.deleteTravelStipend,
+);
   
 export default TravelStipendRouter;

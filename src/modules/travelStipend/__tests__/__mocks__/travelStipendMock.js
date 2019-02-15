@@ -37,7 +37,6 @@ const payloadNotAdmin = {
     name: 'Esther Mukungu'
   }
 };
-
 const userRole = [{
   id: 1,
   userId: 1,

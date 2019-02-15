@@ -54,4 +54,24 @@ export default class TravelStipendController {
       CustomError.handleError(error, 500, res);
     }
   }
+
+  static async deleteTravelStipend(req, res) {
+    try {
+      const travelStipendId = parseInt(req.params.id, 10);
+      if (Number.isNaN(travelStipendId)) {
+        return CustomError.handleError('Stipend id should be an integer', 400, res);
+      }
+      const foundTravelStipendId = await models.TravelStipends.findById(travelStipendId);
+      if (!foundTravelStipendId) {
+        return CustomError.handleError('Travel stipend does not exist', 404, res);
+      }
+      await foundTravelStipendId.destroy();
+      return res.status(200).json({
+        success: true,
+        message: 'Travel Stipend deleted successfully'
+      });
+    } catch (error) {
+      CustomError.handleError(error, 500, res);
+    }
+  }
 }
