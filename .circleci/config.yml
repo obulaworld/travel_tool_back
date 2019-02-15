@@ -148,7 +148,6 @@ workflows:
             - run_vulnerability_check
             - test_and_report
             - checkout_code
-          <<: *filters
       - deploy:
           requires:
             - build_application_artifacts
