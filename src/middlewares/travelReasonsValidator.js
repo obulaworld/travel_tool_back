@@ -50,7 +50,7 @@ class TravelReasonsValidator {
           message: 'Unauthorized access',
         });
       }
-      req.body.id = user.id;
+      req.body.user = user;
       next();
     } catch (error) {
       /* istanbul ignore next */

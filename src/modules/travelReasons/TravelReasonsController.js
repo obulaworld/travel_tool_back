@@ -1,3 +1,4 @@
+
 import models from '../../database/models';
 import CustomError from '../../helpers/Error';
 import Pagination from '../../helpers/Pagination';
@@ -5,24 +6,37 @@ import Pagination from '../../helpers/Pagination';
 export default class TravelReasonsController {
   static async createTravelReason(req, res) {
     try {
-      const { id, title, description } = req.body;
+      const { user, title, description } = req.body;
 
       const lowerCaseTitle = title.toLowerCase();
       const newReason = await models.TravelReason.create({
         title: lowerCaseTitle,
         description,
-        createdBy: id
+        createdBy: user.id
       });
 
-      if (newReason) {
-        return res.status(201).json({
-          success: true,
-          message: 'Successfully created a travel reason',
-          travelReason: newReason
-        });
-      }
+      const travelReason = {
+        id: newReason.id,
+        title: newReason.title,
+        description: newReason.description,
+        createdAt: newReason.createdAt,
+        updatedAt: newReason.updatedAt,
+        deletedAt: newReason.deletedAt,
+        createdBy: newReason.createdBy,
+        creator: {
+          fullName: user.fullName,
+          email: user.email,
+          userId: user.userId
+        }
+      };
+
+      return res.status(201).json({
+        success: true,
+        message: 'Successfully created a travel reason',
+        travelReason
+      });
     } catch (error) {
-    /* istanbul ignore next */
+      /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
     }
   }
