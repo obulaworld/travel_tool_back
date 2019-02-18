@@ -265,11 +265,11 @@ class UserRoleController {
   }
 
   static async getOneRole(req, res) {
-    const { id: roleId } = req.params;
-
-    if (!Number.isInteger(Number.parseInt(roleId, 10))) {
-      const message = [400, 'Params must be an integer', false];
-      return UserRoleController.response(res, message);
+    const { id: roleId, } = req.params;
+    const errormessage = UserRoleUtils.sanitizePaginationParams(req, roleId);
+    
+    if (errormessage) {
+      return UserRoleController.response(res, errormessage);
     }
     
     try {
@@ -280,18 +280,18 @@ class UserRoleController {
         return UserRoleController.response(res, message);
       }
       
+      const { allPage } = req.query;
       const count = roles.users.length;
-      const {
-        roleData,
-        paginationData: { currentPage, pageCount, pagintedUsersRole }
-      } = UserRoleUtils.getPaginatedRoles(req, count, roles);
+      const userRoles = UserRoleUtils.getAllOrPaginatedRoles({
+        req, roles, count, allPage
+      });
 
-      const meta = { count, currentPage, pageCount };
+      const meta = { count, ...userRoles.meta };
       const message = [200, 'data', true];
 
       UserRoleController.response(res, message, {
-        ...roleData,
-        users: pagintedUsersRole,
+        ...userRoles.roleData,
+        users: userRoles.users,
         meta,
       });
     } catch (error) {

@@ -135,4 +135,40 @@ describe('User Roles Pagination', () => {
         done();
       });
   });
+
+  it('should not paginate user roles when `allPage` is true', (done) => {
+    request(app)
+      .get('/api/v1/user/roles/29187?page=1&limit=1&allPage=true')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .expect(200)
+      .end((err, res) => {
+        const {
+          result: {
+            users,
+            meta: {
+              count,
+            },
+          }
+        } = res.body;
+        expect(res.body.success).toEqual(true);
+        expect(count).toEqual(users.length);
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('should return role does not exist when inavlid roleId is provided', (done) => {
+    request(app)
+      .get('/api/v1/user/roles/29187?page=1&limit=1&allPage=all')
+      .set('Content-Type', 'application/json')
+      .set('authorization', token)
+      .expect(400)
+      .end((err, res) => {
+        expect(res.body.success).toEqual(false);
+        expect(res.body.message).toEqual('param allPage is optional and should be true');
+        if (err) return done(err);
+        done();
+      });
+  });
 });
