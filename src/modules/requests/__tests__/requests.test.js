@@ -1494,6 +1494,7 @@ describe('Requests Controller', () => {
         TravelChecklistController.checkListPercentageNumber = jest.fn().mockImplementationOnce(
           () => 100
         );
+        const redirect = 'redirect/requests/';
         const notifySpy = jest.spyOn(NotificationEngine, 'notify');
         const sendMailSpy = jest.spyOn(NotificationEngine, 'sendMail');
         request(app)
@@ -1505,7 +1506,17 @@ describe('Requests Controller', () => {
             expect(res.body.success).toEqual(true);
             expect(res.body.updatedRequest.request.status).toBe('Verified');
             expect(notifySpy).toHaveBeenCalled();
-            expect(sendMailSpy).toHaveBeenCalled();
+            expect(sendMailSpy).toHaveBeenCalledWith({
+              recipient: {
+                email: 'test.user1@gmail.com',
+                name: 'Test User 1'
+              },
+              redirectLink: `${process.env.REDIRECT_URL}/${redirect}`,
+              requestId: 'mock-request-id-2',
+              sender: 'Travel Team Member',
+              topic: 'Travel Request Verified',
+              type: 'Verified'
+            });
             done();
           });
       });

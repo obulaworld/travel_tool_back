@@ -362,7 +362,7 @@ class RequestsController {
         message: 'verified your travel request',
         notificationLink: `/requests/${id}`
       };
-      const emailRequest = { name: request.name, manager: request.name, id: request.id };
+      const emailRequest = { name, manager: request.name, id: request.id };
       const emailData = RequestUtils.getMailData(
         emailRequest, recipient, 'Travel Request Verified', 'Verified', '/redirect/requests/'
       );
