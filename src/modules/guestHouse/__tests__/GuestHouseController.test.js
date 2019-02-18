@@ -62,7 +62,8 @@ describe('Guest Role Test', () => {
       status: 200,
       response: {
         workEmail: 'lisa.doe@andela.com',
-        supervisorEId: '92'
+        supervisorEId: '92',
+        location: 'Nigeria'
       }
     });
     moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {

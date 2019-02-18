@@ -6,7 +6,6 @@ import UserHelper from '../../helpers/user';
 import NotificationEngine from '../notifications/NotificationEngine';
 import UserRoleUtils from './UserRoleUtils';
 
-
 dotenv.config();
 
 class UserRoleController {
@@ -14,7 +13,7 @@ class UserRoleController {
     return res.status(message[0]).json({
       success: message[2],
       message: message[1],
-      result,
+      result
     });
   }
 
@@ -22,13 +21,15 @@ class UserRoleController {
     const allowedField = ['email'];
     const field = allowedField.includes(req.query.field);
     const filter = field ? req.query.field : '';
-    const include = !field ? [
-      {
-        model: models.Role,
-        as: 'roles',
-        through: { attributes: [] }
-      }
-    ] : '';
+    const include = !field
+      ? [
+        {
+          model: models.Role,
+          as: 'roles',
+          through: { attributes: [] }
+        }
+      ]
+      : '';
     const attributes = filter ? ['fullName', `${filter}`] : '';
 
     const result = await models.User.findAll({
@@ -90,7 +91,6 @@ class UserRoleController {
   }
 
   static async addUser(req, res) {
-    const { location } = req.body;
     const userId = req.user.UserInfo.id;
     try {
       if (!userId) {
@@ -105,7 +105,7 @@ class UserRoleController {
         defaults: {
           picture: req.user.UserInfo.picture,
           fullName: req.user.UserInfo.name,
-          location
+          location: 'Lagos'
         }
       });
       const [userRole] = await result.addRole(401938);
@@ -132,16 +132,18 @@ class UserRoleController {
           gender: travelaUser.gender
         }
       });
+      const newLocation = !userOnProduction.data.values[0].location
+        ? userLocation
+        : userOnProduction.data.values[0].location.name;
 
       const updateData = {
         department: userOnBamboo.data.department,
         occupation: userOnBamboo.data.jobTitle,
         manager: managerOnBamboo.data.displayName,
         passportName: userOnProduction.data.values[0].name,
+        location: newLocation
       };
-      if (!userOnProduction.data.values[0].location && !result.dataValues.location) {
-        updateData.location = userLocation;
-      }
+
       if (!result.dataValues.gender) {
         updateData.gender = userOnBamboo.data.gender;
       }
@@ -160,9 +162,7 @@ class UserRoleController {
       body: { email },
       userToken
     } = req;
-    const baseUrL = process.env.NODE_ENV === 'production'
-      ? process.env.ANDELA_PROD_API
-      : process.env.ANDELA_STAGING_API;
+    const baseUrL = process.env.ANDELA_PROD_API;
 
     const url = `${baseUrL}/users?email=${email}`;
     const headers = {
@@ -197,7 +197,9 @@ class UserRoleController {
         roleId,
         centerId,
         body: { email, center, roleName },
-        user: { UserInfo: { name } }
+        user: {
+          UserInfo: { name }
+        }
       } = req;
       let user = await models.User.findOne({
         where: { email },
@@ -265,13 +267,13 @@ class UserRoleController {
   }
 
   static async getOneRole(req, res) {
-    const { id: roleId, } = req.params;
+    const { id: roleId } = req.params;
     const errormessage = UserRoleUtils.sanitizePaginationParams(req, roleId);
-    
+
     if (errormessage) {
       return UserRoleController.response(res, errormessage);
     }
-    
+
     try {
       const roles = await UserRoleController.calculateUserRole(roleId);
 
@@ -279,11 +281,14 @@ class UserRoleController {
         const message = [404, 'Role does not exist', false];
         return UserRoleController.response(res, message);
       }
-      
+
       const { allPage } = req.query;
       const count = roles.users.length;
       const userRoles = UserRoleUtils.getAllOrPaginatedRoles({
-        req, roles, count, allPage
+        req,
+        roles,
+        count,
+        allPage
       });
 
       const meta = { count, ...userRoles.meta };
@@ -292,7 +297,7 @@ class UserRoleController {
       UserRoleController.response(res, message, {
         ...userRoles.roleData,
         users: userRoles.users,
-        meta,
+        meta
       });
     } catch (error) {
       /* istanbul ignore next */

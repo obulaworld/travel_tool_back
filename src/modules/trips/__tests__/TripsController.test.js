@@ -87,7 +87,8 @@ describe('Test Suite for Trips Controller', () => {
         status: 200,
         response: {
           workEmail: 'lisa.doe@andela.com',
-          supervisorEId: '92'
+          supervisorEId: '92',
+          location: 'Nigeria'
         }
       });
       moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
@@ -146,7 +147,8 @@ describe('Test Suite for Trips Controller', () => {
         status: 200,
         response: {
           workEmail: 'lisa.doe@andela.com',
-          supervisorEId: '92'
+          supervisorEId: '92',
+          location: 'Nigeria'
         }
       });
       moxios.stubRequest(process.env.BAMBOOHR_API.replace('{bambooHRId}', '92'), {
