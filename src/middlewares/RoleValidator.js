@@ -163,7 +163,7 @@ export default class RoleValidator {
     const { destinationName } = req.query;
     const { email } = req.user.UserInfo;
     if (destinationName) {
-      const allowedPermissions = [29187, 10948];
+      const allowedPermissions = [29187, 10948, 339458];
       const hasPermission = await RoleValidator
         .checkUserRoleById(email, allowedPermissions, res, next);
       /* istanbul ignore next */

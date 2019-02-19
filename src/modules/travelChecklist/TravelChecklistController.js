@@ -14,6 +14,7 @@ export default class TravelChecklistController {
       const { resources, ...rest } = req.body;
       const { location } = req.user;
       const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+      req.query.destinationName = location;
 
       await models.sequelize.transaction(async () => {
         if (await TravelChecklistController.checklistItemExists(rest.name, req, res)) {
@@ -49,13 +50,12 @@ export default class TravelChecklistController {
   }
 
   static async checklistItemExists(checklistName, req, res, currentName = '') {
-    const { requestId } = req.query;
     const checklists = await TravelChecklistHelper
-      .getChecklists(req, res, requestId);
+      .getChecklists(req, res);
 
     const checklistNames = checklists.length ? checklists[0].checklist.map(
-      checklist => checklist
-        .get({ plain: true }).name.toLowerCase()
+      checklist => checklist.get({ plain: true }).name
+        .toLowerCase()
         .replace(/\s/g, '')
     ) : [];
 
@@ -212,6 +212,8 @@ export default class TravelChecklistController {
       const { location } = req.user;
       const andelaCenters = TravelChecklistHelper.getAndelaCenters();
       const checklistItemId = req.params.checklistId;
+      req.query.destinationName = location;
+
       const { name, requiresFiles, resources } = req.body;
       const checklistItem = await models.ChecklistItem.findOne({
         paranoid: false,

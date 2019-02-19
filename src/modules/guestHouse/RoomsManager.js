@@ -40,6 +40,9 @@ class RoomsManager {
           as: 'rooms',
           model: models.Room,
           required: true,
+          where: {
+            isDeleted: false
+          },
           include: [
             {
               as: 'guestHouses',
