@@ -139,16 +139,12 @@ class UserRoleController {
       const updateData = {
         department: userOnBamboo.data.department,
         occupation: userOnBamboo.data.jobTitle,
-        manager: managerOnBamboo.data.displayName,
+        manager: travelaUser.fullName,
         passportName: userOnProduction.data.values[0].name,
-        location: newLocation
+        location: newLocation,
+        gender: userOnBamboo.data.gender
       };
-
-      if (!result.dataValues.gender) {
-        updateData.gender = userOnBamboo.data.gender;
-      }
       await managerResult.addRole(53019);
-      result.dataValues.manager = travelaUser.fullName;
       await result.update(updateData);
       return UserRoleController.response(res, message, result);
     } catch (error) {
