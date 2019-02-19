@@ -14,7 +14,14 @@ export default (sequelize, DataTypes) => {
       allowNull: true,
       type: DataTypes.STRING
     }
-  }, { paranoid: true });
+  }, {
+    paranoid: true,
+    defaultScope: {
+      attributes: {
+        exclude: []
+      }
+    }
+  });
 
   TravelReason.associate = (models) => {
     TravelReason.belongsTo(models.User, {

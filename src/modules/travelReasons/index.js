@@ -6,11 +6,16 @@ const { authenticate, RoleValidator, TravelReasonsValidator } = middleware;
 
 const TravelReasonsRouter = express.Router();
 
+const authMiddleware = [
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  )
+];
+
 TravelReasonsRouter.post(
   '/request/reasons',
-  authenticate,
-  RoleValidator
-    .checkUserRole(['Super Administrator', 'Travel Administrator', 'Travel Team Member']),
+  ...authMiddleware,
   TravelReasonsValidator.verifyId,
   TravelReasonsValidator.verifyTravelReasonBody,
   TravelReasonsValidator.verifyTitle,
@@ -19,23 +24,35 @@ TravelReasonsRouter.post(
 
 TravelReasonsRouter.get(
   '/request/reasons',
-  authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
-  ),
+  ...authMiddleware,
   TravelReasonsValidator.validateParams,
   TravelReasonsController.getTravelReasons,
 );
 
 TravelReasonsRouter.delete(
-  '/request/reasons/:reasonId',
-  authenticate,
-  RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
-  ),
-  TravelReasonsValidator.verifyParam,
-  TravelReasonsValidator.verifyId,
+  '/request/reasons/:id',
+  ...authMiddleware,
+  TravelReasonsValidator.validateTravelReasonId,
+  TravelReasonsValidator.checkTravelReason,
   TravelReasonsController.deleteReason,
+);
+
+TravelReasonsRouter.get(
+  '/request/reasons/:id',
+  ...authMiddleware,
+  TravelReasonsValidator.validateTravelReasonId,
+  TravelReasonsValidator.checkTravelReason,
+  TravelReasonsController.getTravelReason,
+);
+
+TravelReasonsRouter.put(
+  '/request/reasons/:id',
+  ...authMiddleware,
+  TravelReasonsValidator.validateTravelReasonId,
+  TravelReasonsValidator.verifyTravelReasonBody,
+  TravelReasonsValidator.checkTravelReason,
+  TravelReasonsValidator.verifyTitle,
+  TravelReasonsController.updateTravelReason
 );
 
 export default TravelReasonsRouter;

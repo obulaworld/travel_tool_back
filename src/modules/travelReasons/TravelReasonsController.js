@@ -4,6 +4,14 @@ import CustomError from '../../helpers/Error';
 import Pagination from '../../helpers/Pagination';
 
 export default class TravelReasonsController {
+  static async returnTravelReason(res, travelReason, status = 200, message) {
+    return res.status(status).json({
+      success: true,
+      message,
+      travelReason
+    });
+  }
+
   static async createTravelReason(req, res) {
     try {
       const { user, title, description } = req.body;
@@ -30,11 +38,12 @@ export default class TravelReasonsController {
         }
       };
 
-      return res.status(201).json({
-        success: true,
-        message: 'Successfully created a travel reason',
-        travelReason
-      });
+      return TravelReasonsController.returnTravelReason(
+        res,
+        travelReason,
+        201,
+        'Successfully created a travel reason'
+      );
     } catch (error) {
       /* istanbul ignore next */
       CustomError.handleError(error.message, 500, res);
@@ -73,11 +82,8 @@ export default class TravelReasonsController {
 
   static async deleteReason(req, res) {
     try {
-      const { reasonId } = req.params;
-      const foundReason = await models.TravelReason.findById(reasonId);
-      if (!foundReason) {
-        return CustomError.handleError('Travel Reason does not exist', 404, res);
-      }
+      const { id } = req.params;
+      const foundReason = await models.TravelReason.findById(id);
       await foundReason.destroy();
       return res.status(200).json({
         success: true,
@@ -86,6 +92,41 @@ export default class TravelReasonsController {
       });
     } catch (error) { /* istanbul ignore next */
       return CustomError.handleError('Server Error', 500, res);
+    }
+  }
+
+  static async getTravelReason(req, res) {
+    try {
+      return TravelReasonsController
+        .returnTravelReason(
+          res,
+          req.travelReason
+        );
+    } catch (error) { /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async updateTravelReason(req, res) {
+    try {
+      const { travelReason, body: { title, description } } = req;
+
+      await travelReason.update({
+        title: title || travelReason.title,
+        description:
+          description || travelReason.description
+      });
+
+      return TravelReasonsController
+        .returnTravelReason(
+          res,
+          req.travelReason,
+          200,
+          'Travel reason updated successfully'
+        );
+    } catch (error) {
+      /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
     }
   }
 }

@@ -148,6 +148,8 @@ const middleware = {
     verifyTitle: jest.fn(invokeNextMiddleware),
     verifyId: jest.fn(invokeNextMiddleware),
     validateParams: jest.fn(invokeNextMiddleware),
+    checkTravelReason: jest.fn(invokeNextMiddleware),
+    validateTravelReasonId: jest.fn(invokeNextMiddleware),
     verifyParam: jest.fn(invokeNextMiddleware),
   }
 };

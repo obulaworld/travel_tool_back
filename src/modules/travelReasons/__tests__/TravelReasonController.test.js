@@ -32,7 +32,6 @@ describe('create travel reasons', () => {
 
   const token = Utils.generateTestToken(payload);
   const token2 = Utils.generateTestToken(payload2);
-  let reasonId;
 
   beforeAll(async () => {
     await prepareDatabase();
@@ -47,7 +46,18 @@ describe('create travel reasons', () => {
     await prepareDatabase();
   });
 
-  const testClient = () => request(app).post('/api/v1/request/reasons').set('authorization', token);
+  const testClient = (method = 'post', params) => request(app)[method](
+    `/api/v1/request/reasons/${params || ''}`
+  ).set('authorization', token);
+
+  const createTravelReason = async (travelReason = validTravelReason, clear = true) => {
+    if (clear) {
+      await models.TravelReason.destroy({ force: true, truncate: { cascade: true } });
+    }
+    const response = await testClient()
+      .send(travelReason);
+    return response.body.travelReason;
+  };
 
   it('should fail to add a travel reason because of invalid title', (done) => {
     testClient()
@@ -56,7 +66,35 @@ describe('create travel reasons', () => {
         if (err) return done(err);
         expect(res.status).toEqual(422);
         expect(res.body.message).toEqual('Validation failed');
-        expect(res.body.errors[0].message).toEqual('Title should not be more than 18 characters');
+        expect(res.body.errors[0].message).toEqual(
+          'Title should not be more than 18 characters'
+        );
+        expect(res.body.success).toEqual(false);
+        done();
+      });
+  });
+
+  it('should fail to add a travel reason if the title is of invalid type', (done) => {
+    testClient()
+      .send({ ...validTravelReason, title: { } })
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(422);
+        expect(res.body.message).toEqual('Validation failed');
+        expect(res.body.errors[0].message).toEqual('Title should be a string');
+        expect(res.body.success).toEqual(false);
+        done();
+      });
+  });
+
+  it('should fail to add a travel reason if the description is of invalid type', (done) => {
+    testClient()
+      .send({ ...validTravelReason, description: { } })
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(422);
+        expect(res.body.message).toEqual('Validation failed');
+        expect(res.body.errors[0].message).toEqual('Description should be a string');
         expect(res.body.success).toEqual(false);
         done();
       });
@@ -69,7 +107,9 @@ describe('create travel reasons', () => {
         if (err) return done(err);
         expect(res.status).toEqual(422);
         expect(res.body.message).toEqual('Validation failed');
-        expect(res.body.errors[0].message).toEqual('Description should not be more than 140 characters');
+        expect(res.body.errors[0].message).toEqual(
+          'Description should not be more than 140 characters'
+        );
         expect(res.body.success).toEqual(false);
         done();
       });
@@ -92,7 +132,6 @@ describe('create travel reasons', () => {
       .send(validTravelReason)
       .end((err, res) => {
         if (err) return done(err);
-        reasonId = res.body.travelReason.id;
         expect(res.status).toEqual(201);
         expect(res.body.message).toEqual('Successfully created a travel reason');
         expect(res.body.success).toEqual(true);
@@ -113,6 +152,74 @@ describe('create travel reasons', () => {
       });
   });
 
+  it('should fetch a single travel reason', async (done) => {
+    const { id } = await createTravelReason();
+    testClient('get', id)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.travelReason.title).toEqual('boot camp');
+
+        done();
+      });
+  });
+
+  it('should return the appropriate response if the id is not an integer', async (done) => {
+    testClient('get', 'invalidId')
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(400);
+        expect(res.body.success).toEqual(false);
+        expect(res.body.error).toEqual('Travel reason id must be a number');
+        done();
+      });
+  });
+
+  it('should update the travel reason', async (done) => {
+    const { id } = await createTravelReason();
+    testClient('put', id)
+      .send({ title: 'This is another' })
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(200);
+        expect(res.body.success).toEqual(true);
+        expect(res.body.travelReason.title).toEqual('This is another');
+        expect(res.body.travelReason.description)
+          .toEqual(validTravelReason.description);
+        done();
+      });
+  });
+
+  it('should not update the travel reason if it duplicates another title',
+    async (done) => {
+      await createTravelReason();
+      const { id } = await createTravelReason({
+        ...validTravelReason,
+        title: 'Travela'
+      }, false);
+
+      testClient('put', id)
+        .send({ title: 'boot camp' })
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(422);
+          expect(res.body.message).toEqual('This travel reason already exists');
+          done();
+        });
+    });
+
+  it('should return appropriate response if a travel reason does not exist',
+    (done) => {
+      testClient('get', 1123)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.status).toEqual(404);
+          expect(res.body.error).toEqual('Travel Reason does not exist');
+          done();
+        });
+    });
+
   it('should fail while deleting a travel reason with a wrong param', (done) => {
     request(app)
       .delete('/api/v1/request/reasons/a')
@@ -120,7 +227,7 @@ describe('create travel reasons', () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.status).toEqual(400);
-        expect(res.body.error).toEqual('The reason id param must be a number');
+        expect(res.body.error).toEqual('Travel reason id must be a number');
         done();
       });
   });
@@ -137,9 +244,10 @@ describe('create travel reasons', () => {
       });
   });
 
-  it('should successfully delete a created travel reason', (done) => {
+  it('should successfully delete a created travel reason', async (done) => {
+    const { id } = await createTravelReason();
     request(app)
-      .delete(`/api/v1/request/reasons/${reasonId}`)
+      .delete(`/api/v1/request/reasons/${id}`)
       .set('authorization', token)
       .end((err, res) => {
         if (err) return done(err);
