@@ -7,6 +7,7 @@ import createTravelReasonMock from './__mock__/createTravelReasonMock';
 
 const request = supertest;
 
+
 const prepareDatabase = async () => {
   await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   await models.Role.destroy({ force: true, truncate: { cascade: true } });
@@ -31,6 +32,7 @@ describe('create travel reasons', () => {
 
   const token = Utils.generateTestToken(payload);
   const token2 = Utils.generateTestToken(payload2);
+  let reasonId;
 
   beforeAll(async () => {
     await prepareDatabase();
@@ -90,6 +92,7 @@ describe('create travel reasons', () => {
       .send(validTravelReason)
       .end((err, res) => {
         if (err) return done(err);
+        reasonId = res.body.travelReason.id;
         expect(res.status).toEqual(201);
         expect(res.body.message).toEqual('Successfully created a travel reason');
         expect(res.body.success).toEqual(true);
@@ -106,6 +109,42 @@ describe('create travel reasons', () => {
         expect(res.status).toEqual(422);
         expect(res.body.message).toEqual('This travel reason already exists');
         expect(res.body.success).toEqual(false);
+        done();
+      });
+  });
+
+  it('should fail while deleting a travel reason with a wrong param', (done) => {
+    request(app)
+      .delete('/api/v1/request/reasons/a')
+      .set('authorization', token)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(400);
+        expect(res.body.error).toEqual('The reason id param must be a number');
+        done();
+      });
+  });
+
+  it('should return 404 while deleting a non existing reason', (done) => {
+    request(app)
+      .delete('/api/v1/request/reasons/38')
+      .set('authorization', token)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(404);
+        expect(res.body.error).toEqual('Travel Reason does not exist');
+        done();
+      });
+  });
+
+  it('should successfully delete a created travel reason', (done) => {
+    request(app)
+      .delete(`/api/v1/request/reasons/${reasonId}`)
+      .set('authorization', token)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.status).toEqual(200);
+        expect(res.body.message).toEqual('Travel Reason deleted successfully');
         done();
       });
   });

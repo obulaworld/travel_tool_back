@@ -34,6 +34,11 @@ class Utils {
   static prependZeroToNumber(value) {
     return (value < 10) ? `0${value}` : value;
   }
+
+  static filterInt(value) {
+    if (/^(-|\+)?(\d+|Infinity)$/.test(value)) return Number(value);
+    return NaN;
+  }
 }
 
 export default Utils;

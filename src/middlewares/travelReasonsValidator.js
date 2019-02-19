@@ -1,6 +1,7 @@
 import Validator from './Validator';
 import models from '../database/models';
 import CustomError from '../helpers/Error';
+import Utils from '../helpers/Utils';
 
 class TravelReasonsValidator {
   static verifyTravelReasonBody(req, res, next) {
@@ -79,6 +80,18 @@ class TravelReasonsValidator {
       return res.status(422).json({
         success: false,
         error
+      });
+    }
+    return next();
+  }
+
+  static async verifyParam(req, res, next) {
+    const { reasonId } = req.params;
+    if (!Utils.filterInt(reasonId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'The reason id param must be a number',
+        param: 'reasonId'
       });
     }
     return next();

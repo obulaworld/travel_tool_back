@@ -70,4 +70,22 @@ export default class TravelReasonsController {
       CustomError.handleError(error.message, 500, res);
     }
   }
+
+  static async deleteReason(req, res) {
+    try {
+      const { reasonId } = req.params;
+      const foundReason = await models.TravelReason.findById(reasonId);
+      if (!foundReason) {
+        return CustomError.handleError('Travel Reason does not exist', 404, res);
+      }
+      await foundReason.destroy();
+      return res.status(200).json({
+        success: true,
+        message: 'Travel Reason deleted successfully',
+        deletedReason: foundReason
+      });
+    } catch (error) { /* istanbul ignore next */
+      return CustomError.handleError('Server Error', 500, res);
+    }
+  }
 }

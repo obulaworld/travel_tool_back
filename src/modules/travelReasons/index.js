@@ -27,4 +27,15 @@ TravelReasonsRouter.get(
   TravelReasonsController.getTravelReasons,
 );
 
+TravelReasonsRouter.delete(
+  '/request/reasons/:reasonId',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Travel Team Member']
+  ),
+  TravelReasonsValidator.verifyParam,
+  TravelReasonsValidator.verifyId,
+  TravelReasonsController.deleteReason,
+);
+
 export default TravelReasonsRouter;
