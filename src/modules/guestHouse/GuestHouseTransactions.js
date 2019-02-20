@@ -54,7 +54,15 @@ export default class GuestHouseTransactions {
       });
       const updatedRooms = await EditGuestHouseHelper.updateRooms(rooms, guestHouseId);
       const newUpdatedRoomsId = updatedRooms.map(updatedRoom => (updatedRoom.id));
-      await EditGuestHouseHelper.deleteRoomsRemoved(guestHouseId, newUpdatedRoomsId);
+      const deleted = await EditGuestHouseHelper.deleteRoomsRemoved(guestHouseId, newUpdatedRoomsId);
+      if (!deleted) {
+        return res.status(409).json({
+          success: false,
+          error: `You cannot disable this room as it 
+          is currently assigned to a travel requester, kindly 
+          re-assign the travel requester to another room before disabling`
+        });
+      }
       const updatedBeds = await GuestHouseController.updateBeds(updatedRooms, res);
       return res.status(200).json({
         success: true,

@@ -72,10 +72,26 @@ export class EditGuestHouseHelper {
     });
     const allRoomsId = findAllRoomsIdInGuestHouse.map(room => room.id);
     const roomsToRemoveId = _.difference(allRoomsId, newUpdatedRoomsId);
+    const tripsWithRemovedBeds = await models.Trip.findAll({
+      attributes: ['deletedAt', 'checkOutDate'],
+      include: [{
+        model: models.Bed,
+        as: 'beds',
+        where: { roomId: roomsToRemoveId[0] }
+      }],
+      raw: true
+    });
+    const tripsWithRemovedRooms = tripsWithRemovedBeds.filter(
+      trips => trips.checkOutDate === null && trips.deletedAt === null
+    );
+    if (tripsWithRemovedRooms.length) {
+      return false;
+    }
     roomsToRemoveId.map(async (roomId) => {
       const deleteTheseRooms = await models.Room.findById(roomId);
       await deleteTheseRooms.update({ isDeleted: true });
     });
+    return true;
   }
 
   // Update rooms

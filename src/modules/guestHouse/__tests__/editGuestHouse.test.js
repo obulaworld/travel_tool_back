@@ -206,7 +206,7 @@ describe('Update Guest Houses', () => {
           });
       });
     });
-
+    
     describe('Authenticated travel admin edits beds', () => {
       beforeAll((done) => {
         request(app)
