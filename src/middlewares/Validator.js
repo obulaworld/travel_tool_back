@@ -53,11 +53,11 @@ export default class Validator {
     body4,
     body5
   ) {
-    req.checkBody(body, `${body} is required`).notEmpty();
-    req.checkBody(body2, `${body2} is required`).notEmpty();
-    req.checkBody(body3, `${body3} is required`).notEmpty();
-    req.checkBody(body4, `${body4} is required`).notEmpty();
-    req.checkBody(body5, `${body5} is required`).notEmpty();
+    req.checkBody(body, `${body} is required`).notEmpty().trim();
+    req.checkBody(body2, `${body2} is required`).notEmpty().trim();
+    req.checkBody(body3, `${body3} is required`).notEmpty().trim();
+    req.checkBody(body4, `${body4} is required`).notEmpty().trim();
+    req.checkBody(body5, `${body5} is required`).notEmpty().trim();
 
     const errors = req.validationErrors();
     Validator.errorHandler(res, errors, next);

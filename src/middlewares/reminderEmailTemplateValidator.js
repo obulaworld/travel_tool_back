@@ -32,19 +32,20 @@ export default class ReminderEmailTemplateValidator {
   }
 
   static async validateReminderEmailTemplate(req, res, next) {
-    req.checkBody('name', 'Email template name is required').notEmpty()
-      .len({ min: 4 }).withMessage('Email template name should be more than 4 characters');
+    req.checkBody('name', 'Email template name is required').notEmpty().trim()
+      .len({ min: 4 })
+      .withMessage('Email template name should be more than 4 characters');
 
-    req.checkBody('from', 'Sender email address is required').notEmpty()
+    req.checkBody('from', 'Sender email address is required').notEmpty().trim()
       .custom(email => Validator.isValidEmail(email))
       .withMessage('Sender email should be a valid Andela email');
 
     req.checkBody('cc', 'Carbon copy should be a list of emails').isArray();
-    req.checkBody('subject', 'Email template subject is required').notEmpty()
+    req.checkBody('subject', 'Email template subject is required').notEmpty().trim()
       .len({ min: 10 })
       .withMessage('Email subject should be more than 10 characters.');
 
-    req.checkBody('message', 'Email template message is required').notEmpty();
+    req.checkBody('message', 'Email template message is required').notEmpty().trim();
 
     if (req.validationErrors()) {
       req.getValidationResult().then((result) => {
