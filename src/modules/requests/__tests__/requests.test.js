@@ -855,7 +855,7 @@ describe('Requests Controller', () => {
           .set('authorization', savedManagerToken)
           .end((err, res) => {
             expect(res.status).toBe(200);
-            expect(res.body.message).toBe('No records found');
+            expect(res.body.message).toBe('No approvals exists for this page');
             done();
           });
       });
