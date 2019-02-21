@@ -173,12 +173,25 @@ export default class TravelChecklistController {
   }
 
   static async checkListPercentageNumber(req, res, requestId) {
-    const checklists = await TravelChecklistHelper
+    const allChecklists = await TravelChecklistHelper
       .getChecklists(req, res, requestId);
+    const { location } = await models.User.findOne({
+      where: { userId: req.user.UserInfo.id }
+    });
+    // the checklist needed for this trip
+    const neededChecklist = allChecklists.map(
+      (checklist) => {
+        const newChecklist = { ...checklist };
+        if (RegExp(location).test(checklist.destinationName)) {
+          newChecklist.checklist = [checklist.checklist[0]];
+        }
+        return newChecklist;
+      }
+    );
     const submissions = await TravelChecklistController
       .getSubmissions(requestId, res);
     const percentage = TravelChecklistController
-      .calcPercentage(checklists, submissions);
+      .calcPercentage(neededChecklist, submissions);
     return percentage;
   }
 
@@ -191,6 +204,8 @@ export default class TravelChecklistController {
   }
 
   static async checkListPercentage(req, res, requestId) {
+    const { status } = await models.Request.findByPk(requestId);
+    if (status === 'Verified') return '100% complete';
     const percentage = await TravelChecklistController
       .checkListPercentageNumber(req, res, requestId);
     const completedPercentage = `${isNaN(percentage) ? 0 : percentage}% complete`; // eslint-disable-line

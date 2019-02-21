@@ -24,7 +24,7 @@ const user = {
   id: 3457,
   fullName: 'black window ',
   email: 'clintfidel@andela.com',
-  userId: 'Mutinllmnbjb',
+  userId: '-MUyHJmKrxA90lPNQ1FOLNm',
   roleId: 10948,
   createdAt: '2018-08-16 012:11:52.181+01',
   updatedAt: '2018-08-16 012:11:52.181+01',
@@ -56,6 +56,7 @@ describe('Checklist Percentage', () => {
       await models.Room.bulkCreate(rooms);
       await models.Bed.bulkCreate(beds);
       await models.Request.create(requests[0]);
+      await models.Request.create(requests[2]);
       await models.Trip.create(trips[0]);
       await models.ChecklistItem.bulkCreate(checkListItems);
       await models.ChecklistItemResource.bulkCreate(checkListItemsResources);
@@ -82,7 +83,7 @@ describe('Checklist Percentage', () => {
   });
 
   describe('Trave checklist Percentage Percentage', () => {
-    it('should get all request including travechecklist percentafe as 0 for open request',
+    it('should get all request including travechecklist percentage as 0 for open request',
       (done) => {
         const expectedResponse = {
           status: 200,
@@ -120,16 +121,28 @@ describe('Checklist Percentage', () => {
                 ],
                 userId: '-MUyHJmKrxA90lPNQ1FOLNm',
               },
+              {
+                id: 'request-id-8',
+                name: 'Samuel Kubai',
+                status: 'Verified',
+                gender: 'Male',
+                manager: 'Ogooluwa Akinola',
+                department: 'TDD',
+                role: 'Senior Consultant',
+                tripType: 'return',
+                picture: 'test.photo.test',
+                userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+              }
             ],
             meta: {
               count: {
                 open: 1,
-                past: 0,
+                past: 1,
               },
               pagination: {
                 pageCount: 1,
                 currentPage: 1,
-                dataCount: 1,
+                dataCount: 2,
               },
             },
           },
@@ -139,13 +152,13 @@ describe('Checklist Percentage', () => {
           .set('authorization', token)
           .end((err, res) => {
             expect(res.body).toMatchObject(expectedResponse.body);
-            expect(res.body.requests.length).toEqual(1);
+            expect(res.body.requests.length).toEqual(2);
             expect(res.body.requests[0]).toHaveProperty('travelCompletion');
             expect(res.body.requests[0].travelCompletion).toEqual('0% complete');
             done();
           });
       });
-    it('should get all request including travechecklist percentage as 50 for approved request',
+    it('should get travechecklist percentage as 50 for approved and 100 for verified request',
       async (done) => {
         const requestId = requests[0].id;
         try {
@@ -162,9 +175,10 @@ describe('Checklist Percentage', () => {
           .get('/api/v1/requests')
           .set('authorization', token)
           .end((err, res) => {
-            expect(res.body.requests.length).toEqual(1);
+            expect(res.body.requests.length).toEqual(2);
             expect(res.body.requests[0]).toHaveProperty('travelCompletion');
             expect(res.body.requests[0].travelCompletion).toEqual('50% complete');
+            expect(res.body.requests[1].travelCompletion).toEqual('100% complete');
             done();
           });
       });

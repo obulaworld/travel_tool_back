@@ -267,6 +267,20 @@ export const requests = [
     createdAt: '2018-08-16 012:11:52.181+01',
     updatedAt: '2018-08-16 012:11:52.181+01',
     userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+  },
+  {
+    id: 'request-id-8',
+    name: 'Samuel Kubai',
+    status: 'Verified',
+    gender: 'Male',
+    manager: 'Ogooluwa Akinola',
+    department: 'TDD',
+    role: 'Senior Consultant',
+    tripType: 'return',
+    picture: 'test.photo.test',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01',
+    userId: '-MUyHJmKrxA90lPNQ1FOLNm'
   }
 ];
 
@@ -499,7 +513,7 @@ export const guestHouse = {
   location: 'anonymous',
   bathRooms: '6',
   imageUrl: 'https://image.com',
-  userId: '1',
+  userId: '-MUyHJmKrxA90lPNQ1FOLNm',
   createdAt: '2018-08-16 012:11:52.181+01',
   updatedAt: '2018-08-16 012:11:52.181+01'
 };
@@ -540,7 +554,7 @@ export const user = {
   id: 10000,
   fullName: 'black window ',
   email: 'black.window@andela.com',
-  userId: '1',
+  userId: '-MUyHJmKrxA90lPNQ1FOLNm',
   createdAt: '2018-08-16 012:11:52.181+01',
   updatedAt: '2018-08-16 012:11:52.181+01',
   location: 'Lagos',
