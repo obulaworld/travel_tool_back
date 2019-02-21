@@ -200,7 +200,7 @@ export default class TravelChecklistController {
     const checklistLength = checklists.reduce(reducer, 0);
     const percentage = Math
       .floor((submissions.length / checklistLength) * 100);
-    return percentage;
+    return percentage >= 100 ? 100 : percentage;
   }
 
   static async checkListPercentage(req, res, requestId) {
