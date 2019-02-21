@@ -47,15 +47,15 @@ export function createApprovalSubquery({
   const { location } = req.user;
   const requestStatus = 'Request.status';
   // tripWhereExtended
-  const { requestWhereExtended } = createExtendedClause(verified, location);
+  const { requestWhereExtended, tripWhereExtended } = createExtendedClause(verified, location);
   const searchClause = createSearchClause(
     getModelSearchColumns('Request'), search, 'Request'
   );
-  // const tripSearchClause = createSearchClause(
-  //   getModelSearchColumns('Trip'), search
-  // );
+  const tripSearchClause = createSearchClause(
+    getModelSearchColumns('Trip'), search
+  );
   let condition = createStatusCondition(status);
-  // const tripWhere = { [Op.or]: tripSearchClause };
+  const tripWhere = { [Op.or]: tripSearchClause };
   const requestWhere = {
     [Op.or]: searchClause
   };
@@ -79,7 +79,7 @@ export function createApprovalSubquery({
       include: [{
         model: models.Trip,
         as: `${models.Trip.name.toLowerCase()}s`,
-        // where: (!searchRequest) ? { ...tripWhere, ...tripWhereExtended } : tripWhereExtended,
+        where: (!searchRequest) ? { ...tripWhere, ...tripWhereExtended } : tripWhereExtended,
       }]
     }],
     limit,
