@@ -24,7 +24,10 @@ TravelReasonsRouter.post(
 
 TravelReasonsRouter.get(
   '/request/reasons',
-  ...authMiddleware,
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Super Administrator', 'Travel Administrator', 'Manager', 'Travel Team Member', 'Requester']
+  ),
   TravelReasonsValidator.validateParams,
   TravelReasonsController.getTravelReasons,
 );

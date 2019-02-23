@@ -62,6 +62,8 @@ class RequestsController {
         departureDate: trip.departureDate,
         location: trip.destination,
         gender: requestDetails.gender,
+        travelReasons: trip.travelReasons,
+        otherTravelReasons: trip.otherTravelReasons,
       }));
 
       const availableRoomsAndBeds = await RequestUtils.fetchMultiple(multipleRoomsData);
@@ -71,9 +73,7 @@ class RequestsController {
 
       trips = trips.map((trip) => {
         if (
-          availableBedSpaces.length < 1
-          || !availableBedSpaces.includes(trip.bedId)
-          || !trip.bedId
+          availableBedSpaces.length < 1 || !availableBedSpaces.includes(trip.bedId) || !trip.bedId
         ) {
           // eslint-disable-next-line
           trip.accommodationType = trip.bedId == -1 ? 'Hotel Booking' : 'Not Required';

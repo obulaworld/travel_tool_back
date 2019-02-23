@@ -2,6 +2,7 @@ import models from '../../database/models';
 import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
 import TripUtils from './TripUtils';
+import getTripDetails from './getTripDetails.data';
 
 const { Op } = models.Sequelize;
 let checkTypeErrorMessage = '';
@@ -156,39 +157,10 @@ class TripsController {
 
   static async getTrips(req, res) {
     const userId = req.user.UserInfo.id;
-    const trips = await models.Trip.findAll({
-      include: [{
-        required: true,
-        model: models.Request,
-        as: 'request',
-        where: {
-          status: 'Verified',
-          userId
-        },
-      }, {
-        required: true,
-        model: models.Bed,
-        as: 'beds',
-        include: [{
-          required: true,
-          model: models.Room,
-          as: 'rooms',
-          include: [{
-            required: true,
-            model: models.GuestHouse,
-            as: 'guestHouses',
-          }]
-        }]
-      }],
-      orderBy: ['id', 'ASC']
-    });
+    const trips = await getTripDetails(userId, models);
     const message = (trips.length === 0) ? 'You have no trips at the moment'
       : 'Retrieved Successfully';
-    return res.status(200).json({
-      success: true,
-      trips,
-      message,
-    });
+    return res.status(200).json({ success: true, trips, message, });
   }
 
   static async updateTripRoom(req, res) {

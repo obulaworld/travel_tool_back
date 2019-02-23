@@ -96,7 +96,8 @@ export default (sequelize, DataTypes) => {
     });
     Trip.belongsTo(models.TravelReason, {
       foreignKey: 'travelReasons',
-      targetId: 'id'
+      targetId: 'id',
+      as: 'reasons'
     });
   };
   return Trip;

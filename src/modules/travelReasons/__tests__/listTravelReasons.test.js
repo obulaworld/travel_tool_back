@@ -56,14 +56,14 @@ describe('list travel reasons test', () => {
       });
   });
 
-  it('does not grant access to requester', (done) => {
+  it('allows trips to be retrieved for request creation', (done) => {
     const requesterToken = Utils.generateTestToken(requesterPayload);
     request(app)
       .get(url)
       .set('Authorization', requesterToken)
       .end((err, res) => {
         if (err) done(err);
-        expect(res.statusCode).toEqual(403);
+        expect(res.statusCode).toEqual(200);
         done();
       });
   });
