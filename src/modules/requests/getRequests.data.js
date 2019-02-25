@@ -12,18 +12,23 @@ const getRequests = (requestId, models) => models.Request.find({
     }, {
       model: models.Trip,
       as: 'trips',
-      include: [{
-        model: models.Bed,
-        as: 'beds',
-        include: [{
-          model: models.Room,
-          as: 'rooms',
+      include: [
+        {
+          model: models.TravelReason,
+          as: 'reasons',
+        },
+        {
+          model: models.Bed,
+          as: 'beds',
           include: [{
-            model: models.GuestHouse,
-            as: 'guestHouses'
+            model: models.Room,
+            as: 'rooms',
+            include: [{
+              model: models.GuestHouse,
+              as: 'guestHouses'
+            }]
           }]
         }]
-      }]
     }]
 });
 
