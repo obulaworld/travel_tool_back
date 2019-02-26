@@ -55,6 +55,15 @@ const userRole = [{
 }
 ];
 
+const travelStipend = {
+  stipend: 30000,
+  center: 'Nairobi'
+};
+
+const updatedTravelStipend = {
+  stipend: 300
+};
+
 const listOfStipends = [
   {
     id: 100,
@@ -96,5 +105,12 @@ const centers = [
 ];
 
 export default {
-  user, payload, userRole, centers, listOfStipends, payloadNotAdmin
+  user,
+  payload,
+  userRole,
+  centers,
+  listOfStipends,
+  payloadNotAdmin,
+  travelStipend,
+  updatedTravelStipend
 };

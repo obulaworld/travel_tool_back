@@ -61,6 +61,8 @@ const middleware = {
   TravelStipendValidator: {
     validateNewStipend: jest.fn(invokeNextMiddleware),
     checkCenter: jest.fn(invokeNextMiddleware),
+    validateUpdatePayload: jest.fn(invokeNextMiddleware),
+    validateUpdateParams: jest.fn(invokeNextMiddleware)
   },
   tripValidator: {
     validateCheckType: jest.fn(invokeNextMiddleware),

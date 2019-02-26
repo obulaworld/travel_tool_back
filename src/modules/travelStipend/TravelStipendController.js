@@ -71,7 +71,80 @@ export default class TravelStipendController {
         message: 'Travel Stipend deleted successfully'
       });
     } catch (error) {
+      /* istanbul ignore next */
       CustomError.handleError(error, 500, res);
+    }
+  }
+
+  static async getOneTravelStipend(req, res) {
+    try {
+      const { params: { id } } = req;
+
+      const travelStipend = await models.TravelStipends.findById(id, {
+        include: [
+          {
+            model: models.User,
+            as: 'creator',
+            attributes: [
+              'id', 'fullName', 'email',
+              'department'
+            ]
+          }
+        ]
+      });
+
+      if (!travelStipend) {
+        return res.status(404).json({
+          success: false,
+          error: 'Travel stipend does not exist'
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        travelStipend
+      });
+    } catch (error) {
+      /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
+    }
+  }
+
+  static async updateTravelStipend(req, res) {
+    try {
+      const { params: { id } } = req;
+
+      const { stipend } = req.body;
+
+      const sanitizedStipend = Math.abs(Number(
+        stipend
+      ));
+
+      const travelStipend = await models.TravelStipends.findById(id, {
+        returning: true,
+        include: [{
+          model: models.User,
+          as: 'creator',
+          attributes: ['id', 'fullName', 'email', 'department']
+        }]
+      });
+
+      if (!travelStipend) {
+        return res.status(404).json({
+          success: false,
+          error: 'Travel stipend does not exist'
+        });
+      }
+
+      await travelStipend.update({ amount: sanitizedStipend });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Travel stipend updated successfully',
+        travelStipend
+      });
+    } catch (error) {
+      /* istanbul ignore next */
+      CustomError.handleError(error.message, 500, res);
     }
   }
 }
