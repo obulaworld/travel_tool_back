@@ -107,6 +107,13 @@ export const role = [
     description: 'Can request and approve travel request ',
     createdAt: '2018-08-16 012:11:52.181+01',
     updatedAt: '2018-08-16 012:11:52.181+01'
+  },
+  {
+    id: 60000,
+    roleName: 'Budget Checker',
+    description: 'Can view and and approve an approved request from line manager',
+    createdAt: '2018-08-16 012:11:52.181+01',
+    updatedAt: '2018-08-16 012:11:52.181+01'
   }
 ];
 

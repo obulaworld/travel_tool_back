@@ -108,6 +108,9 @@ const switchMessage = (msgDetail) => {
     case 'Send role assignment email notification':
       return `Congratulations you have just been assigned the role of <b>${msgDetail.details.role.toLowerCase()}</b> on Travela by <b>${msgDetail.details.assignerName}</b>.
       Kindly login for a new experience.`;
+    case 'Notify budget checker':
+      return `A travel request <b>${msgDetail.details.id}</b> for <b>${msgDetail.senderName}</b> has now been approved 
+      by <b>${msgDetail.details.RequesterManager}</b>. Please login to Travela to review the details and advise on availability of budget for this trip.`;
     default: return '';
   }
 };

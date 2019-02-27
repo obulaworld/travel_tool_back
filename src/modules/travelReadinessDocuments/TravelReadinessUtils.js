@@ -1,6 +1,7 @@
 import NotificationEngine from '../notifications/NotificationEngine';
 import UserRoleController from '../userRole/UserRoleController';
 import Validator from '../../middlewares/Validator';
+import models from '../../database/models';
 
 class TravelReadinessUtils {
   static getMailData(details, user, topic, type, travelAdmin) {
@@ -26,12 +27,7 @@ class TravelReadinessUtils {
     };
     const { location: userLocation } = await Validator.getUserFromDb(query);
     const { users: travelMembers } = await UserRoleController.calculateUserRole('339458');
-    const travelTeamMembers = travelMembers.filter((member) => {
-      const { centers } = member;
-      const { location } = centers[0];
-      return location.includes(userLocation);
-    });
-
+    const travelTeamMembers = await TravelReadinessUtils.getRoleMembers(travelMembers, userLocation);
     const data = {
       sender: documentDeleter,
       topic: 'Deletion of travel document',
@@ -43,6 +39,19 @@ class TravelReadinessUtils {
         data
       );
     }
+  }
+
+  static async getRoleMembers(roleMembers, userLocation) {
+    const availableRoleMemberIds = roleMembers.map(member => member.id);
+    const availableRoleMembers = await models.User.findAll({
+      where: {
+        id: availableRoleMemberIds,
+        location: userLocation
+      },
+      attributes: ['fullName', 'email'],
+      raw: true
+    });
+    return availableRoleMembers;
   }
 }
 

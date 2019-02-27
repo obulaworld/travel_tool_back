@@ -39,6 +39,13 @@ module.exports = {
         createdAt: '2018-08-16 012:11:52.181+01',
         updatedAt: '2018-08-16 012:11:52.181+01',
       },
+      {
+        id: 60000,
+        roleName: 'Budget Checker',
+        description: 'Verifies that departments can afford travel expenses',
+        createdAt: '2018-08-16 012:11:52.181+01',
+        updatedAt: '2018-08-16 012:11:52.181+01',
+      }
     ],
     {},
   ),

@@ -17,6 +17,7 @@ import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
 import UserRoleController from '../userRole/UserRoleController';
 import TravelChecklistController from '../travelChecklist/TravelChecklistController';
+import TravelReadinessUtils from '../travelReadinessDocuments/TravelReadinessUtils';
 
 const noResult = 'No records found';
 let params = {};
@@ -130,14 +131,27 @@ class ApprovalsController {
         newStatus,
         user
       ]);
+
       if (updateApproval.approverId) {
         const updatedRequest = await request.update({
           status: newStatus
         });
-
+        
         ApprovalsController.sendNotificationAfterApproval(
           user,
           updatedRequest,
+        );
+        const {
+          id,
+          userId,
+          name: requesterName,
+          manager
+        } = updatedRequest;
+        await ApprovalsController.budgetCheckerEmailNotification(
+          id,
+          userId,
+          requesterName,
+          manager
         );
 
 
@@ -185,7 +199,11 @@ class ApprovalsController {
 
   // eslint-disable-next-line
   static async sendNotificationAfterApproval(user, updatedRequest, res) {
-    const { status, id, userId } = updatedRequest;
+    const {
+      status,
+      id,
+      userId,
+    } = updatedRequest;
     const { name, picture } = user.UserInfo;
     const recipientEmail = await UserRoleController
       .getRecipient(null, userId);
@@ -207,7 +225,7 @@ class ApprovalsController {
 
     const emailData = ApprovalsController
       .emailData(updatedRequest, recipientEmail, name);
-
+    
     const emailNotification = NotificationEngine.sendMail(emailData);
 
     return (
@@ -229,6 +247,36 @@ class ApprovalsController {
       `${process.env.REDIRECT_URL}/redirect/requests/${request.id}/checklist`,
       requestId: request.id
     };
+  }
+
+  static async budgetCheckerEmailNotification(
+    id,
+    userId,
+    requesterName,
+    manager
+  ) {
+    const requesterId = userId;
+    const { location: userLocation } = await models.User.find({
+      where: {
+        userId: requesterId
+      }
+    });
+    const { users: budgetChecker } = await UserRoleController.calculateUserRole('60000');
+    const budgetCheckerMembers = await TravelReadinessUtils.getRoleMembers(budgetChecker, userLocation);
+    const data = {
+      sender: requesterName,
+      topic: 'Travel Request Approval',
+      type: 'Notify budget checker',
+      details: { RequesterManager: manager, id },
+      redirectLink: `${process.env.REDIRECT_URL}/requests/${id}`
+    };
+    if (budgetCheckerMembers.length) {
+      NotificationEngine.sendMailToMany(
+        budgetCheckerMembers,
+        data
+      );
+      return true;
+    }
   }
 }
 
