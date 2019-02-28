@@ -98,24 +98,20 @@ class ApprovalsController {
     return result;
   }
 
-  static async processQuery(req, res, repeat) {
+  static async processQuery(req, res) {
     const subquery = createApprovalSubquery({
       ...params.parameters,
-      searchRequest: !repeat
+      searchRequest: true
     });
     let result = { count: 0 };
-    result = await
-    asyncWrapper(res, ApprovalsController.getApprovalsFromDb, subquery);
-    if (!result.count && repeat) {
-      return ApprovalsController.processQuery(req, res, false);
-    }
+    result = await asyncWrapper(res, ApprovalsController.getApprovalsFromDb, subquery);
     return ApprovalsController.sendResult(req, res, result);
   }
 
   static async getUserApprovals(req, res) {
     ApprovalsController.setParameters(req);
     try {
-      await ApprovalsController.processQuery(req, res, true);
+      await ApprovalsController.processQuery(req, res);
     } catch (error) { /* istanbul ignore next */
       return Error.handleError('Server error', 500, res);
     }

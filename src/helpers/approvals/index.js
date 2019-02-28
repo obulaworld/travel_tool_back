@@ -4,21 +4,26 @@ import {
 } from '../requests/index';
 
 const { Op } = models.Sequelize;
-const { sequelize } = models;
 
 export function updateStatus(status) {
-  return (['approved', 'rejected', 'verified']
-    .includes(status.toLowerCase())) ? status.toLowerCase() : 'open';
+  const statuses = {
+    approved: 'Approved',
+    rejected: 'Rejected',
+    verified: 'Verified',
+    open: 'Open'
+  };
+  return statuses[status] || statuses.open;
 }
+
 
 export function updateCondition(status, condition) {
   return (['approved', 'rejected']
-    .includes(status.toLowerCase())) ? 'LIKE' : condition;
+    .includes(status.toLowerCase())) ? Op.eq : condition;
 }
 
 export const createStatusCondition = (status) => {
   const condition = (status.toLowerCase() === 'open' || status.toLowerCase() === 'verified')
-    ? 'LIKE' : 'NOT LIKE';
+    ? Op.eq : Op.ne;
   return condition;
 };
 
@@ -45,8 +50,6 @@ export function createApprovalSubquery({
   let status = req.query.status ? req.query.status : '';
   const userName = req.user.UserInfo.name;
   const { location } = req.user;
-  const requestStatus = 'Request.status';
-  // tripWhereExtended
   const { requestWhereExtended, tripWhereExtended } = createExtendedClause(verified, location);
   const searchClause = createSearchClause(
     getModelSearchColumns('Request'), search, 'Request'
@@ -64,11 +67,9 @@ export function createApprovalSubquery({
   if (status) {
     status = updateStatus(status);
     condition = updateCondition(status, condition);
-    where[requestStatus] = sequelize
-      .where(sequelize.fn(
-        'LOWER',
-        sequelize.cast(sequelize.col(requestStatus), 'varchar'),
-      ), condition, `%${status.toLowerCase()}%`);
+    where.status = {
+      [condition]: status
+    };
   }
   const subQuery = {
     where: (verified) ? {} : { approverId: userName },
