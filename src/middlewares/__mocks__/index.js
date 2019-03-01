@@ -76,7 +76,8 @@ const middleware = {
     validateReason: jest.fn(invokeNextMiddleware),
     isRoomFaulty: jest.fn(invokeNextMiddleware),
     isGenderAllowed: jest.fn(invokeNextMiddleware),
-    checkTripCheckedOut: jest.fn(invokeNextMiddleware)
+    checkTripCheckedOut: jest.fn(invokeNextMiddleware),
+    validateTripValidator: jest.fn(invokeNextMiddleware)
   },
   analyticsValidator: {
     validateFilterAndType: jest.fn(invokeNextMiddleware)

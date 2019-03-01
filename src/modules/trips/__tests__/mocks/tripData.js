@@ -214,3 +214,110 @@ export const postGuestHouse = {
     }
   ]
 };
+
+export const user = [
+  {
+    id: 29219368,
+    fullName: 'Alan Walker',
+    email: 'alan.walker@andela.com',
+    userId: '-D1Ff3r3nT_WLD',
+    picture: 'url',
+    location: 'Kigali, Rwanda',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    id: 12345,
+    fullName: 'Test Manager',
+    email: 'test.manager@andela.com',
+    userId: '-T32tM4nAge7',
+    picture: 'url',
+    location: 'Kigali, Rwanda',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }];
+
+export const userRole = [{
+  id: 1,
+  userId: 29219368,
+  roleId: 401938,
+  centerId: null,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}, {
+  id: 2,
+  userId: 12345,
+  roleId: 53019,
+  centerId: null,
+  createdAt: new Date(),
+  updatedAt: new Date()
+}];
+
+export const mockRequest = [
+  {
+    id: 'mockRequest',
+    name: 'Alan Walker',
+    manager: 'Test Manager',
+    gender: 'male',
+    department: 'department',
+    role: 'developer',
+    status: 'Verified',
+    userId: '-D1Ff3r3nT_WLD',
+    tripType: 'return',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    picture: 'picture'
+  }
+];
+
+export const mockTrip = [{
+  id: 'mockTrip',
+  requestId: 'mockRequest',
+  origin: 'Nairobi, Kenya',
+  destination: 'Lagos, Nigeria',
+  departureDate: '2019-07-23',
+  returnDate: '2019-07-27',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  bedId: null,
+  travelCompletion: 'false',
+  checkStatus: 'Not Checked In',
+  checkInDate: null,
+  checkOutDate: null,
+  lastNotifyDate: null,
+  notificationCount: 0,
+  deletedAt: null,
+  accommodationType: 'Residence',
+  otherTravelReasons: null,
+}];
+
+export const payload = {
+  UserInfo: {
+    id: '-D1Ff3r3nT_WLD',
+    email: 'alan.walker@andela.com',
+    name: 'Alan Walker'
+  }
+};
+
+export const trips = [
+  {
+    origin: 'Nashville, United States',
+    destination: 'Dschang, Cameroon',
+    departureDate: '2019-04-20',
+    returnDate: '2019-04-30',
+    bedId: -1
+  },
+  {
+    origin: 'Dschang, Cameroon',
+    destination: 'Lagos, Nigeria',
+    departureDate: '2019-04-20',
+    returnDate: '2019-04-30',
+    bedId: -1
+  }];
+
+export const invalidTrip = [{
+  destination: 'Lagos, Nigeria',
+  departureDate: '2019-07-23',
+  returnDate: '2019-07-27',
+  bedId: -1
+}];

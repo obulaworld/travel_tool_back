@@ -262,4 +262,12 @@ export default class TripValidator {
       return CustomError.handleError('An error occured', 500, res);
     }
   }
+
+  static async validateTripValidator(req, res, next) {
+    req.checkBody('trips[*].origin', 'origin is required').ltrim().notEmpty();
+    req.checkBody('trips[*].destination', 'destination is required').ltrim().notEmpty();
+    req.checkBody('trips[*].departureDate', 'destination is required').ltrim().notEmpty();
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
 }

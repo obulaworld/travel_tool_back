@@ -22,6 +22,13 @@ TripsRouter.get(
   TripsController.getTrips,
 );
 
+TripsRouter.post(
+  '/trips',
+  authenticate,
+  tripValidator.validateTripValidator,
+  TripsController.validateTripRequest
+);
+
 TripsRouter.put(
   '/trips/:tripId/room',
   authenticate,

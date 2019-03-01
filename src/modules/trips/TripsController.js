@@ -3,6 +3,7 @@ import NotificationEngine from '../notifications/NotificationEngine';
 import Error from '../../helpers/Error';
 import TripUtils from './TripUtils';
 import getTripDetails from './getTripDetails.data';
+import options from '../../helpers/trips/validateTrips';
 
 const { Op } = models.Sequelize;
 let checkTypeErrorMessage = '';
@@ -220,6 +221,35 @@ class TripsController {
     try {
       const trips = await models.Trip.findAll({ where: { requestId } });
       return trips;
+    } catch (error) { /* istanbul ignore next */
+      return Error.handleError(error.toString(), 500, res);
+    }
+  }
+
+  static async validateTripRequest(req, res) {
+    const { body: { trips: requestTrips } } = req;
+    const { id: userId } = req.user.UserInfo;
+    const searchTrips = requestTrips.map((trip) => {
+      const { origin, destination, departureDate } = trip;
+      return { origin, destination, departureDate };
+    });
+    const searchOptions = options(searchTrips);
+    try {
+      const trips = await models.Trip.findAll(searchOptions);
+      const myTrips = trips.filter(trip => trip.request.userId === userId);
+      if (myTrips.length) {
+        res.status(409).json({
+          success: false,
+          message: 'You already have this trip',
+          errors: [{ message: 'You already have this trip' }]
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: 'success',
+          trips: requestTrips
+        });
+      }
     } catch (error) { /* istanbul ignore next */
       return Error.handleError(error.toString(), 500, res);
     }
