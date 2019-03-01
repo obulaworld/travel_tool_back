@@ -58,11 +58,11 @@ describe('list TravelStipends', () => {
       });
   });
 
-  it('should reject user if user is a requester', (done) => {
+  it('should allow all users fetch stipend', (done) => {
     listAllStipends(nonAdminToken)
       .end((err, response) => {
         if (err) done(err);
-        expect(response.statusCode).toEqual(403);
+        expect(response.statusCode).toEqual(200);
         done();
       });
   });
