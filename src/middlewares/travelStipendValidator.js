@@ -3,7 +3,8 @@ import Validator from './Validator';
 
 export default class TravelStipendValidator {
   static async validateNewStipend(req, res, next) {
-    req.checkBody('stipend', 'stipend is required and must be a Number').isInt();
+    req.checkBody('stipend', 'stipend is required and must be a positive number')
+      .isInt({ gt: -1 });
     req.checkBody('center', 'center is required').notEmpty();
     const errors = req.validationErrors();
     if (errors.length) {

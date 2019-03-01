@@ -30,7 +30,7 @@ describe('TravelStipends', () => {
           message: 'Validation failed',
           errors: [
             {
-              message: 'stipend is required and must be a Number',
+              message: 'stipend is required and must be a positive number',
               name: 'stipend'
             },
             {
@@ -57,7 +57,7 @@ describe('TravelStipends', () => {
             success: false,
             errors: [
               {
-                message: 'stipend is required and must be a Number',
+                message: 'stipend is required and must be a positive number',
                 name: 'stipend'
               },
               {

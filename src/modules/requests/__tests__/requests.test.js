@@ -777,6 +777,32 @@ describe('Requests Controller', () => {
         done();
       });
 
+      it('should throw 422 error with invalid type for stipend', async (done) => {
+        const expectedResponse = {
+          body: {
+            success: false,
+            errors: [
+              {
+                location: 'body',
+                param: 'stipend',
+                msg: 'stipend must be an integer and not less than zero',
+              },
+            ],
+          },
+          status: 422,
+        };
+        const res = await request(app)
+          .post('/api/v1/requests')
+          .set('authorization', requesterToken)
+          .send({
+            ...mockNewRequest,
+            stipend: 'one thousand',
+            trips: [{ ...mockNewRequest.trips[0] }],
+          });
+        expect(res).toMatchObject(expectedResponse);
+        done();
+      });
+
       it('should throw 422 error while creating a request if the departureDate is less than'
         + ' the returnDate', async (done) => {
         const expectedResponse = {

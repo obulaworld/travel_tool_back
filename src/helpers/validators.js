@@ -21,6 +21,8 @@ export const editAndCreateRequestValidators = [
     'Name  cannot be empty and must be between 3 and 50 characters long')
     .trim().isLength({ min: 3, max: 50 }),
   body('manager', 'manager cannot be empty').trim().not().isEmpty(),
+  body('stipend', 'stipend must be an integer and not less than zero')
+    .optional().isInt({ gt: -1 }),
   body('tripType').trim()
     .not().isEmpty()
     .withMessage('tripType cannot be empty')

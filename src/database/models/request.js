@@ -88,6 +88,11 @@ export default (sequelize, DataTypes) => {
         },
       },
     },
+    stipend: {
+      allowNull: false,
+      defaultValue: 0,
+      type: DataTypes.INTEGER,
+    }
   }, { paranoid: true });
 
   Request.associate = (models) => {
