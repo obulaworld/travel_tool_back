@@ -11,7 +11,8 @@ import {
   requestsData,
   tripsData,
   postGuestHouse,
-  tripsReportResponse
+  tripsReportResponse,
+  centers
 } from '../__mocks__/tripsData';
 import {
   role,
@@ -31,6 +32,7 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
     try {
       await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
       await models.Role.destroy({ force: true, truncate: { cascade: true } });
+      await models.Center.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
       await models.Bed.destroy({ force: true, truncate: { cascade: true } });
@@ -38,6 +40,7 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
       await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
       await models.User.destroy({ force: true, truncate: { cascade: true } });
       await models.Role.bulkCreate(role);
+      
       await models.User.create(travelAdmin);
       await models.User.create(travelRequester);
       await models.UserRole.create(userRole);
@@ -47,6 +50,7 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
         .set('authorization', travelAdminToken)
         .send(postGuestHouse);
       const bed = models.Bed.findOne({});
+      await models.Center.bulkCreate(centers);
       await models.Request.bulkCreate(requestsData);
       await models.Trip.bulkCreate(tripsData(bed.id));
     } catch (error) {
@@ -57,6 +61,7 @@ describe('Test Suite for Trips Analytics (Get Trips / Month by Department)', () 
   afterAll(async () => {
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.destroy({ force: true, truncate: { cascade: true } });
     await models.Request.destroy({ force: true, truncate: { cascade: true } });
     await models.Bed.destroy({ force: true, truncate: { cascade: true } });

@@ -91,6 +91,67 @@ export const checkListItems = [
   }
 ];
 
+export const centers = [
+  {
+    location: 'Nairobi, Kenya'
+  },
+  {
+    location: 'Lagos, Nigeria'
+  },
+  {
+    location: 'Kigali, Rwanda'
+  },
+  {
+    location: 'New York, United States'
+  },
+  {
+    location: 'Kampala, Uganda'
+  }
+
+];
+
+const date = new Date();
+const dateToday = new Date(date.setDate(date.getDate()))
+  .toISOString().split('T')[0];
+const dateDeparture = new Date(date.setDate(date.getDate() + 1))
+  .toISOString().split('T')[0];
+const dateReturn = new Date(date.setDate(date.getDate() + 3))
+  .toISOString().split('T')[0];
+  
+export const dates = {
+  departureDate: dateDeparture,
+  returnDate: dateReturn,
+  dateToday
+};
+export const tripsData = [
+  {
+    id: 1,
+    requestId: 'request-id-6',
+    origin: 'Nairobi',
+    destination: 'New York',
+    bedId: 1,
+    departureDate: dates.departureDate,
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 2,
+    requestId: 'request-id-7',
+    origin: 'New York',
+    destination: 'Nairobi',
+    bedId: 1,
+    departureDate: dates.dateToday,
+    returnDate: dates.returnDate,
+  },
+  {
+    id: 3,
+    requestId: 'request-id-8',
+    origin: 'New York',
+    destination: 'Nairobi',
+    bedId: 1,
+    departureDate: '2018-09-27',
+    returnDate: dates.returnDate,
+  },
+];
 export const defaultItem = {
   id: '10',
   name: 'Travel Ticket',
@@ -135,6 +196,15 @@ export const checkListItemsResources = [
     link: 'http://nairobi.visa.com',
     label: 'Application Guide',
     checklistItemId: '6',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null
+  },
+  {
+    id: '7',
+    link: 'http://nairobi.visa.com',
+    label: 'Application Guide',
+    checklistItemId: '7',
     createdAt: new Date(),
     updatedAt: new Date(),
     deletedAt: null

@@ -11,6 +11,8 @@ import {
 } from './__mocks__/mockData2';
 import { role } from '../../userRole/__tests__/mocks/mockData';
 import { resources } from 'cloudinary/lib/api';
+import { centers, tripsData, requests, guestHouse, rooms, beds
+ } from './__mocks__/mockData';
 
 cron.schedule = jest.fn();
 
@@ -67,16 +69,28 @@ const invalidToken =  'eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp';
 
 describe('Travel ChecklistController', () => {
   beforeAll(async () => {
+    await models.Bed.sync({ force: true });
+    await models.Room.sync({ force: true });
+    await models.GuestHouse
+      .destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItemResource.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
+    await models.Trip.destroy({ force: true, truncate: { cascade: true } });
 
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(userMock);
     await models.UserRole.bulkCreate(userRole);
+    await models.GuestHouse.create(guestHouse);
+    await models.Room.bulkCreate(rooms);
+    await models.Bed.bulkCreate(beds);
+    await models.Center.bulkCreate(centers);
+    await models.Request.bulkCreate(requests);
+    await models.Trip.bulkCreate(tripsData);
     await models.ChecklistItem.bulkCreate(checkListItems);
     await models.ChecklistItemResource.bulkCreate(checkListItemsResources);
     await models.ChecklistSubmission.bulkCreate(checklistSubmissions);
@@ -86,9 +100,15 @@ describe('Travel ChecklistController', () => {
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
+    await models.Center.bulkCreate(centers);
     await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItemResource.destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
+    await models.Trip.destroy({ force: true, truncate: { cascade: true } });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
+    await models.Bed.destroy({ force: true, truncate: { cascade: true } });
+    await models.Room.destroy({ force: true, truncate: { cascade: true } });
+    await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
   });
 
   describe('Update /api/v1/checklist/:checklistId', () => {

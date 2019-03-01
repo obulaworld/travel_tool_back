@@ -20,7 +20,7 @@ class TripsController {
   static async getTripsPerMonth(req, res) {
     const { location } = req.user;
     const { firstDate, lastDate } = req.query;
-    const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+    const andelaCenters = await TravelChecklistHelper.getAndelaCenters();
     try {
       const trips = await models.Request.findAll({
         group: ['department'],

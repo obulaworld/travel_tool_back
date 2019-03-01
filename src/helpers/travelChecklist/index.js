@@ -1,5 +1,6 @@
 /* eslint object-property-newline: 0 */
 import _ from 'lodash';
+import { Op } from 'sequelize';
 import models from '../../database/models';
 import TripsController from '../../modules/trips/TripsController';
 import CustomError from '../Error';
@@ -112,8 +113,9 @@ class TravelChecklistHelper {
         });
         where = { destinationName: [...tripsDestination, 'Default'] };
       } else if (destinationName) {
-        const andelaCenters = TravelChecklistHelper.getAndelaCenters();
-        where = { destinationName: [andelaCenters[`${destinationName}`], 'Default'] };
+        const andelaCenters = await TravelChecklistHelper.getAndelaCenters();
+        const destinationNames = (destinationName.split(',')).map(center => (andelaCenters[center]));
+        where = { destinationName: { [Op.or]: [...destinationNames, 'Default'] } };
       }
       const query = {
         where, attributes: ['id', 'name', 'requiresFiles',
@@ -135,16 +137,13 @@ class TravelChecklistHelper {
     }
   }
 
-  static getAndelaCenters() {
-    const andelaCenters = {
-      Lagos: 'Lagos, Nigeria',
-      Nairobi: 'Nairobi, Kenya',
-      Kigali: 'Kigali, Rwanda',
-      'New York': 'New York, United States',
-      Kampala: 'Kampala, Uganda'
-    };
-
-    return andelaCenters;
+  static async getAndelaCenters() {
+    const andelaCenters = await models.Center.findAll();
+    const allCenters = {};
+    andelaCenters.forEach((center) => {
+      allCenters[center.dataValues.location.split(',', 1)] = center.dataValues.location;
+    });
+    return allCenters;
   }
 
   static combineSubmittedChecklists(travelCheckLists, submissions) {

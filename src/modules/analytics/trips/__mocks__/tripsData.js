@@ -15,7 +15,8 @@ export const travelAdminPayload = {
     fullName: 'Chris Brown',
     email: 'chris.brown@andela.com',
     name: 'Chris',
-    picture: ''
+    picture: '',
+    location: 'Lagos'
   }
 };
 
@@ -109,7 +110,24 @@ export const superAdminRole = {
   createdAt: '2018-10-25',
   updatedAt: '2018-10-25'
 };
+export const centers = [
+  {
+    location: 'Nairobi, Kenya'
+  },
+  {
+    location: 'Lagos, Nigeria'
+  },
+  {
+    location: 'Kigali, Rwanda'
+  },
+  {
+    location: 'New York, United States'
+  },
+  {
+    location: 'Kampala, Uganda'
+  }
 
+];
 export const tripsData = bedId => ([
   {
     id: 1,

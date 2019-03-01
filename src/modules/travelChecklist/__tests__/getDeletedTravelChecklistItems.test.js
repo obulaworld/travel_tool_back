@@ -7,6 +7,7 @@ import {
   checkListItems,
   checkListItemsResources,
   checklistSubmissions,
+  centers
 } from './__mocks__/mockData';
 import {
   role
@@ -73,6 +74,9 @@ describe('Notifications Controller', () => {
     await models.Request.sync({
       force: true
     });
+    await models.Center.sync({
+      force: true
+    });
     await models.UserRole.destroy({
       force: true,
       truncate: {
@@ -95,6 +99,7 @@ describe('Notifications Controller', () => {
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(userMock);
     await models.UserRole.bulkCreate(userRole);
+    await models.Center.bulkCreate(centers);
     await models.Request.bulkCreate(requests);
     await models.ChecklistItem.bulkCreate(checkListItems);
     await models.ChecklistItemResource.bulkCreate(checkListItemsResources);
@@ -119,6 +124,11 @@ describe('Notifications Controller', () => {
           cascade: true
         }
       });
+    await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistItemResource.destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });

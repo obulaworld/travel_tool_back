@@ -3,7 +3,7 @@ import models from '../../../database/models';
 import app from '../../../app';
 import Utils from '../../../helpers/Utils';
 import { role } from '../../userRole/__tests__/mocks/mockData';
-
+import { centers } from './__mocks__/mockData';
 
 const request = supertest;
 const invalidToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6Ikp';
@@ -60,22 +60,19 @@ describe('Travel ChecklistController', () => {
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistItemResource.destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
 
     await models.Role.bulkCreate(role);
     await models.User.bulkCreate(userMock);
     await models.UserRole.bulkCreate(userRole);
+    await models.Center.bulkCreate(centers);
   });
 
   afterAll(async () => {
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
-    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistItem.destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistItemResource.destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistSubmission.destroy({ force: true, truncate: { cascade: true } });
   });
   describe('POST /api/v1/checklists', () => {
     it('should not create a checklist if the user does not provide a token',

@@ -18,7 +18,8 @@ import {
   guestHouse,
   rooms,
   beds,
-  user
+  user,
+  centers
 } from './__mocks__/mockData';
 import { role } from '../../userRole/__tests__/mocks/mockData';
 
@@ -30,15 +31,17 @@ describe('Travel Checklists Controller', () => {
     UserInfo: {
       id: '-MUyHJmKrxA90lPNQ1FOLNm',
       name: 'Samuel Kubai',
-      userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+      userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+      location: 'Lagos'
     }
   };
 
   const payload1 = {
     UserInfo: {
-      id: '-MUyHJmKrxA90lPNOLNm',
+      id: '--MUyHJmKrxA90lPNOLNm',
       name: 'Optimum Price',
-      userId: '-MUyHJmKrxA90lPNQ1FOLNm'
+      userId: '-MUyHJmKrxA90lPNQ1FOLNm',
+      location: 'Lagos'
     },
   };
 
@@ -57,6 +60,7 @@ describe('Travel Checklists Controller', () => {
     await models.ChecklistSubmission
       .destroy({ force: true, truncate: { cascade: true } });
     await models.ChecklistItem.sync({ force: true });
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
     await models.Request.destroy({ force: true, truncate: { cascade: true } });
     await models.Trip.sync({ force: true });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
@@ -69,6 +73,7 @@ describe('Travel Checklists Controller', () => {
     await models.GuestHouse.create(guestHouse);
     await models.Room.bulkCreate(rooms);
     await models.Bed.bulkCreate(beds);
+    await models.Center.bulkCreate(centers);
     await models.Request.bulkCreate(requests);
     await models.Trip.bulkCreate(trips);
     await models.ChecklistItem.bulkCreate(checkListItems);
@@ -77,20 +82,21 @@ describe('Travel Checklists Controller', () => {
   });
 
   afterAll(async () => {
+    await models.ChecklistSubmission
+      .destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistItemResource
+      .destroy({ force: true, truncate: { cascade: true } });
+    await models.ChecklistItem.sync({ force: true });
+    await models.Trip.sync({ force: true });
+    await models.Request.destroy({ force: true, truncate: { cascade: true } });
+    await models.Center.destroy({ force: true, truncate: { cascade: true } });
     await models.Bed.sync({ force: true });
     await models.Room.sync({ force: true });
     await models.GuestHouse
       .destroy({ force: true, truncate: { cascade: true } });
-    await models.Request.destroy({ force: true, truncate: { cascade: true } });
-    await models.Trip.sync({ force: true });
-    await models.ChecklistItem.sync({ force: true });
-    await models.ChecklistItemResource
-      .destroy({ force: true, truncate: { cascade: true } });
-    await models.ChecklistSubmission
-      .destroy({ force: true, truncate: { cascade: true } });
+    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
     await models.Role.destroy({ force: true, truncate: { cascade: true } });
-    await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
   });
 
   const token = Utils.generateTestToken(payload);
@@ -242,7 +248,8 @@ describe('Travel Checklists Controller', () => {
           UserInfo: {
             id: '-MUyHJmKrxA90lPNQ1FOLNm',
             name: 'Samuel Kubai',
-            email: 'black.window@andela.com'
+            email: 'black.window@andela.com',
+            location: 'Lagos'
           }
         };
         user.roleId = 401938;
@@ -261,7 +268,7 @@ describe('Travel Checklists Controller', () => {
         };
 
         request(app)
-          .get('/api/v1/checklists?destinationName=Nairobi')
+          .get('/api/v1/checklists?destinationName=Nairobi, Kenya')
           .set('authorization', testToken)
           .end((err, res) => {
             if (err) done(err);
@@ -302,7 +309,7 @@ describe('Travel Checklists Controller', () => {
           });
       });
 
-    it('should return andela centers', (done) => {
+    it('should return andela centers', async () => {
       const expectedResponse = {
         Lagos: 'Lagos, Nigeria',
         Nairobi: 'Nairobi, Kenya',
@@ -311,9 +318,8 @@ describe('Travel Checklists Controller', () => {
         Kampala: 'Kampala, Uganda'
       };
 
-      const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+      const andelaCenters = await TravelChecklistHelper.getAndelaCenters();
       expect(andelaCenters).toMatchObject(expectedResponse);
-      done();
     });
   });
 
@@ -349,8 +355,6 @@ describe('Travel Checklists Controller', () => {
         .end((err, res) => {
           if (err) done(err);
           expect(res.status).toEqual(expectedResponse.status);
-          // expect(res.body.travelChecklists[2])
-          //   .toMatchObject(expectedResponse.body.travelChecklists[2]);
           expect(res.body.travelChecklists.length).toEqual(3);
           expect(res.body.travelChecklists[0].destinationName).toEqual('Kigali, Rwanda');
           expect(res.body.travelChecklists[0].checklist.length).toEqual(3);

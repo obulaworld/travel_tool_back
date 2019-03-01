@@ -13,9 +13,8 @@ export default class TravelChecklistController {
     try {
       const { resources, ...rest } = req.body;
       const { location } = req.user;
-      const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+      const andelaCenters = await TravelChecklistHelper.getAndelaCenters();
       req.query.destinationName = location;
-
       await models.sequelize.transaction(async () => {
         if (await TravelChecklistController.checklistItemExists(rest.name, req, res)) {
           return CustomError.handleError(
@@ -38,7 +37,7 @@ export default class TravelChecklistController {
           );
         }
         createdChecklistItem.dataValues.resources = createdResources;
-        res.status(201).json({
+        return res.status(201).json({
           success: true,
           message: 'Check list item created successfully',
           checklistItem: createdChecklistItem
@@ -52,7 +51,6 @@ export default class TravelChecklistController {
   static async checklistItemExists(checklistName, req, res, currentName = '') {
     const checklists = await TravelChecklistHelper
       .getChecklists(req, res);
-
     const checklistNames = checklists.length ? checklists[0].checklist.map(
       checklist => checklist.get({ plain: true }).name
         .toLowerCase()
@@ -95,7 +93,7 @@ export default class TravelChecklistController {
   static async getDeletedChecklistItems(req, res) {
     try {
       const { destinationName } = req.query;
-      const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+      const andelaCenters = await TravelChecklistHelper.getAndelaCenters();
       const ChecklistItems = await models.ChecklistItem
         .findAll({
           paranoid: false,
@@ -225,7 +223,7 @@ export default class TravelChecklistController {
   static async updateChecklistItem(req, res) {
     try {
       const { location } = req.user;
-      const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+      const andelaCenters = await TravelChecklistHelper.getAndelaCenters();
       const checklistItemId = req.params.checklistId;
       req.query.destinationName = location;
 
@@ -274,7 +272,7 @@ export default class TravelChecklistController {
   }
 
   static async fetchChecklistItemAndResources(req, checklistId) {
-    const andelaCenters = TravelChecklistHelper.getAndelaCenters();
+    const andelaCenters = await TravelChecklistHelper.getAndelaCenters();
     const { location } = req.user;
     const checklistItem = await models.ChecklistItem.findOne({
       where: { id: checklistId, destinationName: andelaCenters[`${location}`] }
@@ -348,8 +346,10 @@ export default class TravelChecklistController {
   static async getCheckListItemSubmission(req, res) {
     try {
       const { requestId } = req.params;
-      const userId = await models.Request.findOne({ raw: true, where: { id: requestId }, attributes: ['userId'] });
-      const [userLocation] = await models.User.findAll({ raw: true, where: { ...userId }, attributes: ['location'] });
+      const userId = await models.Request
+        .findOne({ raw: true, where: { id: requestId }, attributes: ['userId'] });
+      const [userLocation] = await models.User
+        .findAll({ raw: true, where: { ...userId }, attributes: ['location'] });
       const location = await Centers.getCenter(userLocation.location);
 
       let checklists = await TravelChecklistHelper
@@ -378,9 +378,7 @@ export default class TravelChecklistController {
         .combineSubmittedChecklists(lists, submissions);
 
       return res.status(200).json({
-        success,
-        message,
-        percentageCompleted,
+        success, message, percentageCompleted,
         submissions: checklists
       });
     } catch (error) { /* istanbul ignore next */

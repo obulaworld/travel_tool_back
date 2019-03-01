@@ -150,7 +150,7 @@ export const checklistSubmissions = [
   {
     id: '1',
     value: 'submitted',
-    tripId: 'change',
+    tripId: '1',
     checklistItemId: '1',
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -159,7 +159,7 @@ export const checklistSubmissions = [
   {
     id: '2',
     value: 'submitted',
-    tripId: 'change',
+    tripId: '2',
     checklistItemId: '4',
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -168,7 +168,7 @@ export const checklistSubmissions = [
   {
     id: '3',
     value: 'submitted',
-    tripId: 'change',
+    tripId: '3',
     checklistItemId: '8',
     createdAt: new Date(),
     updatedAt: new Date(),
