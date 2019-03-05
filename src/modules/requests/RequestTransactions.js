@@ -4,12 +4,13 @@ import Utils from '../../helpers/Utils';
 import RequestsController from './RequestsController';
 import Error from '../../helpers/Error';
 import RequestUtils from './RequestUtils';
+import UserRoleController from '../userRole/UserRoleController';
 
 
 const { Op } = models.Sequelize;
 
 export default class RequestTransactions {
-  static async createRequestTransaction(req, res, requestData, trips) {
+  static async createRequestTransaction(req, res, requestData, trips, comments) {
     let request;
     await models.sequelize.transaction(async () => {
       request = await models.Request.create(requestData);
@@ -20,6 +21,20 @@ export default class RequestTransactions {
           id: Utils.generateUniqueId(),
         })),
       );
+
+      // create a comment submitted with the request
+      if (comments.comment) {
+        const userIdInteger = await UserRoleController.getRecipient(null, req.user.UserInfo.id);
+        const commentData = {
+          requestId: request.id,
+          documentId: null,
+          comment: comments.comment,
+          id: Utils.generateUniqueId(),
+          userId: userIdInteger.id
+        };
+        await models.Comment.create(commentData);
+      }
+
 
       const approval = await ApprovalsController.createApproval(request);
       request.dataValues.trips = requestTrips;

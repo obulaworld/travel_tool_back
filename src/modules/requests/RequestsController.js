@@ -43,7 +43,7 @@ class RequestsController {
 
   static async createRequest(req, res) {
     // eslint-disable-next-line
-    let { trips, ...requestDetails } = req.body;
+    let { trips, comments, ...requestDetails } = req.body;
     delete requestDetails.status; // requester cannot post status
     try {
       await RequestUtils.validateTripDates(req.user.UserInfo.id, trips);
@@ -84,7 +84,7 @@ class RequestsController {
         return trip;
       });
 
-      await RequestTransactions.createRequestTransaction(req, res, requestData, trips);
+      await RequestTransactions.createRequestTransaction(req, res, requestData, trips, comments);
     } catch (error) {
       /* istanbul ignore next */
       return Error.handleError(error.message || error, error.status || 500, res);

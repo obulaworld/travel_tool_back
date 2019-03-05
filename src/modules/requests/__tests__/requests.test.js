@@ -83,7 +83,25 @@ const mockNewRequest = generateMock.request(
         departureDate: moment().add(2, 'days').format('YYYY-MM-DD'),
         returnDate: moment().add(4, 'days').format('YYYY-MM-DD'),
       })
-    ]
+    ],
+    comments: {},
+  }
+);
+
+const mockNewRequestWithComment = generateMock.request(
+  {
+    manager: mockRequester.manager,
+    id: undefined,
+    trips: [
+      generateMock.trip({
+        destination: mockAndelaDestination.location,
+        id: undefined,
+        requestId: undefined,
+        departureDate: moment().add(20, 'days').format('YYYY-MM-DD'),
+        returnDate: moment().add(27, 'days').format('YYYY-MM-DD'),
+      })
+    ],
+    comments: { comment: '<p>this is it</p>' },
   }
 );
 
@@ -236,6 +254,29 @@ const mockBookedBedRequest = generateMock.request(
   }
 );
 
+const otherMockBookedBedRequest = generateMock.request(
+  {
+    manager: mockRequester.manager,
+    userId: mockTravelAdmin.userId,
+    gender: mockTravelAdmin.gender,
+    id: 'mock-request-id-5',
+    trips: [
+      {
+        ...generateMock.trip(
+          {
+            destination: mockAndelaDestination.location,
+            id: 'mock-trip-5',
+            requestId: 'mock-request-id-5',
+            bedId: 4,
+            departureDate: moment().add(20, 'days').format('YYYY-MM-DD'),
+            returnDate: moment().add(27, 'days').format('YYYY-MM-DD'),
+          }
+        )
+      }
+    ]
+  }
+);
+
 const allMyApprovals = [mockOpenRequest, mockApprovedRequest, mockRejectedRequest].map(
   theRequest => ({
     requestId: theRequest.id,
@@ -259,6 +300,7 @@ describe('Requests Controller', () => {
     await models.Trip.destroy({ force: true, truncate: { cascade: true } });
     await models.UserRole.destroy({ force: true, truncate: { cascade: true } });
     await models.Notification.truncate();
+    await models.Comment.destroy({ force: true, truncate: { cascade: true } });
 
     await models.Center.bulkCreate([mockAndelaOrigin, mockAndelaDestination]);
     await models.Role.bulkCreate(roles);
@@ -282,6 +324,7 @@ describe('Requests Controller', () => {
     await models.Room.destroy({ force: true, truncate: { cascade: true } });
     await models.GuestHouse.destroy({ force: true, truncate: { cascade: true } });
     await models.User.destroy({ force: true, truncate: { cascade: true } });
+    await models.Comment.destroy({ force: true, truncate: { cascade: true } });
     done();
   });
 
@@ -726,6 +769,18 @@ describe('Requests Controller', () => {
         done();
       });
 
+      it('should add a new request with a comment to the db', async (done) => {
+        await models.Request.create(otherMockBookedBedRequest);
+        await models.Trip.bulkCreate(otherMockBookedBedRequest.trips);
+        const res = await request(app)
+          .post('/api/v1/requests')
+          .set('authorization', requesterToken)
+          .send(mockNewRequestWithComment);
+        expect(res.status).toEqual(201);
+        await models.Comment.destroy({ force: true, truncate: { cascade: true } });
+        done();
+      });
+
       it('should throw 422 error while creating a request that is not multi-trip with'
         + ' more than one trip', async (done) => {
         const expectedResponse = {
@@ -893,7 +948,7 @@ describe('Requests Controller', () => {
           .set('authorization', savedManagerToken)
           .end((err, res) => {
             expect(res.status).toBe(200);
-            expect(res.body.approvals).toHaveLength(1);
+            expect(res.body.approvals).toHaveLength(2);
             expect(res.body.message).toBe('Approvals retrieved successfully');
             done();
           });
@@ -906,7 +961,7 @@ describe('Requests Controller', () => {
           .set('authorization', savedManagerToken)
           .end((err, res) => {
             expect(res.status).toBe(200);
-            expect(res.body.approvals).toHaveLength(1);
+            expect(res.body.approvals).toHaveLength(2);
             expect(res.body.message).toBe('Approvals retrieved successfully');
             done();
           });
@@ -917,6 +972,7 @@ describe('Requests Controller', () => {
     let res;
     beforeAll(async (done) => {
       await models.Approval.destroy({ force: true, truncate: { cascade: true } });
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
 
@@ -930,6 +986,7 @@ describe('Requests Controller', () => {
     });
 
     afterAll(async (done) => {
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
       done();
@@ -980,6 +1037,7 @@ describe('Requests Controller', () => {
         ],
       };
       beforeAll(async (done) => {
+        await models.Comment.destroy({ force: true, truncate: { cascade: true } });
         await models.Trip.destroy({ force: true, truncate: { cascade: true } });
         await models.Request.destroy({ force: true, truncate: { cascade: true } });
         await models.Request.bulkCreate(
@@ -997,6 +1055,7 @@ describe('Requests Controller', () => {
       });
 
       afterAll(async (done) => {
+        await models.Comment.destroy({ force: true, truncate: { cascade: true } });
         await models.Trip.destroy({ force: true, truncate: { cascade: true } });
         await models.Request.destroy({ force: true, truncate: { cascade: true } });
         done();
@@ -1244,6 +1303,7 @@ describe('Requests Controller', () => {
 
   describe('PUT /approvals/:requestId - Update Request Status', () => {
     beforeAll(async (done) => {
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Approval.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
@@ -1265,6 +1325,7 @@ describe('Requests Controller', () => {
     });
 
     afterAll(async (done) => {
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Approval.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
@@ -1370,6 +1431,7 @@ describe('Requests Controller', () => {
 
   describe('My verifications', () => {
     beforeAll(async (done) => {
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
 
@@ -1388,6 +1450,7 @@ describe('Requests Controller', () => {
     });
 
     afterAll(async (done) => {
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Approval({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
@@ -1396,6 +1459,7 @@ describe('Requests Controller', () => {
 
     describe('PUT /api/v1/requests/:requestId/verify', () => {
       afterAll(async (done) => {
+        await models.Comment.destroy({ force: true, truncate: { cascade: true } });
         await models.Approval.destroy({ force: true, truncate: { cascade: true } });
         await models.Trip.destroy({ force: true, truncate: { cascade: true } });
         await models.Request.destroy({ force: true, truncate: { cascade: true } });
@@ -1550,6 +1614,7 @@ describe('Requests Controller', () => {
 
     describe('GET /api/v1/approvals - VERIFICATION', () => {
       beforeAll(async (done) => {
+        await models.Comment.destroy({ force: true, truncate: { cascade: true } });
         await models.Trip.destroy({ force: true, truncate: { cascade: true } });
         await models.Request.destroy({ force: true, truncate: { cascade: true } });
 
@@ -1727,6 +1792,7 @@ describe('Requests Controller', () => {
 
   describe('DELETE /api/v1/requests/:requestId', () => {
     beforeAll(async (done) => {
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Approval.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
@@ -1747,6 +1813,7 @@ describe('Requests Controller', () => {
     });
 
     afterAll(async (done) => {
+      await models.Comment.destroy({ force: true, truncate: { cascade: true } });
       await models.Trip.destroy({ force: true, truncate: { cascade: true } });
       await models.Request.destroy({ force: true, truncate: { cascade: true } });
       done();
