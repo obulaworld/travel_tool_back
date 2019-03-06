@@ -4,6 +4,7 @@ import Error from '../../helpers/Error';
 import TripUtils from './TripUtils';
 import getTripDetails from './getTripDetails.data';
 import options from '../../helpers/trips/validateTrips';
+import RequestUtils from '../requests/RequestUtils';
 
 const { Op } = models.Sequelize;
 let checkTypeErrorMessage = '';
@@ -238,20 +239,23 @@ class TripsController {
       const trips = await models.Trip.findAll(searchOptions);
       const myTrips = trips.filter(trip => trip.request.userId === userId);
       if (myTrips.length) {
-        res.status(409).json({
+        return res.status(409).json({
           success: false,
           message: 'You already have this trip',
           errors: [{ message: 'You already have this trip' }]
         });
-      } else {
-        res.status(200).json({
-          success: true,
-          message: 'success',
-          trips: requestTrips
-        });
       }
+      await RequestUtils.validateTripDates(req.user.UserInfo.id, requestTrips);
+      return res.status(200).json({
+        success: true,
+        message: 'success',
+        trips: requestTrips
+      });
     } catch (error) { /* istanbul ignore next */
-      return Error.handleError(error.toString(), 500, res);
+      return error.status === 400 ? res.status(400).json({
+        success: false,
+        message: 'Sorry, you already have a request for these dates.'
+      }) : Error.handleError(error.toString(), 500, res);
     }
   }
 }
