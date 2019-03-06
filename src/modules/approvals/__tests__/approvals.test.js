@@ -2,6 +2,7 @@
 import supertest from 'supertest';
 import sgMail from '@sendgrid/mail'
 import { mockRouterMiddleware, mockApprovals } from './mocks/mockModules';
+import Validator from '../../../middlewares/Validator';
 
 sgMail.send = jest.fn();
 
@@ -43,6 +44,15 @@ describe('server integration tests', () => {
       });
   });
 
+  it('calls authenticate to authenticate user for the budget', (done) => {
+    testClient(app)
+      .put('/api/v1/approvals/budgetStatus/1')
+      .end((err, res) => {
+        expect(middleware.authenticate).toHaveBeenCalledTimes(1);
+        done();
+      });
+  });
+
   it('calls validateDirectReport to check requesters manaager', (done) => {
     testClient(app)
       .put('/api/v1/approvals/1')
@@ -73,6 +83,18 @@ describe('server integration tests', () => {
           expect(statusValidator).toHaveBeenCalledTimes(1);
           expect(ApprovalsController.updateRequestStatus)
             .toHaveBeenCalledTimes(1);
+          done();
+        });
+    });
+
+    it('validates budgetStatus parameters before controller handles request',
+    (done) => {
+      const statusValidator = middleware.Validator.validateBudgetStatus;
+      testClient(app)
+        .put('/api/v1/approvals/budgetStatus/1')
+        .send({ budgetStatus: 'Approved' })
+        .end((err, res) => {
+          expect(statusValidator).toHaveBeenCalledTimes(1);
           done();
         });
     });
@@ -134,4 +156,6 @@ describe('ApprovalsController unit tests', () => {
     const result = UnmockedApprovalsController.fillWithRequestData(approval);
     expect(result).toEqual({ status: 'Approved' });
   });
+
 });
+

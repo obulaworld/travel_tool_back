@@ -2,6 +2,7 @@ import models from '../../database/models';
 import {
   createSearchClause, getModelSearchColumns
 } from '../requests/index';
+import UserRoleController from '../../modules/userRole/UserRoleController';
 
 const { Op } = models.Sequelize;
 
@@ -158,3 +159,29 @@ export function createApprovalSubquery({
   };
   return subQuery;
 }
+
+export const validateBudgetChecker = async (req) => {
+  const { params: { requestId } } = req;
+  const requestFromDb = await models.Request.findOne({
+    where: {
+      id: requestId
+    }
+  });
+  const { userId: requesterId } = requestFromDb;
+  const user = await models.User.findOne({
+    where: {
+      userId: requesterId
+    }
+  });
+  const { location: userLocation } = user;
+  const budgetChecker = await UserRoleController.findUserDetails(req);
+  if (userLocation === budgetChecker.location) {
+    return {
+      budgetId: budgetChecker.id,
+      name: budgetChecker.fullName,
+      manager: budgetChecker.manager,
+      result: true
+    };
+  }
+  return { result: false };
+};

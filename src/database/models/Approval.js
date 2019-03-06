@@ -40,7 +40,15 @@ export default (sequelize, DataTypes) => {
           msg: 'Budget Status cannot be empty',
         },
       },
-    }
+    },
+    budgetApprover: {
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    budgetApprovedAt: {
+      allowNull: true,
+      type: DataTypes.DATE,
+    },
   }, { paranoid: true });
   Approval.associate = (models) => {
     Approval.belongsTo(models.Request, {

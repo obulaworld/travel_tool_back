@@ -88,6 +88,14 @@ export default class Validator {
     Validator.errorHandler(res, errors, next);
   }
 
+  static validateBudgetStatus(req, res, next) {
+    req
+      .checkBody('budgetStatus', 'budgetStatus must be Approved or Rejected')
+      .custom(budgetStatus => budgetStatus === 'Approved' || budgetStatus === 'Rejected');
+    const errors = req.validationErrors();
+    Validator.errorHandler(res, errors, next);
+  }
+
   static validateNotificationStatus(req, res, next) {
     Object.keys(req.body).forEach((key) => {
       req.body[`${key}`] = req.body[`${key}`].toLowerCase();

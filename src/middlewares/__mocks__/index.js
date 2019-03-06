@@ -26,6 +26,7 @@ const middleware = {
     checkEmail: jest.fn(invokeNextMiddleware),
     checkGender: jest.fn(invokeNextMiddleware),
     validateStatus: jest.fn(invokeNextMiddleware),
+    validateBudgetStatus: jest.fn(invokeNextMiddleware),
     validateWorkInformation: jest.fn(invokeNextMiddleware),
     validateManager: jest.fn(invokeNextMiddleware),
     validateComment: jest.fn(invokeNextMiddleware),

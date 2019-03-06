@@ -329,13 +329,19 @@ class UserRoleController {
     return result;
   }
 
+  static async findUserDetails(req) {
+    const { email } = req.user.UserInfo;
+    const userWithEmail = await models.User.findOne({
+      where: {
+        email
+      }
+    });
+    return userWithEmail;
+  }
+
   static async autoAdmin(req, res) {
     try {
-      const findUser = await models.User.findOne({
-        where: {
-          email: req.user.UserInfo.email
-        }
-      });
+      const findUser = await UserRoleController.findUserDetails(req);
       if (findUser.email !== process.env.DEFAULT_ADMIN) {
         const message = [409, 'Email does not match', false];
         UserRoleController.response(res, message);

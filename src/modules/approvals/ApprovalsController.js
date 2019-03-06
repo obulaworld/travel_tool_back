@@ -1,6 +1,6 @@
 import models from '../../database/models';
-import { asyncWrapper, retrieveParams, } from '../../helpers/requests';
-import { countByStatus, countVerifiedByStatus, getTotalCount } from '../../helpers/requests/paginationHelper';
+import { asyncWrapper, retrieveParams } from '../../helpers/requests';
+import { countByStatus, getTotalCount, countVerifiedByStatus } from '../../helpers/requests/paginationHelper';
 import { createApprovalSubquery } from '../../helpers/approvals';
 import Error from '../../helpers/Error';
 import Pagination from '../../helpers/Pagination';
@@ -20,11 +20,7 @@ class ApprovalsController {
   }
 
   static async createApproval(newRequest) {
-    const approvalData = {
-      requestId: newRequest.id,
-      approverId: newRequest.manager,
-      status: newRequest.status
-    };
+    const approvalData = { requestId: newRequest.id, approverId: newRequest.manager, status: newRequest.status };
     const newApproval = await models.Approval.create(approvalData);
     return newApproval;
   }
@@ -51,7 +47,6 @@ class ApprovalsController {
       count = await asyncWrapper(res, countByStatus, models.Approval,
         params.userName, params.search, checkBudget, location);
     }
-
     return count;
   }
 
@@ -71,16 +66,13 @@ class ApprovalsController {
       request.dataValues.travelCompletion = travelCompletion;
       return request;
     }));
-
+    
     return res.status(200)
       .json({
         success: true,
         message,
         approvals: newRequest,
-        meta: {
-          count,
-          pagination
-        }
+        meta: { count, pagination }
       });
   }
 
@@ -118,18 +110,15 @@ class ApprovalsController {
     const { newStatus } = req.body;
     const { request, user } = req;
     try {
-      const updateApproval = await ApprovalsController.updateApprovals(res, [
+      const updateApproval = await ApprovalsController.updateApprovals(req, res, [
         request, newStatus, user
       ]);
-
       if (updateApproval.approverId) {
         const updatedRequest = await request.update({
           status: newStatus
         });
 
-        ApprovalsController.sendNotificationAfterApproval(
-          user, updatedRequest,
-        );
+        ApprovalsController.sendNotificationAfterApproval(req, user, updatedRequest, res);
         const {
           id, userId, name: requesterName, manager
         } = updatedRequest;
@@ -146,26 +135,21 @@ class ApprovalsController {
   }
 
   // updates approval table with new request status
-  static async updateApprovals(res, request) {
+  static async updateApprovals(req, res, request) {
     const requestToApprove = await models.Approval.find({
-      where: {
-        requestId: request[0].id
-      }
+      where: { requestId: request[0].id }
     });
-
     if (!requestToApprove) {
       const error = 'Request not found';
       return Error.handleError(error, 404, res);
     }
-
     const { status } = requestToApprove;
-    if (['Approved', 'Rejected'].includes(status)) {
-      const error = `Request has been ${status.toLowerCase()} already`;
+    
+    const error = BudgetApprovalsController.approvals(status);
+    if (error) {
       return Error.handleError(error, 400, res);
     }
-    return requestToApprove.update({
-      status: request[1]
-    });
+    return requestToApprove.update({ status: request[1] });
   }
 
   static async generateCountAndMessage(res, updatedRequest) {
@@ -173,22 +157,16 @@ class ApprovalsController {
     return res.status(200).json({
       success: true,
       message,
-      updatedRequest: {
-        request: updatedRequest
-      }
+      updatedRequest: { request: updatedRequest }
     });
   }
-
   // eslint-disable-next-line
-  static async sendNotificationAfterApproval(user, updatedRequest, res) {
+  static async sendNotificationAfterApproval(req, user, updatedRequest, res) {
     const {
-      status,
-      id,
-      userId,
+      status, id, userId, budgetStatus
     } = updatedRequest;
     const { name, picture } = user.UserInfo;
-    const recipientEmail = await UserRoleController
-      .getRecipient(null, userId);
+    const recipientEmail = await UserRoleController.getRecipient(null, userId);
     const notificationData = {
       senderId: user.UserInfo.id,
       senderName: name,
@@ -196,23 +174,20 @@ class ApprovalsController {
       recipientId: userId,
       notificationType: 'general',
       requestId: id,
-      message: (status === 'Approved')
+      message: (status === 'Approved' || budgetStatus === 'Approved')
         ? 'approved your request'
         : 'rejected your request',
-      notificationLink: `/requests/${id}`
+      notificationLink: (budgetStatus === 'Open') ? `/requests/${id}` : `/my-approvals/${id}`
     };
 
-    const inAppNotification = NotificationEngine
-      .notify(notificationData);
+    const inAppNotification = NotificationEngine.notify(notificationData);
 
-    const emailData = ApprovalsController
-      .emailData(updatedRequest, recipientEmail, name);
+    const emailData = ApprovalsController.emailData(updatedRequest, recipientEmail, name);
 
     const emailNotification = NotificationEngine.sendMail(emailData);
 
     return (
-      ['Approved', 'Rejected'].includes(status)
-        && inAppNotification && emailNotification
+      ['Approved', 'Rejected'].includes(status) && inAppNotification && emailNotification
     );
   }
 

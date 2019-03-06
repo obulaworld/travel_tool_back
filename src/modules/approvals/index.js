@@ -14,7 +14,8 @@ ApprovalsRouter.get(
   '/approvals',
   authenticate,
   RoleValidator.checkUserRole(
-    ['Super Administrator', 'Travel Administrator', 'Manager', 'Travel Team Member']
+    ['Super Administrator', 'Travel Administrator', 'Manager',
+      'Travel Team Member', 'Budget Checker']
   ),
   getRequestsValidators,
   Validator.validateRequest,
@@ -39,4 +40,13 @@ ApprovalsRouter.put(
   ApprovalsController.updateRequestStatus,
 );
 
+ApprovalsRouter.put(
+  '/approvals/budgetStatus/:requestId',
+  authenticate,
+  RoleValidator.checkUserRole(
+    ['Budget Checker']
+  ),
+  Validator.validateBudgetStatus,
+  BudgetApprovalsController.updateBudgetApprovals,
+);
 export default ApprovalsRouter;
