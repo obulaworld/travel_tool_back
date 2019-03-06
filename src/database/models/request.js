@@ -92,6 +92,17 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 0,
       type: DataTypes.INTEGER,
+    },
+    budgetStatus: {
+      allowNull: false,
+      type: DataTypes.ENUM('Open', 'Approved', 'Rejected'),
+      defaultValue: 'Open',
+      validate: {
+        notEmpty: {
+          args: true,
+          msg: 'Budget Status cannot be empty',
+        },
+      },
     }
   }, { paranoid: true });
 

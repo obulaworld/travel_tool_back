@@ -1,23 +1,14 @@
 import models from '../../database/models';
-import {
-  asyncWrapper,
-  retrieveParams,
-} from '../../helpers/requests';
-import {
-  countByStatus,
-  getTotalCount,
-  countVerifiedByStatus
-} from '../../helpers/requests/paginationHelper';
-import {
-  createApprovalSubquery
-} from '../../helpers/approvals';
+import { asyncWrapper, retrieveParams, } from '../../helpers/requests';
+import { countByStatus, countVerifiedByStatus, getTotalCount } from '../../helpers/requests/paginationHelper';
+import { createApprovalSubquery } from '../../helpers/approvals';
 import Error from '../../helpers/Error';
 import Pagination from '../../helpers/Pagination';
 import Utils from '../../helpers/Utils';
 import NotificationEngine from '../notifications/NotificationEngine';
 import UserRoleController from '../userRole/UserRoleController';
 import TravelChecklistController from '../travelChecklist/TravelChecklistController';
-import TravelReadinessUtils from '../travelReadinessDocuments/TravelReadinessUtils';
+import BudgetApprovalsController from './BudgetApprovalsController';
 
 const noResult = 'No records found';
 let params = {};
@@ -50,14 +41,15 @@ class ApprovalsController {
   }
 
   static async getStatusCount(req, res) {
+    const { verified, checkBudget } = req.query;
+    const { location } = req.user;
     let count;
-    if (req.query.verified) {
-      const { location } = req.user;
+    if (verified && !checkBudget) {
       count = await asyncWrapper(res, countVerifiedByStatus, models.Approval,
         location, params.search);
     } else {
       count = await asyncWrapper(res, countByStatus, models.Approval,
-        params.userName, params.search);
+        params.userName, params.search, checkBudget, location);
     }
 
     return count;
@@ -71,8 +63,7 @@ class ApprovalsController {
 
     const { fillWithRequestData } = ApprovalsController;
     const message = (params.search && !result.count)
-      ? noResult
-      : Utils.getResponseMessage(pagination, params.status, 'Approval');
+      ? noResult : Utils.getResponseMessage(pagination, params.status, 'Approval');
     const approvals = result.rows.map(fillWithRequestData);
     const newRequest = await Promise.all(approvals.map(async (request) => {
       const travelCompletion = await TravelChecklistController
@@ -99,17 +90,22 @@ class ApprovalsController {
   }
 
   static async processQuery(req, res) {
-    const subquery = createApprovalSubquery({
-      ...params.parameters,
-      searchRequest: true
-    });
-    let result = { count: 0 };
-    result = await asyncWrapper(res, ApprovalsController.getApprovalsFromDb, subquery);
-    return ApprovalsController.sendResult(req, res, result);
+    ApprovalsController.setParameters(req);
+    try {
+      const subquery = createApprovalSubquery({
+        ...params.parameters,
+        searchRequest: true
+      });
+      let result = { count: 0 };
+      result = await asyncWrapper(res, ApprovalsController.getApprovalsFromDb, subquery);
+      return ApprovalsController.sendResult(req, res, result);
+    } catch (error) {
+      /* istanbul ignore next */
+      throw error;
+    }
   }
 
   static async getUserApprovals(req, res) {
-    ApprovalsController.setParameters(req);
     try {
       await ApprovalsController.processQuery(req, res);
     } catch (error) { /* istanbul ignore next */
@@ -123,33 +119,23 @@ class ApprovalsController {
     const { request, user } = req;
     try {
       const updateApproval = await ApprovalsController.updateApprovals(res, [
-        request,
-        newStatus,
-        user
+        request, newStatus, user
       ]);
 
       if (updateApproval.approverId) {
         const updatedRequest = await request.update({
           status: newStatus
         });
-        
+
         ApprovalsController.sendNotificationAfterApproval(
-          user,
-          updatedRequest,
+          user, updatedRequest,
         );
         const {
-          id,
-          userId,
-          name: requesterName,
-          manager
+          id, userId, name: requesterName, manager
         } = updatedRequest;
-        await ApprovalsController.budgetCheckerEmailNotification(
-          id,
-          userId,
-          requesterName,
-          manager
+        await BudgetApprovalsController.budgetCheckerEmailNotification(
+          id, userId, requesterName, manager
         );
-
 
         await ApprovalsController.generateCountAndMessage(res, updatedRequest);
       }
@@ -221,7 +207,7 @@ class ApprovalsController {
 
     const emailData = ApprovalsController
       .emailData(updatedRequest, recipientEmail, name);
-    
+
     const emailNotification = NotificationEngine.sendMail(emailData);
 
     return (
@@ -243,36 +229,6 @@ class ApprovalsController {
       `${process.env.REDIRECT_URL}/redirect/requests/${request.id}/checklist`,
       requestId: request.id
     };
-  }
-
-  static async budgetCheckerEmailNotification(
-    id,
-    userId,
-    requesterName,
-    manager
-  ) {
-    const requesterId = userId;
-    const { location: userLocation } = await models.User.find({
-      where: {
-        userId: requesterId
-      }
-    });
-    const { users: budgetChecker } = await UserRoleController.calculateUserRole('60000');
-    const budgetCheckerMembers = await TravelReadinessUtils.getRoleMembers(budgetChecker, userLocation);
-    const data = {
-      sender: requesterName,
-      topic: 'Travel Request Approval',
-      type: 'Notify budget checker',
-      details: { RequesterManager: manager, id },
-      redirectLink: `${process.env.REDIRECT_URL}/requests/${id}`
-    };
-    if (budgetCheckerMembers.length) {
-      NotificationEngine.sendMailToMany(
-        budgetCheckerMembers,
-        data
-      );
-      return true;
-    }
   }
 }
 

@@ -10,6 +10,8 @@ module.exports = {
         tripType: 'return',
         manager: 'Samuel Kubai',
         gender: 'female',
+        status: 'Approved',
+        budgetStatus: 'Approved',
         department: 'guest01',
         role: 'Software Developer',
         userId: '-LMgZQKq6MXAj_41iRWi',

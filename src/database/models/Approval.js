@@ -29,6 +29,17 @@ export default (sequelize, DataTypes) => {
     updatedAt: {
       allowNull: false,
       type: DataTypes.DATE,
+    },
+    budgetStatus: {
+      allowNull: false,
+      type: DataTypes.ENUM('Open', 'Approved', 'Rejected'),
+      defaultValue: 'Open',
+      validate: {
+        notEmpty: {
+          args: true,
+          msg: 'Budget Status cannot be empty',
+        },
+      },
     }
   }, { paranoid: true });
   Approval.associate = (models) => {

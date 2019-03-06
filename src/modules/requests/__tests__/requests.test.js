@@ -1620,6 +1620,7 @@ describe('Requests Controller', () => {
 
         await models.Request.bulkCreate(
           [mockOpenRequest, mockApprovedRequest, mockRejectedRequest]
+            .map(req => ({ ...req, budgetStatus: 'Approved' }))
         );
         await models.Trip.bulkCreate(
           [
@@ -1632,7 +1633,10 @@ describe('Requests Controller', () => {
             }
           ]
         );
-        await models.Approval.bulkCreate(allMyApprovals);
+        await models.Approval.bulkCreate(allMyApprovals.map(req => ({
+          ...req,
+          budgetStatus: 'Approved'
+        })));
         done();
       });
       it('should require a travel team member', (done) => {
@@ -1687,7 +1691,8 @@ describe('Requests Controller', () => {
 
         await models.Request.create({
           ...mockApprovedRequest,
-          status: 'Verified'
+          status: 'Verified',
+          budgetStatus: 'Approved',
         });
         await models.Trip.create({
           ...mockApprovedRequest.trips[0],
@@ -1697,6 +1702,7 @@ describe('Requests Controller', () => {
         await models.Approval.create({
           requestId: mockApprovedRequest.id,
           status: 'Verified',
+          budgetStatus: 'Approved',
           approverId: mockTravelTeamMember.fullName,
         });
 
