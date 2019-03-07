@@ -29,7 +29,7 @@ export default class BudgetApprovalsController {
       topic: 'Travel Request Approval',
       type: 'Notify budget checker',
       details: { RequesterManager: manager, id },
-      redirectLink: `${process.env.REDIRECT_URL}/requests/${id}`
+      redirectLink: `${process.env.REDIRECT_URL}/requests/budgets/${id}`
     };
     if (budgetCheckerMembers.length) {
       NotificationEngine.sendMailToMany(
