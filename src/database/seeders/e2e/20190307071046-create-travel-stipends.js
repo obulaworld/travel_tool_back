@@ -61,7 +61,6 @@ module.exports = {
     ],
     {},
   ),
-
   down:
     queryInterface => queryInterface.bulkDelete('TravelStipends', null, {}),
 };
