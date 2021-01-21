@@ -76,7 +76,7 @@
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.39.0",
     "shortid": "^2.2.13",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.4.0"
   },
   "jest": {
     "collectCoverage": true,
